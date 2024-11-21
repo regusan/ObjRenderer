@@ -15,7 +15,7 @@ SRC = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ = $(SRC:.cpp=.o)
 
 # 実行ファイル名
-TARGET = renderer  # 出力される実行ファイル名
+TARGET = renderer.out  # 出力される実行ファイル名
 
 # リンクフラグ
 LDFLAGS = -lm
