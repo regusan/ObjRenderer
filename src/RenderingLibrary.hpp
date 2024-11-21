@@ -1,6 +1,7 @@
 #pragma once
 #include "Model.hpp"
 #include "RenderTarget.hpp"
+#include <vector>
 
 #include <iostream>
 #include "header/EigenHeader.hpp"
@@ -19,3 +20,11 @@ void DrawModel(const Model &model,
                RenderTarget &rt,
                const VertOutputStandard (*vert)(const VertInputStandard &in),
                const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in));
+
+void DrawLine(const PixcelInputStandard &start,
+              const PixcelInputStandard &end,
+              RenderTarget &rt,
+              const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
+void DrawPolygonLine(const vector<PixcelInputStandard> &points,
+                     RenderTarget &rt,
+                     const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));

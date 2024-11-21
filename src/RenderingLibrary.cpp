@@ -16,6 +16,15 @@ vector<Vector2f> VertOut2Positions(const vector<VertOutputStandard> &outs)
     }
     return points;
 }
+vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs)
+{
+    vector<PixcelInputStandard> pis;
+    for (VertOutputStandard v : outs)
+    {
+        pis.push_back(v.toPixcelInput());
+    }
+    return pis;
+}
 
 /// @brief 3Dモデルをレンダーターゲットに描画する
 /// @param model 描画する3Dモデル
@@ -52,10 +61,11 @@ void DrawModel(const Model &model,
         if (!outs.empty())
             color = outs[0].faceColor * 255;
         // 面を一つ描画
-        rt.DrawPolygonWireframe(VertOut2Positions(outs), color);
+
+        DrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
         if (outs.size() >= 2)
         {
-            // DrawLine(outs[0].toPIxcelInput(), outs[1].toPIxcelInput(), rt, *pixcel);
+            DrawLine(outs[0].toPixcelInput(), outs[1].toPixcelInput(), rt, *pixcel);
         }
     }
 }
@@ -66,7 +76,7 @@ void DrawLine(const PixcelInputStandard &start,
               const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
 {
     Vector2i startI = start.positionDS.cast<int>();
-    Vector2i endI = start.positionDS.cast<int>();
+    Vector2i endI = end.positionDS.cast<int>();
     Vector2i d = (endI - startI).cwiseAbs();
     Vector2i s = Vector2i((startI.x() < endI.x()) ? 1 : -1, (startI.y() < endI.y()) ? 1 : -1);
     int err = d.x() - d.y();
@@ -91,6 +101,20 @@ void DrawLine(const PixcelInputStandard &start,
         {
             err += d.x();
             startI.y() += s.y();
+        }
+    }
+}
+
+void DrawPolygonLine(const vector<PixcelInputStandard> &points,
+                     RenderTarget &rt,
+                     const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
+{
+    if (points.size() >= 2)
+    {
+        DrawLine(points[0], points[points.size() - 1], rt, pixcel); // 先頭と末尾の接続
+        for (size_t i = 0; i < points.size() - 1; i++)
+        {
+            DrawLine(points[i], points[i + 1], rt, pixcel);
         }
     }
 }
