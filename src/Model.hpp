@@ -8,11 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
-using Eigen::Vector2f;
-using Eigen::Vector3f;
+#include "header/EigenHeader.hpp"
 using namespace std;
 class Model
 {

@@ -24,7 +24,8 @@ vector<Vector2f> VertOut2Positions(const vector<VertOutputStandard> &outs)
 void DrawModel(const Model &model,
                const VertInputStandard &in,
                RenderTarget &rt,
-               const VertOutputStandard (*vert)(const VertInputStandard &in))
+               const VertOutputStandard (*vert)(const VertInputStandard &in),
+               const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
 {
     // 各面についてFor
     for (const vector<int> &face : model.facesID)
@@ -54,8 +55,7 @@ void DrawModel(const Model &model,
         rt.DrawPolygonWireframe(VertOut2Positions(outs), color);
         if (outs.size() >= 2)
         {
-            // PixcelInputStandard pin;
-            // DrawLine(outs[0].positionDS.head<2>(), outs[1].positionDS.head<2>(), rt, )
+            // DrawLine(outs[0].toPIxcelInput(), outs[1].toPIxcelInput(), rt, *pixcel);
         }
     }
 }

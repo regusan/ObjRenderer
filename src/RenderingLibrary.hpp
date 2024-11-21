@@ -1,16 +1,10 @@
 #pragma once
-#include "ShaderSettings.hpp"
 #include "Model.hpp"
 #include "RenderTarget.hpp"
 
 #include <iostream>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
-using Eigen::Matrix4f;
-using Eigen::Vector2f;
-using Eigen::Vector3f;
-using Eigen::Vector4f;
+#include "header/EigenHeader.hpp"
+#include "header/ShaderHeader.hpp"
 using namespace std;
 
 inline Vector4f clip2Device(const Vector4f &clippos, const Vector2i &screenSize);
@@ -23,4 +17,5 @@ vector<Vector2f> VertOut2Positions(const vector<VertOutputStandard> &outs);
 void DrawModel(const Model &model,
                const VertInputStandard &in,
                RenderTarget &rt,
-               const VertOutputStandard (*vert)(const VertInputStandard &in));
+               const VertOutputStandard (*vert)(const VertInputStandard &in),
+               const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in));

@@ -1,17 +1,11 @@
 #pragma once
-#include "ShaderSettings.hpp"
+#include "header/ShaderHeader.hpp"
 #include "Model.hpp"
 #include "RenderTarget.hpp"
 #include "RenderingLibrary.hpp"
 
 #include <iostream>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
-using Eigen::Matrix4f;
-using Eigen::Vector2f;
-using Eigen::Vector3f;
-using Eigen::Vector4f;
+#include "header/EigenHeader.hpp"
 using namespace std;
 
 /// @brief 頂点シェーダー

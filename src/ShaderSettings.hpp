@@ -1,12 +1,6 @@
 #pragma once
 
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
-using Eigen::Matrix4f;
-using Eigen::Vector2f;
-using Eigen::Vector3f;
-using Eigen::Vector4f;
+#include "header/EigenHeader.hpp"
 
 struct VertInputStandard
 {
@@ -21,6 +15,14 @@ struct VertOutputStandard
 {
     Vector4f positionDS;
     Vector3f faceColor;
+    /*
+        inline PixcelInputStandard toPixcelInput()
+        {
+            PixcelInputStandard pi;
+            pi.positionDS = this->positionDS;
+            return pi;
+        };
+        */
 };
 
 struct PixcelInputStandard
