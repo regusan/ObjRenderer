@@ -7,15 +7,7 @@ inline Vector4f clip2Device(const Vector4f &clippos, const Vector2i &screenSize)
                     clippos.z(),
                     1);
 }
-vector<Vector2f> VertOut2Positions(const vector<VertOutputStandard> &outs)
-{
-    vector<Vector2f> points;
-    for (VertOutputStandard out : outs)
-    {
-        points.push_back(Vector2f(out.positionDS.x(), out.positionDS.y()));
-    }
-    return points;
-}
+
 vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs)
 {
     vector<PixcelInputStandard> pis;
@@ -30,11 +22,11 @@ vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs)
 /// @param model 描画する3Dモデル
 /// @param in カメラやモデル座標情報
 /// @param rt 描画出力先
-void DrawModel(const Model &model,
-               const VertInputStandard &in,
-               RenderTarget &rt,
-               const VertOutputStandard (*vert)(const VertInputStandard &in),
-               const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
+void DrawModelWireframe(const Model &model,
+                        const VertInputStandard &in,
+                        RenderTarget &rt,
+                        const VertOutputStandard (*vert)(const VertInputStandard &in),
+                        const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
 {
     // 各面についてFor
     for (const vector<int> &face : model.facesID)
@@ -61,7 +53,6 @@ void DrawModel(const Model &model,
         if (!outs.empty())
             color = outs[0].faceColor * 255;
         // 面を一つ描画
-
         DrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
         if (outs.size() >= 2)
         {
@@ -75,8 +66,8 @@ void DrawLine(const PixcelInputStandard &start,
               RenderTarget &rt,
               const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
 {
-    Vector2i startI = start.positionDS.cast<int>();
-    Vector2i endI = end.positionDS.cast<int>();
+    Vector2i startI = start.positionDS.head<2>().cast<int>();
+    Vector2i endI = end.positionDS.head<2>().cast<int>();
     Vector2i d = (endI - startI).cwiseAbs();
     Vector2i s = Vector2i((startI.x() < endI.x()) ? 1 : -1, (startI.y() < endI.y()) ? 1 : -1);
     int err = d.x() - d.y();

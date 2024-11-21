@@ -26,6 +26,6 @@ inline const VertOutputStandard vert(const VertInputStandard &in)
 inline const PixcelOutputStandard pixcel(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    out.color = Vector3f(255, 0, 255);
+    out.color = Vector3f(in.normalWS.head<3>() * 255);
     return out;
 }
