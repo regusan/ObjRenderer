@@ -20,7 +20,7 @@ public:
     /// @brief 頂点座標
     vector<Vector4f> verts;
     /// @brief 法線
-    vector<Vector3f> vertNormals;
+    vector<Vector4f> vertNormals;
     /// @brief UV座標
     vector<Vector2f> uv;
     /// @brief 面を構成する頂点ID

@@ -30,7 +30,7 @@ void Model::loadObj(const string &filepath)
             // 法線ベクトル (nx, ny, nz)
             float nx, ny, nz;
             ss >> nx >> ny >> nz;
-            vertNormals.push_back(Vector3f(nx, ny, nz)); // Eigen::Vector3fに格納
+            vertNormals.push_back(Vector4f(nx, ny, nz, 1)); // Eigen::Vector3fに格納
         }
         else if (prefix == "vt")
         {
