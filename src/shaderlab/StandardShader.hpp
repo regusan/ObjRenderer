@@ -20,6 +20,7 @@ inline const VertOutputStandard vert(const VertInputStandard &in)
     out.positionDS = Vector4f(out.positionDS.x() / out.positionDS.z(),
                               out.positionDS.y() / out.positionDS.z(),
                               out.positionDS.z(), 1);
+    out.normalWS = in.normal;
     return out;
 }
 
