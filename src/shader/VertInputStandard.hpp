@@ -14,4 +14,5 @@ public:
     Matrix4f modelMat = Matrix4f::Identity();
     Matrix4f viewMat = Matrix4f::Identity();
     Vector3f vertColor = Vector3f(255, 0, 255);
+    Vector2i screenSize = Vector2i(1, 0);
 };

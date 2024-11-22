@@ -14,6 +14,7 @@ public:
         this->positionWS = vo.positionWS;
         this->positionCS = vo.positionCS;
         this->positionMS = vo.positionMS;
+        this->positionCS = vo.positionCS;
         this->positionDS = vo.positionDS;
         this->normalWS = vo.normalWS;
         this->normalCS = vo.normalCS;

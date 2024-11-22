@@ -8,8 +8,6 @@
 #include "header/ShaderHeader.hpp"
 using namespace std;
 
-inline Vector4f clip2Device(const Vector4f &clippos, const Vector2i &screenSize);
-
 /// @brief 3Dモデルをレンダーターゲットに描画する
 /// @param model 描画する3Dモデル
 /// @param in カメラやモデル座標情報

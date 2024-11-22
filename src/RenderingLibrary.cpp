@@ -1,13 +1,5 @@
 #include "RenderingLibrary.hpp"
 
-inline Vector4f clip2Device(const Vector4f &clippos, const Vector2i &screenSize)
-{
-    return Vector4f((clippos.x() + 1) * 0.5 * screenSize.x(),
-                    (clippos.y() + 1) * 0.5 * screenSize.y(),
-                    clippos.z(),
-                    1);
-}
-
 vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs)
 {
     vector<PixcelInputStandard> pis;
@@ -37,21 +29,16 @@ void DrawModelWireframe(const Model &model,
         {
             VertInputStandard vin = in;
             Vector3f v = model.verts[vertID]; // 頂点IDから頂点座標取得
-
             vin.position = Vector4f(v.x(), v.y(), v.z(), 1);
+            vin.screenSize = rt.getScreenSize();
             VertOutputStandard out = vert(vin);                   // 頂点シェーダーでクリップ座標系に変換
             out.faceColor = model.vertNormals[vertID].cwiseAbs(); // 頂点IDから法線取得
-            if (out.positionDS.z() > 0)                           // 深度が正＝カメラの正面に映ってるなら
+            if (out.positionPS.z() > 0 || true)                   // 深度が正＝カメラの正面に映ってるなら
             {
-                // クリップ座標系→デバイス座標系
-                out.positionDS = clip2Device(out.positionDS, rt.getScreenSize());
                 // 描画待ち配列に追加
                 outs.push_back(out);
             }
         }
-        Vector3f color = Vector3f(255, 0, 0);
-        if (!outs.empty())
-            color = outs[0].faceColor * 255;
         // 面を一つ描画
         DrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
     }
