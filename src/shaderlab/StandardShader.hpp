@@ -21,13 +21,15 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
                               (out.positionCS.y() + 1) * 0.5 * in.screenSize.y(),
                               out.positionCS.z(),
                               1);
-    out.normalWS = in.normal;
+    out.normalMS = in.normal;
+    out.normalWS = in.modelMat * in.normal;
+    out.normalPS = in.viewMat * out.normalWS;
     return out;
 }
 
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    out.color = Vector3f(in.normalWS.head<3>() * 255);
+    out.color = Vector3f(in.normalMS.head<3>() * 255);
     return out;
 }
