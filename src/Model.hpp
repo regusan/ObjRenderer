@@ -18,7 +18,7 @@ public:
     ~Model();
     string loadedFilepath = string("NULL");
     /// @brief 頂点座標
-    vector<Vector3f> verts;
+    vector<Vector4f> verts;
     /// @brief 法線
     vector<Vector3f> vertNormals;
     /// @brief UV座標

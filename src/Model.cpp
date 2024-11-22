@@ -23,7 +23,7 @@ void Model::loadObj(const string &filepath)
             // 頂点 (x, y, z)
             float x, y, z;
             ss >> x >> y >> z;
-            verts.push_back(Vector3f(x, y, z)); // Eigen::Vector3fに格納
+            verts.push_back(Vector4f(x, y, z, 1)); // Eigen::Vector3fに格納
         }
         else if (prefix == "vn")
         {
