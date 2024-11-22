@@ -13,6 +13,6 @@ public:
     Vector4f normal = Vector4f(1, 0, 0, 1);
     Matrix4f modelMat = Matrix4f::Identity();
     Matrix4f viewMat = Matrix4f::Identity();
-    Vector3f vertColor = Vector3f(255, 0, 255);
+    Vector4f vertColor = Vector4f(255, 0, 255, 255);
     Vector2i screenSize = Vector2i(1, 0);
 };

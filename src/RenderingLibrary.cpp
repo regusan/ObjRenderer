@@ -31,9 +31,8 @@ void DrawModelWireframe(const Model &model,
             Vector3f v = model.verts[vertID]; // 頂点IDから頂点座標取得
             vin.position = Vector4f(v.x(), v.y(), v.z(), 1);
             vin.screenSize = rt.getScreenSize();
-            VertOutputStandard out = vert(vin);                   // 頂点シェーダーでクリップ座標系に変換
-            out.faceColor = model.vertNormals[vertID].cwiseAbs(); // 頂点IDから法線取得
-            if (out.positionPS.z() > 0 || true)                   // 深度が正＝カメラの正面に映ってるなら
+            VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
+            if (out.positionPS.z() > 0 || true) // 深度が正＝カメラの正面に映ってるなら
             {
                 // 描画待ち配列に追加
                 outs.push_back(out);
