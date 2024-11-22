@@ -20,16 +20,21 @@ void DrawModelWireframe(const Model &model,
                         const VertOutputStandard (*vert)(const VertInputStandard &in),
                         const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
 {
+    VertInputStandard vin = in;
+    vin.screenSize = rt.getScreenSize();
     // 各面についてFor
-    for (const vector<int> &face : model.facesID)
+    for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
     {
+        const vector<int> face = model.facesID[faceIndex];
+        const vector<int> normals = model.normalID[faceIndex];
+
         // 面を構成する各頂点IDについてFor
         vector<VertOutputStandard> outs;
-        for (const int &vertID : face)
+        for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
         {
-            VertInputStandard vin = in;
-            vin.position = model.verts[vertID];
-            vin.screenSize = rt.getScreenSize();
+
+            vin.position = model.verts[face[vertIndex]];
+            vin.normal = model.vertNormals[face[vertIndex]];
             VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
             if (out.positionPS.z() > 0)         // 深度が正＝カメラの正面に映ってるなら
             {
