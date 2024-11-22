@@ -2,7 +2,7 @@
 
 #include "PixcelInputStandard.hpp"
 
-#include "../header/EigenHeader.hpp"
+// #include "../header/EigenHeader.hpp"
 
 class VertOutputStandard
 {
@@ -20,11 +20,11 @@ public:
     Vector4f normalMS = Vector4f(1, 0, 0, 1);
     Vector3f faceColor = Vector3f(255, 0, 255);
     Vector2f uv = Vector2f(0, 0);
-
-    inline PixcelInputStandard toPixcelInput()
-    {
-        PixcelInputStandard pi;
-        pi.positionDS = this->positionDS;
-        return pi;
-    };
+    /*
+        inline PixcelInputStandard toPixcelInput()
+        {
+            PixcelInputStandard pi;
+            pi.positionDS = this->positionDS;
+            return pi;
+        };*/
 };

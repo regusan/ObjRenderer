@@ -13,7 +13,7 @@ vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs)
     vector<PixcelInputStandard> pis;
     for (VertOutputStandard v : outs)
     {
-        pis.push_back(v.toPixcelInput());
+        pis.push_back(PixcelInputStandard(v));
     }
     return pis;
 }
@@ -54,10 +54,6 @@ void DrawModelWireframe(const Model &model,
             color = outs[0].faceColor * 255;
         // 面を一つ描画
         DrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
-        if (outs.size() >= 2)
-        {
-            DrawLine(outs[0].toPixcelInput(), outs[1].toPixcelInput(), rt, *pixcel);
-        }
     }
 }
 

@@ -1,7 +1,7 @@
 #include "Model.hpp"
 #include "RenderTarget.hpp"
 #include <iostream>
-#include "shader.hpp"
+#include "shaderlab/StandardShader.hpp"
 #include "Math3D.hpp"
 #include "RenderingLibrary.hpp"
 

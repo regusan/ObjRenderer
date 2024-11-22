@@ -1,25 +1,26 @@
 #pragma once
 
 #include "../header/EigenHeader.hpp"
+#include "VertOutputStandard.hpp"
 class PixcelInputStandard
 {
 private:
     /* data */
 public:
     PixcelInputStandard(/* args */) {}
-    /*
-    PixcelInputStandard(const VertOutputStandard &vi)
+
+    PixcelInputStandard(const VertOutputStandard &vo)
     {
-        this->positionWS = vi.positionWS;
-        this->positionCS = vi.positionCS;
-        this->positionMS = vi.positionMS;
-        this->positionDS = vi.positionDS;
-        this->normalWS = vi.normalWS;
-        this->normalCS = vi.normalCS;
-        this->normalMS = vi.normalMS;
-        this->faceColor = vi.faceColor;
-        this->uv = vi.uv;
-    }*/
+        this->positionWS = vo.positionWS;
+        this->positionCS = vo.positionCS;
+        this->positionMS = vo.positionMS;
+        this->positionDS = vo.positionDS;
+        this->normalWS = vo.normalWS;
+        this->normalCS = vo.normalCS;
+        this->normalMS = vo.normalMS;
+        this->faceColor = vo.faceColor;
+        this->uv = vo.uv;
+    }
     ~PixcelInputStandard() {}
     Vector4f positionWS = Vector4f(0, 0, 0, 1);
     Vector4f positionCS = Vector4f(0, 0, 0, 1);
