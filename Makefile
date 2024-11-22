@@ -8,7 +8,7 @@ CXX_VERSION = c++17  # ここでC++バージョンを指定
 # コンパイルフラグ
 CXXFLAGS_COMMON = -Wall -std=$(CXX_VERSION)
 CXXFLAGS_DEBUG = -g -O0
-CXXFLAGS_RELEASE = -O2 -DNDEBUG
+CXXFLAGS_RELEASE = -O3 -mtune=native -march=native -mfpmath=both -DNDEBUG
 
 # ソースコードファイルとオブジェクトファイル
 SRC_DIR = src
