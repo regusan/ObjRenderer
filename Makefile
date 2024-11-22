@@ -1,31 +1,40 @@
-# コンパイラとコンパイルフラグの設定
+# コンパイラとリンク設定
 CXX = g++
-CXXFLAGS = -Wall -I /usr/local/include/eigen3 -g -O0
+LDFLAGS = -lm -I /usr/local/include/eigen3
 
 # デフォルトで使用するC++のバージョン
-CXX_VERSION = c++17  # ここでC++バージョンを指定（例: c++17, c++20）
+CXX_VERSION = c++17  # ここでC++バージョンを指定
 
-# C++バージョン指定
-CXXFLAGS += -std=$(CXX_VERSION)
+# コンパイルフラグ
+CXXFLAGS_COMMON = -Wall -std=$(CXX_VERSION)
+CXXFLAGS_DEBUG = -g -O0
+CXXFLAGS_RELEASE = -O2 -DNDEBUG
 
-# ソースコードファイル
-#SRC = src/main.cpp src/RenderTarget.cpp src/Model.cpp src/shader.cpp  src/RenderingLibrary.cpp src/Math3D.cpp# 必要に応じてソースファイルを追加
+# ソースコードファイルとオブジェクトファイル
 SRC_DIR = src
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ = $(SRC:.cpp=.o)
 
 # 実行ファイル名
-TARGET = renderer.out  # 出力される実行ファイル名
+DEBUG_TARGET = renderer_debug.out
+RELEASE_TARGET = renderer_release.out
 
-# リンクフラグ
-LDFLAGS = -lm
+# デフォルトターゲット
+all: debug release
 
-# デフォルトターゲット（実行ファイルを作成する）
-all: $(TARGET)
+# デバッグビルド
+debug: CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_DEBUG)
+debug: $(DEBUG_TARGET)
 
-# 実行ファイルを作成
-$(TARGET): $(OBJ)
-	$(CXX) $(OBJ) -o $(TARGET) $(LDFLAGS)
+$(DEBUG_TARGET): $(OBJ)
+	$(CXX) $(OBJ) -o $@ $(LDFLAGS)
+
+# リリースビルド
+release: CXXFLAGS = $(CXXFLAGS_COMMON) $(CXXFLAGS_RELEASE)
+release: $(RELEASE_TARGET)
+
+$(RELEASE_TARGET): $(OBJ)
+	$(CXX) $(OBJ) -o $@ $(LDFLAGS)
 
 # ソースファイルからオブジェクトファイルを作成
 %.o: %.cpp
@@ -33,6 +42,6 @@ $(TARGET): $(OBJ)
 
 # クリーンターゲット（ビルドしたファイルを削除）
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJ) $(DEBUG_TARGET) $(RELEASE_TARGET)
 
-# 依存関係のターゲットを生成（必要に応じて追加）
+# 必要に応じて依存関係のターゲットを追加
