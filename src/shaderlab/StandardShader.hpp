@@ -10,21 +10,21 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 {
     VertOutputStandard out;
     // 座標変換
-    out.positionMS = in.position;                 // モデル座標
+    out.positionOS = in.position;                 // モデル座標
     out.positionWS = in.modelMat * in.position;   // モデル座標→ワールド座標
-    out.positionPS = in.viewMat * out.positionWS; // ワールド座標→カメラ座標
+    out.positionVS = in.viewMat * out.positionWS; // ワールド座標→カメラ座標
     // カメラ座標→クリップ座標（Z割)
-    out.positionCS = Vector4f(out.positionPS.x() / out.positionPS.z(),
-                              out.positionPS.y() / out.positionPS.z(),
-                              out.positionPS.z(), 1);
+    out.positionCS = Vector4f(out.positionVS.x() / out.positionVS.z(),
+                              out.positionVS.y() / out.positionVS.z(),
+                              out.positionVS.z(), 1);
     // クリップ座標→正規化デバイス座標
-    out.positionDS = Vector4f((out.positionCS.x() + 1) * 0.5 * in.screenSize.x(),
-                              (out.positionCS.y() + 1) * 0.5 * in.screenSize.y(),
-                              out.positionCS.z(), 1);
+    out.positionNDC = Vector4f((out.positionCS.x() + 1) * 0.5 * in.screenSize.x(),
+                               (out.positionCS.y() + 1) * 0.5 * in.screenSize.y(),
+                               out.positionCS.z(), 1);
     // 法線変換
-    out.normalMS = in.normal;                 // モデル座標
+    out.normalOS = in.normal;                 // モデル座標
     out.normalWS = in.modelMat * in.normal;   // モデル座標→ワールド座標
-    out.normalPS = in.viewMat * out.normalWS; // ワールド座標→カメラ座標
+    out.normalOS = in.viewMat * out.normalWS; // ワールド座標→カメラ座標
     return out;
 }
 
@@ -34,6 +34,6 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    out.color = Vector3f(in.normalMS.head<3>() * 255);
+    out.color = Vector3f(in.normalOS.head<3>() * 255);
     return out;
 }

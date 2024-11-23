@@ -37,7 +37,7 @@ void DrawModelWireframe(const Model &model,
             vin.position = model.verts[face[vertIndex]];
             vin.normal = model.vertNormals[face[vertIndex]];
             VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
-            if (out.positionPS.z() > 0)         // 深度が正＝カメラの正面に映ってるなら
+            if (out.positionVS.z() > 0)         // 深度が正＝カメラの正面に映ってるなら
                 outs.push_back(out);            // 描画待ち配列に追加
         }
         // 面を一つ描画
@@ -50,8 +50,8 @@ void DrawLine(const PixcelInputStandard &start,
               RenderTarget &rt,
               const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
 {
-    Vector2i startI = start.positionDS.head<2>().cast<int>();
-    Vector2i endI = end.positionDS.head<2>().cast<int>();
+    Vector2i startI = start.positionNDC.head<2>().cast<int>();
+    Vector2i endI = end.positionNDC.head<2>().cast<int>();
     Vector2i d = (endI - startI).cwiseAbs();
     Vector2i s = Vector2i((startI.x() < endI.x()) ? 1 : -1, (startI.y() < endI.y()) ? 1 : -1);
     int err = d.x() - d.y();
