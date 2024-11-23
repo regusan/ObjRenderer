@@ -27,7 +27,7 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
     // 法線変換
     out.normalOS = in.normal;                                                        // モデル座標
     out.normalWS = Transform::ResetPosition(ResetScale(in.modelMat)) * out.normalOS; // モデル座標→ワールド座標
-    out.normalOS = Transform::ResetPosition(ResetScale(in.viewMat)) * out.normalWS;  // ワールド座標→カメラ座標
+    out.normalVS = Transform::ResetPosition(ResetScale(in.viewMat)) * out.normalWS;  // ワールド座標→カメラ座標
     return out;
 }
 
