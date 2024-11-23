@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
         model.loadObj(argv[1]);
     else
         perror("INVALID ARGS\n");
-    DrawModelWireframe(model, in, rt, VertStandard, PixcelStandard);
+    RenderingPipeline::SimpleDrawModelWireframe(model, in, rt, VertStandard, PixcelStandard);
 
     rt.writeAsPPM("outputs/out.ppm");
     cout << "output" << endl;
