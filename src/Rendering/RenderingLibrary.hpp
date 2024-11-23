@@ -1,12 +1,13 @@
 #pragma once
-#include "Model.hpp"
-#include "RenderTarget.hpp"
+
 #include <vector>
 #include <cmath>
 #include <algorithm>
 #include <iostream>
-#include "header/EigenHeader.hpp"
-#include "header/ShaderHeader.hpp"
+#include "../header/EigenHeader.hpp"
+#include "../header/ShaderHeader.hpp"
+#include "../Model.hpp"
+#include "RenderTarget.hpp"
 using namespace std;
 namespace RenderingPipeline
 {

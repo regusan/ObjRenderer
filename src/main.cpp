@@ -1,8 +1,8 @@
 #include "Model.hpp"
-#include "RenderTarget.hpp"
+#include "Rendering/RenderTarget.hpp"
 #include <iostream>
 #include "shaderlab/StandardShader.hpp"
-#include "RenderingLibrary.hpp"
+#include "Rendering/RenderingLibrary.hpp"
 #include "TransformMat.hpp"
 #include "header/EigenHeader.hpp"
 using namespace std;
