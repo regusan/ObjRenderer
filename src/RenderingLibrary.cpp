@@ -14,6 +14,8 @@ vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs)
 /// @param model 描画する3Dモデル
 /// @param in カメラやモデル座標情報
 /// @param rt 描画出力先
+/// @param vert 頂点シェーダー関数ポインタ
+/// @param pixcel ピクセルシェーダー関数ポインタ
 void DrawModelWireframe(const Model &model,
                         const VertInputStandard &in,
                         RenderTarget &rt,
@@ -32,15 +34,11 @@ void DrawModelWireframe(const Model &model,
         vector<VertOutputStandard> outs;
         for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
         {
-
             vin.position = model.verts[face[vertIndex]];
             vin.normal = model.vertNormals[face[vertIndex]];
             VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
             if (out.positionPS.z() > 0)         // 深度が正＝カメラの正面に映ってるなら
-            {
-                // 描画待ち配列に追加
-                outs.push_back(out);
-            }
+                outs.push_back(out);            // 描画待ち配列に追加
         }
         // 面を一つ描画
         DrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
