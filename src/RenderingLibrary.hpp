@@ -2,7 +2,8 @@
 #include "Model.hpp"
 #include "RenderTarget.hpp"
 #include <vector>
-
+#include <cmath>
+#include <algorithm>
 #include <iostream>
 #include "header/EigenHeader.hpp"
 #include "header/ShaderHeader.hpp"
@@ -25,3 +26,7 @@ void DrawLine(const PixcelInputStandard &start,
 void DrawPolygonLine(const vector<PixcelInputStandard> &points,
                      RenderTarget &rt,
                      const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
+
+void FillPolygon(const vector<PixcelInputStandard> &points,
+                 RenderTarget &rt,
+                 const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));

@@ -42,6 +42,7 @@ void DrawModelWireframe(const Model &model,
         }
         // 面を一つ描画
         DrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
+        FillPolygon(VertOuts2PixcelIns(outs), rt, *pixcel);
     }
 }
 
@@ -90,6 +91,54 @@ void DrawPolygonLine(const vector<PixcelInputStandard> &points,
         for (size_t i = 0; i < points.size() - 1; i++)
         {
             DrawLine(points[i], points[i + 1], rt, pixcel);
+        }
+    }
+}
+void FillPolygon(const vector<PixcelInputStandard> &points,
+                 RenderTarget &rt,
+                 const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
+{
+    // まず、ポリゴンのバウンディングボックスを計算
+    int minX = INT_MAX, minY = INT_MAX, maxX = INT_MIN, maxY = INT_MIN;
+    for (const auto &point : points)
+    {
+        minX = min((float)minX, point.positionNDC.x());
+        minY = min((float)minY, point.positionNDC.y());
+        maxX = max((float)maxX, point.positionNDC.x());
+        maxY = max((float)maxY, point.positionNDC.y());
+    }
+
+    // スキャンラインアルゴリズム
+    for (int y = minY; y <= maxY; ++y)
+    {
+        vector<int> intersections;
+        // ポリゴンのエッジをスキャンして、y座標に交差するx座標を計算
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            const auto &p1 = points[i];
+            const auto &p2 = points[(i + 1) % points.size()];
+
+            // 頂点p1とp2がスキャンラインyに交差するかどうかを調べる
+            if ((p1.positionNDC.y() > y && p2.positionNDC.y() <= y) || (p1.positionNDC.y() <= y && p2.positionNDC.y() > y))
+            {
+                // 線分がスキャンラインと交差する場合
+                int xIntersection = p1.positionNDC.x() + (y - p1.positionNDC.y()) * (p2.positionNDC.x() - p1.positionNDC.x()) / (p2.positionNDC.y() - p1.positionNDC.y());
+                intersections.push_back(xIntersection);
+            }
+        }
+
+        // x座標で交差点をソート
+        std::sort(intersections.begin(), intersections.end());
+
+        // 塗りつぶす部分を設定（交差点でペアになるx座標間を塗りつぶす）
+        for (size_t i = 0; i < intersections.size(); i += 2)
+        {
+            for (int x = intersections[i]; x < intersections[i + 1]; ++x)
+            {
+                // その座標にピクセルを描画
+                PixcelInputStandard draw = points[0]; // 任意の点を設定（この場合、最初の点を使って色設定）
+                rt.PaintPixel(x, y, pixcel(draw).color);
+            }
         }
     }
 }
