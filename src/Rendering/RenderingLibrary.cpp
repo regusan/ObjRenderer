@@ -17,11 +17,11 @@ namespace RenderingPipeline
     /// @param rt 描画出力先
     /// @param vert 頂点シェーダー関数ポインタ
     /// @param pixcel ピクセルシェーダー関数ポインタ
-    void SimpleDrawModelWireframe(const Model &model,
-                                  const VertInputStandard &in,
-                                  RenderTarget &rt,
-                                  const VertOutputStandard (*vert)(const VertInputStandard &in),
-                                  const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
+    void SimpleForwardDrawModelWireframe(const Model &model,
+                                         const VertInputStandard &in,
+                                         RenderTarget &rt,
+                                         const VertOutputStandard (*vert)(const VertInputStandard &in),
+                                         const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
     {
         VertInputStandard vin = in;
         vin.screenSize = rt.getScreenSize();
@@ -42,15 +42,15 @@ namespace RenderingPipeline
                     outs.push_back(out);            // 描画待ち配列に追加
             }
             // 面を一つ描画
-            SimpleDrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
-            SimpleFillPolygon(VertOuts2PixcelIns(outs), rt, *pixcel);
+            SimpleForwardDrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
+            SimpleForwardFillPolygon(VertOuts2PixcelIns(outs), rt, *pixcel);
         }
     }
 
-    void SimpleDrawLine(const PixcelInputStandard &start,
-                        const PixcelInputStandard &end,
-                        RenderTarget &rt,
-                        const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
+    void SimpleForwardDrawLine(const PixcelInputStandard &start,
+                               const PixcelInputStandard &end,
+                               RenderTarget &rt,
+                               const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
     {
         Vector2i startI = start.positionNDC.head<2>().cast<int>();
         Vector2i current = startI;
@@ -88,22 +88,22 @@ namespace RenderingPipeline
         }
     }
 
-    void SimpleDrawPolygonLine(const vector<PixcelInputStandard> &points,
-                               RenderTarget &rt,
-                               const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
+    void SimpleForwardDrawPolygonLine(const vector<PixcelInputStandard> &points,
+                                      RenderTarget &rt,
+                                      const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
     {
         if (points.size() >= 2)
         {
-            SimpleDrawLine(points[0], points[points.size() - 1], rt, pixcel); // 先頭と末尾の接続
+            SimpleForwardDrawLine(points[0], points[points.size() - 1], rt, pixcel); // 先頭と末尾の接続
             for (size_t i = 0; i < points.size() - 1; i++)
             {
-                SimpleDrawLine(points[i], points[i + 1], rt, pixcel);
+                SimpleForwardDrawLine(points[i], points[i + 1], rt, pixcel);
             }
         }
     }
-    void SimpleFillPolygon(const vector<PixcelInputStandard> &points,
-                           RenderTarget &rt,
-                           const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
+    void SimpleForwardFillPolygon(const vector<PixcelInputStandard> &points,
+                                  RenderTarget &rt,
+                                  const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
     {
         // BB
         int minX = INT_MAX, minY = INT_MAX, maxX = INT_MIN, maxY = INT_MIN;

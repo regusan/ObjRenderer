@@ -16,21 +16,21 @@ namespace RenderingPipeline
     /// @param model 描画する3Dモデル
     /// @param in カメラやモデル座標情報
     /// @param rt 描画出力先
-    void SimpleDrawModelWireframe(const Model &model,
-                                  const VertInputStandard &in,
-                                  RenderTarget &rt,
-                                  const VertOutputStandard (*vert)(const VertInputStandard &in),
-                                  const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in));
+    void SimpleForwardDrawModelWireframe(const Model &model,
+                                         const VertInputStandard &in,
+                                         RenderTarget &rt,
+                                         const VertOutputStandard (*vert)(const VertInputStandard &in),
+                                         const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in));
 
-    void SimpleDrawLine(const PixcelInputStandard &start,
-                        const PixcelInputStandard &end,
-                        RenderTarget &rt,
-                        const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
-    void SimpleDrawPolygonLine(const vector<PixcelInputStandard> &points,
+    void SimpleForwardDrawLine(const PixcelInputStandard &start,
+                               const PixcelInputStandard &end,
                                RenderTarget &rt,
                                const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
+    void SimpleForwardDrawPolygonLine(const vector<PixcelInputStandard> &points,
+                                      RenderTarget &rt,
+                                      const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
 
-    void SimpleFillPolygon(const vector<PixcelInputStandard> &points,
-                           RenderTarget &rt,
-                           const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
+    void SimpleForwardFillPolygon(const vector<PixcelInputStandard> &points,
+                                  RenderTarget &rt,
+                                  const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
 }
