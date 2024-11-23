@@ -7,6 +7,7 @@
 #include "../header/EigenHeader.hpp"
 #include "../header/ShaderHeader.hpp"
 #include "../Model.hpp"
+#include "../TransformMat.hpp"
 #include "RenderTarget.hpp"
 using namespace std;
 namespace RenderingPipeline

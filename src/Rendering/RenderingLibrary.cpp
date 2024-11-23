@@ -43,7 +43,7 @@ namespace RenderingPipeline
             }
             // 面を一つ描画
             SimpleDrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
-            // SimpleFillPolygon(VertOuts2PixcelIns(outs), rt, *pixcel);
+            SimpleFillPolygon(VertOuts2PixcelIns(outs), rt, *pixcel);
         }
     }
 
@@ -105,7 +105,7 @@ namespace RenderingPipeline
                            RenderTarget &rt,
                            const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
     {
-        // まず、ポリゴンのバウンディングボックスを計算
+        // BB
         int minX = INT_MAX, minY = INT_MAX, maxX = INT_MIN, maxY = INT_MIN;
         for (const auto &point : points)
         {
@@ -115,20 +115,18 @@ namespace RenderingPipeline
             maxY = max((float)maxY, point.positionNDC.y());
         }
 
-        // スキャンラインアルゴリズム
         for (int y = minY; y <= maxY; ++y)
         {
             vector<int> intersections;
-            // ポリゴンのエッジをスキャンして、y座標に交差するx座標を計算
             for (size_t i = 0; i < points.size(); ++i)
             {
                 const auto &p1 = points[i];
                 const auto &p2 = points[(i + 1) % points.size()];
 
-                // 頂点p1とp2がスキャンラインyに交差するかどうかを調べる
+                // 頂点p1とp2がスキャンラインyに交差するなら
                 if ((p1.positionNDC.y() > y && p2.positionNDC.y() <= y) || (p1.positionNDC.y() <= y && p2.positionNDC.y() > y))
                 {
-                    // 線分がスキャンラインと交差する場合
+                    // 線分がスキャンラインと交差するなら
                     int xIntersection = p1.positionNDC.x() + (y - p1.positionNDC.y()) * (p2.positionNDC.x() - p1.positionNDC.x()) / (p2.positionNDC.y() - p1.positionNDC.y());
                     intersections.push_back(xIntersection);
                 }
@@ -142,8 +140,14 @@ namespace RenderingPipeline
             {
                 for (int x = intersections[i]; x < intersections[i + 1]; ++x)
                 {
-                    // その座標にピクセルを描画
-                    PixcelInputStandard draw = points[0]; // 任意の点を設定（この場合、最初の点を使って色設定）
+                    if (points.size() <= 2)
+                        continue;
+                    Vector3f uvw = computeBarycentricCoordinates(points[0].positionNDC.head<2>(),
+                                                                 points[1].positionNDC.head<2>(),
+                                                                 points[2].positionNDC.head<2>(),
+                                                                 Vector2f(x, y));
+                    PixcelInputStandard draw = PixcelInputStandard::barycentricLerp(
+                        points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
                     rt.PaintPixel(x, y, pixcel(draw).color);
                 }
             }

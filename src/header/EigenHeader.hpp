@@ -13,3 +13,5 @@ using Eigen::Vector3f;
 using Eigen::Vector3i;
 using Eigen::Vector4f;
 using Eigen::Vector4i;
+
+using Eigen::VectorXf;

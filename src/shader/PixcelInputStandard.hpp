@@ -55,4 +55,26 @@ public:
         lerped.uv = a.uv * r + b.uv * (1 - r);
         return lerped;
     }
+    // バリセントリック座標
+    static inline PixcelInputStandard barycentricLerp(
+        const PixcelInputStandard &a, const PixcelInputStandard &b, const PixcelInputStandard &c,
+        const float &u, const float &v, const float &w)
+    {
+        PixcelInputStandard lerped;
+
+        lerped.positionOS = a.positionOS * u + b.positionOS * v + c.positionOS * w;
+        lerped.positionWS = a.positionWS * u + b.positionWS * v + c.positionWS * w;
+        lerped.positionVS = a.positionVS * u + b.positionVS * v + c.positionVS * w;
+        lerped.positionCS = a.positionCS * u + b.positionCS * v + c.positionCS * w;
+        lerped.positionNDC = a.positionNDC * u + b.positionNDC * v + c.positionNDC * w;
+
+        lerped.normalOS = a.normalOS * u + b.normalOS * v + c.normalOS * w;
+        lerped.normalWS = a.normalWS * u + b.normalWS * v + c.normalWS * w;
+        lerped.normalVS = a.normalVS * u + b.normalVS * v + c.normalVS * w;
+
+        lerped.vertColor = a.vertColor * u + b.vertColor * v + c.vertColor * w;
+        lerped.uv = a.uv * u + b.uv * v + c.uv * w;
+
+        return lerped;
+    }
 };

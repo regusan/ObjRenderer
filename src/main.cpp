@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
     VertInputStandard in;
     in.viewMat = Transform::MakeMatOffset(Vector3f(0, 3, 10)) * Transform::MakeRotMat(Vector3f(180 + 30, 0, 0));
 
-    RenderTarget rt = RenderTarget(500, 500, Vector3f(100, 100, 100));
+    RenderTarget rt = RenderTarget(1000, 1000, Vector3f(100, 100, 100));
 
     Model model = Model();
     // model.loadObj("models/room.obj");
