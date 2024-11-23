@@ -16,6 +16,8 @@
 apt install make
 apt install g++
 apt install libeigen3-dev
+
+git clone https://github.com/regusan/ObjRenderer.git
 ```
 
 # Usage
