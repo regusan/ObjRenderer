@@ -12,6 +12,7 @@ private:
     vector<Vector3f> array; // 3次元ベクトルで色を保持
 
 public:
+    RenderTarget();
     RenderTarget(const int &width, const int &height);
     RenderTarget(const int &width, const int &height, const Vector3f &color);
     ~RenderTarget();

@@ -2,6 +2,10 @@
 #include <fstream>
 #include <iostream>
 
+RenderTarget::RenderTarget()
+{
+    RenderTarget(100, 100, Vector3f(255, 0, 255));
+}
 RenderTarget::RenderTarget(const int &width, const int &height)
     : screenSize(width, height), array(width * height) {}
 
