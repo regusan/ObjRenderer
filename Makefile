@@ -12,7 +12,7 @@ CXXFLAGS_RELEASE = -O3 -mtune=native -march=native -mfpmath=both -DNDEBUG
 
 # ソースコードファイルとオブジェクトファイル
 SRC_DIR = src
-SRC = $(wildcard $(SRC_DIR)/*.cpp)
+SRC = $(shell find $(SRC_DIR) -type f -name "*.cpp")
 OBJ = $(SRC:.cpp=.o)
 
 # 実行ファイル名
