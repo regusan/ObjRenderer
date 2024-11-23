@@ -5,7 +5,7 @@
 
 # Features
 * Objファイル読み取り
-
+* PPM画像出力
 # Requirement
 * make
 * g++(C++17)
