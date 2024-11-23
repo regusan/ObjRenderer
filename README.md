@@ -30,4 +30,4 @@ make release
 Under Construction
 
 # License
-"hoge" is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).
+This is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).
