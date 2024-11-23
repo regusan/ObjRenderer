@@ -1,7 +1,9 @@
 #pragma once
 #include "../header/ShaderHeader.hpp"
 #include "../header/EigenHeader.hpp"
+#include "../TransformMat.hpp"
 using namespace std;
+using namespace Transform;
 
 /// @brief 頂点シェーダー
 /// @param in 入力データ格納構造体
@@ -22,9 +24,9 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
                                (out.positionCS.y() + 1) * 0.5 * in.screenSize.y(),
                                out.positionCS.z(), 1);
     // 法線変換
-    out.normalOS = in.normal;                 // モデル座標
-    out.normalWS = in.modelMat * in.normal;   // モデル座標→ワールド座標
-    out.normalOS = in.viewMat * out.normalWS; // ワールド座標→カメラ座標
+    out.normalOS = in.normal;                                                       // モデル座標
+    out.normalWS = Transform::ResetPosition(ResetScale(in.modelMat)) * in.normal;   // モデル座標→ワールド座標
+    out.normalOS = Transform::ResetPosition(ResetScale(in.viewMat)) * out.normalWS; // ワールド座標→カメラ座標
     return out;
 }
 
@@ -34,6 +36,6 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    out.color = Vector3f(in.normalOS.head<3>() * 255);
+    out.color = Vector3f(in.normalVS.head<3>() * 255);
     return out;
 }

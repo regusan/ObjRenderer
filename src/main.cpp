@@ -2,17 +2,17 @@
 #include "RenderTarget.hpp"
 #include <iostream>
 #include "shaderlab/StandardShader.hpp"
-#include "Math3D.hpp"
 #include "RenderingLibrary.hpp"
-
+#include "TransformMat.hpp"
 #include "header/EigenHeader.hpp"
 using namespace std;
+using namespace Transform;
 int main(int argc, char const *argv[])
 {
     cout << "起動" << endl;
 
     VertInputStandard in;
-    in.viewMat = MakeMatOffset(Vector3f(0, 3, 10)) * MakeRotMat(Vector3f(180 + 30, 0, 0));
+    in.viewMat = Transform::MakeMatOffset(Vector3f(0, 3, 10)) * Transform::MakeRotMat(Vector3f(180 + 30, 0, 0));
 
     RenderTarget rt = RenderTarget(500, 500, Vector3f(100, 100, 100));
 

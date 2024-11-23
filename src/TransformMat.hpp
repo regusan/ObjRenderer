@@ -1,33 +1,16 @@
 #pragma once
 #include "header/ShaderHeader.hpp"
 #include "header/EigenHeader.hpp"
-using namespace std;
 
-class TransformMat
+namespace Transform
 {
-private:
-    /* data */
-public:
-    TransformMat(/* args */);
-    ~TransformMat();
-    inline static const TransformMat MakeRotMatX(float degree)
-    {
-        float th = degree / 180.0 * M_PI;
-        TransformMat retval = TransformMat();
-        /*
-        retval << 1, 0, 0, 0,
-            0, cos(th), -sin(th), 0,
-            0, sin(th), cos(th), 0,
-            0, 0, 0, 1;
-            */
-        return retval;
-    }
+    Matrix4f MakeRotMatX(const float &degree);
+    Matrix4f MakeRotMatY(const float &degree);
+    Matrix4f MakeRotMatZ(const float &degree);
+    Matrix4f MakeRotMat(const Vector3f &rotaiton);
+    Matrix4f MakeMatOffset(const Vector3f &offset);
+    Vector4f GetPositionFromMat(const Matrix4f &mat);
+    Matrix4f ResetScale(const Matrix4f &mat);
+    Matrix4f SetPosition(const Matrix4f &mat, const Vector4f &pos);
+    Matrix4f ResetPosition(const Matrix4f &mat);
 };
-
-TransformMat::TransformMat(/* args */)
-{
-}
-
-TransformMat::~TransformMat()
-{
-}
