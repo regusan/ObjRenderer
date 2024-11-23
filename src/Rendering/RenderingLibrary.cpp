@@ -43,7 +43,7 @@ namespace RenderingPipeline
             }
             // 面を一つ描画
             SimpleDrawPolygonLine(VertOuts2PixcelIns(outs), rt, *pixcel);
-            SimpleFillPolygon(VertOuts2PixcelIns(outs), rt, *pixcel);
+            // SimpleFillPolygon(VertOuts2PixcelIns(outs), rt, *pixcel);
         }
     }
 
@@ -53,17 +53,23 @@ namespace RenderingPipeline
                         const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
     {
         Vector2i startI = start.positionNDC.head<2>().cast<int>();
+        Vector2i current = startI;
         Vector2i endI = end.positionNDC.head<2>().cast<int>();
-        Vector2i d = (endI - startI).cwiseAbs();
-        Vector2i s = Vector2i((startI.x() < endI.x()) ? 1 : -1, (startI.y() < endI.y()) ? 1 : -1);
+
+        float distance = (startI - endI).norm();
+
+        Vector2i d = (endI - current).cwiseAbs();
+        Vector2i s = Vector2i((current.x() < endI.x()) ? 1 : -1, (current.y() < endI.y()) ? 1 : -1);
         int err = d.x() - d.y();
-        PixcelInputStandard draw = start;
+
         while (true)
         {
-            rt.PaintPixel(startI.x(), startI.y(), pixcel(draw).color);
+            float ratio = (current - endI).norm() / distance;
+            PixcelInputStandard draw = PixcelInputStandard::lerp(start, end, ratio);
+            rt.PaintPixel(current.x(), current.y(), pixcel(draw).color);
             // 現在の位置にピクセルを描画
 
-            if (startI.x() == endI.x() && startI.y() == endI.y())
+            if (current.x() == endI.x() && current.y() == endI.y())
                 break;
 
             int e2 = err * 2;
@@ -71,13 +77,13 @@ namespace RenderingPipeline
             if (e2 > -d.y())
             {
                 err -= d.y();
-                startI.x() += s.x();
+                current.x() += s.x();
             }
 
             if (e2 < d.x())
             {
                 err += d.x();
-                startI.y() += s.y();
+                current.y() += s.y();
             }
         }
     }
