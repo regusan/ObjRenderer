@@ -31,7 +31,7 @@ public:
 
         this->normalOS = vo.normalOS;
         this->normalWS = vo.normalWS;
-        this->normalVS = vo.normalOS;
+        this->normalVS = vo.normalVS;
 
         this->vertColor = vo.vertColor;
         this->uv = vo.uv;

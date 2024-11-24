@@ -17,17 +17,21 @@ namespace RenderingPipeline
             VertInputStandard vin = in;
             vin.screenSize = gb.beauty.getScreenSize();
 
-            model.transformVerts(vin, vert);
-            // 各面についてFor
+            // model.transformVerts(vin, vert);
+            //  各面についてFor
             for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
             {
                 const vector<int> face = model.facesID[faceIndex];
+                const vector<int> facenorm = model.normalID[faceIndex];
 
                 // 面を構成する各頂点IDについてFor
                 vector<VertOutputStandard> outs;
                 for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
                 {
-                    VertOutputStandard out = model.transformed[face[vertIndex]];
+                    vin.position = model.verts[face[vertIndex]];
+                    vin.normal = model.vertNormals[facenorm[vertIndex]];
+                    VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
+
                     if (out.positionVS.z() > 0) // 深度が正＝カメラの正面に映ってるなら
                         outs.push_back(out);    // 描画待ち配列に追加
                 }

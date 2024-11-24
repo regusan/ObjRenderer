@@ -11,7 +11,7 @@ int main(int argc, char const *argv[])
     cout << "起動" << endl;
 
     VertInputStandard in;
-    in.viewMat = Transform::MakeMatOffset(Vector3f(0, 3, 10)) * Transform::MakeRotMat(Vector3f(180, 90, 0));
+    in.viewMat = Transform::MakeMatOffset(Vector3f(0, 3, 10)) * Transform::MakeRotMat(Vector3f(180, 50, 0));
 
     GBuffers gb = GBuffers(1000, 1000);
 
