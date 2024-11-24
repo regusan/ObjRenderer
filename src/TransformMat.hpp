@@ -15,13 +15,13 @@ namespace Transform
     Matrix4f ResetPosition(const Matrix4f &mat);
 };
 
-static inline Eigen::Vector3f computeBarycentricCoordinates(
+static inline Vector3f computeBarycentricCoordinates(
     const VectorXf &a, const VectorXf &b, const VectorXf &c, const VectorXf &P)
 {
     // 三角形の辺のベクトルを計算
-    Eigen::VectorXf v0 = b - a;
-    Eigen::VectorXf v1 = c - a;
-    Eigen::VectorXf v2 = P - a;
+    VectorXf v0 = b - a;
+    VectorXf v1 = c - a;
+    VectorXf v2 = P - a;
 
     // 三角形の面積を計算
     float d00 = v0.dot(v0);
@@ -36,5 +36,5 @@ static inline Eigen::Vector3f computeBarycentricCoordinates(
     float w = (d00 * d21 - d01 * d20) / denom;
     float u = 1.0f - v - w;
 
-    return Eigen::Vector3f(u, v, w); // (u, v, w) がバリセントリック座標
+    return Vector3f(u, v, w);
 }

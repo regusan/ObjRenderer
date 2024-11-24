@@ -37,7 +37,7 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    // float light = in.normalVS.head<3>().dot(Vector3f(1, -1, -1).normalized());
-    out.color = in.normalVS.head<3>() * 255;
+    float light = in.normalVS.head<3>().dot(Vector3f(1, -1, -1).normalized()) * 255;
+    out.color = Vector3f(light, light, light);
     return out;
 }
