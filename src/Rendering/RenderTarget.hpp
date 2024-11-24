@@ -21,7 +21,13 @@ public:
     void Fill(const Vector3f &color);
 
     // ピクセルに色を塗る関数
-    void PaintPixel(const int &x, const int &y, const Vector3f &color);
+    inline void PaintPixel(const int &x, const int &y, const Vector3f &color)
+    {
+        if (x >= 0 && x < screenSize.x() && y >= 0 && y < screenSize.y())
+        {
+            array[y * screenSize.x() + x] = color; // ピクセルに色を設定
+        }
+    }
 
     // 直線を描画する関数（例示）
     void DrawLine(const Vector2f &start, const Vector2f &end, const Vector3f &color);
@@ -32,7 +38,15 @@ public:
     void writeAsPPM(const string &filepath);
 
     float FindMaxEuclideanDistance();
-    void mul();
+
+    inline Vector3f SampleColor(const int x, const int y)
+    {
+        if (x >= 0 && x < screenSize.x() && y >= 0 && y < screenSize.y())
+        {
+            return array[y * screenSize.x() + x]; // ピクセルに色を設定
+        }
+        return Vector3f(0, 0, 0);
+    }
 
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);

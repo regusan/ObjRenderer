@@ -24,13 +24,6 @@ void RenderTarget::Fill(const Vector3f &color)
 {
     this->array = vector(this->screenSize.x() * this->screenSize.y(), color);
 }
-void RenderTarget::PaintPixel(const int &x, const int &y, const Vector3f &color)
-{
-    if (x >= 0 && x < screenSize.x() && y >= 0 && y < screenSize.y())
-    {
-        array[y * screenSize.x() + x] = color; // ピクセルに色を設定
-    }
-}
 
 void RenderTarget::DrawLine(const Vector2f &start, const Vector2f &end, const Vector3f &color)
 {

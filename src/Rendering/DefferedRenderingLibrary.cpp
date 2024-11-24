@@ -84,6 +84,9 @@ namespace RenderingPipeline
                         PixcelInputStandard draw = PixcelInputStandard::barycentricLerp(
                             points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
                         PixcelOutputStandard out = pixcel(draw);
+                        float depth = draw.positionVS.z();
+                        if (depth > gb.depth.SampleColor(x, y).x()) // 深度チェック
+                            continue;
                         gb.beauty.PaintPixel(x, y, out.color);
                         gb.depth.PaintPixel(x, y, Vector3f(draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z()));
                         gb.diffuse.PaintPixel(x, y, draw.vertColor.head<3>());
