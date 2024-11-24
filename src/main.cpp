@@ -2,7 +2,7 @@
 #include "Rendering/RenderTarget.hpp"
 #include <iostream>
 #include "shaderlab/StandardShader.hpp"
-#include "Rendering/RenderingLibrary.hpp"
+#include "Rendering/ForwardRenderingLibrary.hpp"
 #include "TransformMat.hpp"
 #include "header/EigenHeader.hpp"
 using namespace std;
@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
         model.loadObj(argv[1]);
     else
         perror("INVALID ARGS\n");
-    RenderingPipeline::SimpleForwardDrawModelWireframe(model, in, rt, VertStandard, PixcelStandard);
+    RenderingPipeline::Forward::SimpleForwardDrawModelWireframe(model, in, rt, VertStandard, PixcelStandard);
 
     rt.writeAsPPM("outputs/out.ppm");
     cout << "output" << endl;
