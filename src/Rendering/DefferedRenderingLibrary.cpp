@@ -85,7 +85,7 @@ namespace RenderingPipeline
                             points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
                         PixcelOutputStandard out = pixcel(draw);
                         gb.beauty.PaintPixel(x, y, out.color);
-                        gb.depth.PaintPixel(x, y, draw.positionVS.head<3>());
+                        gb.depth.PaintPixel(x, y, Vector3f(draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z()));
                         gb.diffuse.PaintPixel(x, y, draw.vertColor.head<3>());
                         gb.normalCS.PaintPixel(x, y, draw.normalVS.head<3>());
                         gb.normalWS.PaintPixel(x, y, draw.normalWS.head<3>());
