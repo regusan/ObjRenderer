@@ -16,3 +16,13 @@ GBuffers::GBuffers(const int &width, const int &height)
 GBuffers::~GBuffers()
 {
 }
+
+void GBuffers::writeAsPPM(const string &filepath)
+{
+    this->beauty.writeAsPPM(filepath + string("_beuty.ppm"));
+    this->depth.writeAsPPM(filepath + string("_depth.ppm"));
+    this->diffuse.writeAsPPM(filepath + string("_diffuse.ppm"));
+    (this->normalCS * 255).writeAsPPM(filepath + string("_normalCS.ppm"));
+    (this->normalWS * 255).writeAsPPM(filepath + string("_normalWS.ppm"));
+    (this->positionWS).writeAsPPM(filepath + string("_positionWS.ppm"));
+}

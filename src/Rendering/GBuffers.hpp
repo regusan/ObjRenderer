@@ -24,4 +24,7 @@ public:
 
     GBuffers(const int &width, const int &height);
     ~GBuffers();
+
+    // ファイルに出力する関数
+    void writeAsPPM(const string &filepath);
 };

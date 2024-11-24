@@ -31,8 +31,10 @@ public:
     // ファイルに出力する関数
     void writeAsPPM(const string &filepath);
 
-    void normalize255();
+    float FindMaxEuclideanDistance();
+    void mul();
 
     // 出力オペレータのオーバーロード
+    friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend std::ostream &operator<<(std::ostream &os, const RenderTarget &rt);
 };

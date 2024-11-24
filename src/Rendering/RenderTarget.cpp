@@ -91,13 +91,37 @@ void RenderTarget::writeAsPPM(const string &filepath)
         for (int x = 0; x < this->screenSize.x(); x++)
         {
             Vector3f col = this->array[y * this->screenSize.y() + x];
-            file << " " << (int)col.x() << " " << (int)col.y() << " " << (int)col.z() << " ";
+            file << " " << clamp((int)col.x(), 0, 255) << " " << clamp((int)col.y(), 0, 255) << " " << clamp((int)col.z(), 0, 255) << " ";
         }
         file << "\n";
     }
     file.close();
 }
 
+float RenderTarget::FindMaxEuclideanDistance()
+{
+    float maxDistance = 0.0f; // 最大距離を格納する変数
+
+    // 全ペアを探索して最大距離を探す
+    for (size_t i = 0; i < this->array.size(); ++i)
+    {
+        for (size_t j = i + 1; j < this->array.size(); ++j)
+        { // ペアを1回ずつだけ比較
+            float distance = (this->array[i] - this->array[j]).norm();
+            maxDistance = max(maxDistance, distance); // 最大値を更新
+        }
+    }
+    return maxDistance;
+}
+RenderTarget operator*(const RenderTarget &rt, const float &mul)
+{
+    RenderTarget retval = RenderTarget(rt);
+    for (size_t i = 0; i < rt.array.size(); i++)
+    {
+        retval.array[i] = retval.array[i] * mul;
+    }
+    return retval;
+}
 std::ostream &operator<<(std::ostream &os, const RenderTarget &rt)
 {
     for (int y = 0; y < rt.screenSize.y(); ++y)

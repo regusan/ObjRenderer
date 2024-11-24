@@ -1,10 +1,9 @@
 #include "Model.hpp"
-#include "Rendering/RenderTarget.hpp"
 #include <iostream>
 #include "shaderlab/StandardShader.hpp"
-#include "Rendering/ForwardRenderingLibrary.hpp"
 #include "TransformMat.hpp"
 #include "header/EigenHeader.hpp"
+#include "header/RenderingHeader.hpp"
 using namespace std;
 using namespace Transform;
 int main(int argc, char const *argv[])
@@ -14,7 +13,7 @@ int main(int argc, char const *argv[])
     VertInputStandard in;
     in.viewMat = Transform::MakeMatOffset(Vector3f(0, 3, 10)) * Transform::MakeRotMat(Vector3f(180 + 30, 0, 0));
 
-    RenderTarget rt = RenderTarget(1000, 1000, Vector3f(100, 100, 100));
+    GBuffers gb = GBuffers(1000, 1000);
 
     Model model = Model();
     // model.loadObj("models/room.obj");
@@ -22,9 +21,9 @@ int main(int argc, char const *argv[])
         model.loadObj(argv[1]);
     else
         perror("INVALID ARGS\n");
-    RenderingPipeline::Forward::SimpleForwardDrawModelWireframe(model, in, rt, VertStandard, PixcelStandard);
-
-    rt.writeAsPPM("outputs/out.ppm");
+    // RenderingPipeline::Forward::SimpleForwardDrawModelWireframe(model, in, rt, VertStandard, PixcelStandard);
+    RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
+    gb.writeAsPPM("outputs/out");
     cout << "output" << endl;
     return 0;
 }
