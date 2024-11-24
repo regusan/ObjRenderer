@@ -31,6 +31,8 @@ public:
     // ファイルに出力する関数
     void writeAsPPM(const string &filepath);
 
+    void normalize255();
+
     // 出力オペレータのオーバーロード
     friend std::ostream &operator<<(std::ostream &os, const RenderTarget &rt);
 };

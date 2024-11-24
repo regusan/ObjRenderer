@@ -8,11 +8,12 @@
 #include "../header/ShaderHeader.hpp"
 #include "../Model.hpp"
 #include "../TransformMat.hpp"
+
 #include "RenderTarget.hpp"
 using namespace std;
 namespace RenderingPipeline
 {
-
+    vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs);
     namespace Forward
     {
 

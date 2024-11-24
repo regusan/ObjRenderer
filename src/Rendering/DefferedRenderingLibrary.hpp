@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -8,6 +9,7 @@
 #include "../TransformMat.hpp"
 #include "GBuffers.hpp"
 #include "RenderTarget.hpp"
+#include "ForwardRenderingLibrary.hpp"
 using namespace std;
 namespace RenderingPipeline
 {
@@ -17,13 +19,13 @@ namespace RenderingPipeline
         /// @param model 描画する3Dモデル
         /// @param in カメラやモデル座標情報
         /// @param rt 描画出力先
-        void DefferedDrawModelWireframe(
-            const Model &model,
+        void DefferedDrawModel(
+            Model &model,
             const VertInputStandard &in,
             GBuffers &gb,
             const VertOutputStandard (*vert)(const VertInputStandard &in),
             const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in));
-        void SimpleForwardFillPolygon(
+        void SimpleDefferedFillPolygon(
             const vector<PixcelInputStandard> &points,
             GBuffers &gb,
             const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
