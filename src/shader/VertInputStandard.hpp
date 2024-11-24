@@ -11,6 +11,7 @@ public:
     ~VertInputStandard() {}
     Vector4f position = Vector4f(0, 0, 0, 1);
     Vector4f normal = Vector4f(1, 0, 0, 1);
+    Vector2f uv = Vector2f(0, 0);
     Matrix4f modelMat = Matrix4f::Identity();
     Matrix4f viewMat = Matrix4f::Identity();
     Vector4f vertColor = Vector4f(255, 0, 255, 255);

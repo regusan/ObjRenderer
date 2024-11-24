@@ -23,6 +23,7 @@ namespace RenderingPipeline
             {
                 const vector<int> face = model.facesID[faceIndex];
                 const vector<int> facenorm = model.normalID[faceIndex];
+                const vector<int> faceuv = model.uvID[faceIndex];
 
                 // 面を構成する各頂点IDについてFor
                 vector<VertOutputStandard> outs;
@@ -30,6 +31,7 @@ namespace RenderingPipeline
                 {
                     vin.position = model.verts[face[vertIndex]];
                     vin.normal = model.vertNormals[facenorm[vertIndex]];
+                    vin.uv = model.uv[faceuv[vertIndex]];
                     VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
 
                     if (out.positionVS.z() > 0) // 深度が正＝カメラの正面に映ってるなら
