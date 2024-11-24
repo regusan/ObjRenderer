@@ -93,7 +93,7 @@ namespace RenderingPipeline
                         float depth = draw.positionVS.z();
                         if (depth > gb.depth.SampleColor(x, y).x()) // 深度チェック
                             continue;
-                        gb.beauty.PaintPixel(x, y, out.color);
+                        gb.forward.PaintPixel(x, y, out.color);
                         gb.depth.PaintPixel(x, y, Vector3f(draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z()));
                         gb.diffuse.PaintPixel(x, y, draw.vertColor.head<3>());
 
