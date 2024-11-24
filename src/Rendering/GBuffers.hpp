@@ -12,15 +12,19 @@ private:
     /* data */
 public:
     Vector2i screenSize;
+    RenderTarget forward;
     RenderTarget beauty;
     RenderTarget diffuse;
 
     RenderTarget depth;
 
     RenderTarget positionWS;
+    RenderTarget positionVS;
 
     RenderTarget normalWS;
-    RenderTarget normalCS;
+    RenderTarget normalVS;
+
+    RenderTarget uv;
 
     GBuffers(const int &width, const int &height);
     ~GBuffers();

@@ -94,9 +94,14 @@ namespace RenderingPipeline
                         gb.beauty.PaintPixel(x, y, out.color);
                         gb.depth.PaintPixel(x, y, Vector3f(draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z()));
                         gb.diffuse.PaintPixel(x, y, draw.vertColor.head<3>());
-                        gb.normalCS.PaintPixel(x, y, draw.normalVS.head<3>());
-                        gb.normalWS.PaintPixel(x, y, draw.normalWS.head<3>());
+
                         gb.positionWS.PaintPixel(x, y, draw.positionWS.head<3>());
+                        gb.positionVS.PaintPixel(x, y, draw.positionVS.head<3>());
+
+                        gb.normalVS.PaintPixel(x, y, draw.normalVS.head<3>());
+                        gb.normalWS.PaintPixel(x, y, draw.normalWS.head<3>());
+
+                        gb.uv.PaintPixel(x, y, Vector3f(draw.uv.x(), draw.uv.y(), 0));
                     }
                 }
             }
