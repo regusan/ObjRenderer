@@ -36,5 +36,6 @@ public:
 
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
+    friend RenderTarget operator%(const RenderTarget &rt, const float &mul);
     friend std::ostream &operator<<(std::ostream &os, const RenderTarget &rt);
 };

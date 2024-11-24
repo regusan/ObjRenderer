@@ -122,6 +122,17 @@ RenderTarget operator*(const RenderTarget &rt, const float &mul)
     }
     return retval;
 }
+RenderTarget operator%(const RenderTarget &rt, const float &val)
+{
+    RenderTarget retval = RenderTarget(rt);
+    for (size_t i = 0; i < rt.array.size(); i++)
+    {
+        retval.array[i] = Vector3f(fmod(retval.array[i].x(), val),
+                                   fmod(retval.array[i].y(), val),
+                                   fmod(retval.array[i].z(), val));
+    }
+    return retval;
+}
 std::ostream &operator<<(std::ostream &os, const RenderTarget &rt)
 {
     for (int y = 0; y < rt.screenSize.y(); ++y)

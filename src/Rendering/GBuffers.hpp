@@ -26,5 +26,7 @@ public:
     ~GBuffers();
 
     // ファイルに出力する関数
-    void writeAsPPM(const string &filepath);
+    void writeAsPPM(const string &filepath,
+                    const float positionModValue = 1,
+                    const float normalMulValue = 255);
 };

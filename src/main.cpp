@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
         perror("INVALID ARGS\n");
     // RenderingPipeline::Forward::SimpleForwardDrawModelWireframe(model, in, rt, VertStandard, PixcelStandard);
     RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
-    gb.writeAsPPM("outputs/out");
+    gb.writeAsPPM("outputs/out", 2);
     cout << "output" << endl;
     return 0;
 }
