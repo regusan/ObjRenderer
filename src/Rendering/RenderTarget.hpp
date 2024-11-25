@@ -48,6 +48,7 @@ public:
         return Vector3f(0, 0, 0);
     }
 
+    RenderTarget rtAbs();
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend RenderTarget operator%(const RenderTarget &rt, const float &mul);

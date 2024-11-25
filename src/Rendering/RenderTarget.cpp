@@ -106,6 +106,16 @@ float RenderTarget::FindMaxEuclideanDistance()
     }
     return maxDistance;
 }
+
+RenderTarget RenderTarget::rtAbs()
+{
+    RenderTarget retval = RenderTarget((*this));
+    for (size_t i = 0; i < this->array.size(); i++)
+    {
+        retval.array[i] = retval.array[i].cwiseAbs();
+    }
+    return retval;
+}
 RenderTarget operator*(const RenderTarget &rt, const float &mul)
 {
     RenderTarget retval = RenderTarget(rt);

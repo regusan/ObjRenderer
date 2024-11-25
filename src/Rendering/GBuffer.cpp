@@ -25,11 +25,11 @@ void GBuffers::writeAsPPM(const string &filepath,
 {
     this->beauty.writeAsPPM(filepath + string("_beauty.ppm"));
     this->forward.writeAsPPM(filepath + string("_forward.ppm"));
-    (this->depth % positionModValue * normalMulValue).writeAsPPM(filepath + string("_depth.ppm"));
+    (this->depth.rtAbs() % positionModValue * normalMulValue).writeAsPPM(filepath + string("_depth.ppm"));
     this->diffuse.writeAsPPM(filepath + string("_diffuse.ppm"));
 
-    (this->positionWS % positionModValue * 255).writeAsPPM(filepath + string("_positionWS.ppm"));
-    (this->positionVS % positionModValue * 255).writeAsPPM(filepath + string("_positionVS.ppm"));
+    (this->positionWS.rtAbs() % positionModValue * 255).writeAsPPM(filepath + string("_positionWS.ppm"));
+    (this->positionVS.rtAbs() % positionModValue * 255).writeAsPPM(filepath + string("_positionVS.ppm"));
     (this->normalWS * normalMulValue).writeAsPPM(filepath + string("_normalWS.ppm"));
     (this->normalVS * normalMulValue).writeAsPPM(filepath + string("_normalCS.ppm"));
 
