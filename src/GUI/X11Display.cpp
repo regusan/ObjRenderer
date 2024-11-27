@@ -29,6 +29,9 @@ void X11Display::createWindow(int width, int height)
     gc = XCreateGC(display, window, 0, nullptr);
     XMapWindow(display, window);
 
+    this->WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(display, window, &WM_DELETE_WINDOW, 1);
+
     // Create an XImage to represent the pixel data
     xImage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen),
                           ZPixmap, 0, nullptr, width, height, 32, 0);
@@ -65,11 +68,33 @@ void X11Display::show(RenderTarget &renderTarget)
 
 void X11Display::waitUntilWindowBreak()
 {
-    XEvent event;
     while (true)
     {
-        XNextEvent(display, &event);
-        if (event.type == KeyPress)
+        if (this->GetEvent().type == KeyPress)
             break; // Exit on key press
     }
+}
+
+XEvent X11Display::GetEvent()
+{
+    XEvent event;
+    XNextEvent(display, &event);
+    return event;
+}
+Display *X11Display::GetDisplay()
+{
+    return this->display;
+}
+
+Vector2i X11Display::GetMousePos()
+{
+    Window root, child;
+    int rootX, rootY, winX, winY;
+    unsigned int mask;
+
+    // XQueryPointerを使用してマウス位置を取得
+    XQueryPointer(display, window, &root, &child, &rootX, &rootY, &winX, &winY, &mask);
+
+    // ウィンドウ内の相対位置（winX, winY）を返す
+    return Vector2i(winX, winY);
 }

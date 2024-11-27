@@ -27,6 +27,11 @@ public:
     X11Display(int width, int height);
     ~X11Display();
 
+    Atom WM_DELETE_WINDOW;
+
     void show(RenderTarget &renderTarget);
     void waitUntilWindowBreak();
+    XEvent GetEvent();
+    Display *GetDisplay();
+    Vector2i GetMousePos();
 };
