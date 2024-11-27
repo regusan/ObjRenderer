@@ -38,8 +38,15 @@ namespace RenderingPipeline
                     if (out.positionVS.z() > 0) // 深度が正＝カメラの正面に映ってるなら
                         outs.push_back(out);    // 描画待ち配列に追加
                 }
-                // 面を一つ描画
-                SimpleDefferedFillPolygon(RenderingPipeline::VertOuts2PixcelIns(outs), gb, *pixcel);
+                if (outs.size() >= 3)
+                {
+                    Vector3f norm = ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
+                    if (norm.z() > -0.1)
+                    {
+                        // 面を一つ描画
+                        SimpleDefferedFillPolygon(RenderingPipeline::VertOuts2PixcelIns(outs), gb, *pixcel);
+                    }
+                }
             }
         }
         void SimpleDefferedFillPolygon(

@@ -13,6 +13,15 @@
 using namespace std;
 namespace RenderingPipeline
 {
+    inline Vector3f ComputeFaceNormal(const Vector3f &v0, const Vector3f &v1, const Vector3f &v2)
+    {
+        Vector3f ab = v1 - v0;
+        Vector3f ac = v2 - v0;
+
+        Vector3f normal = ab.cross(ac).normalized();
+
+        return normal;
+    }
     vector<PixcelInputStandard> VertOuts2PixcelIns(vector<VertOutputStandard> outs);
     namespace Forward
     {
