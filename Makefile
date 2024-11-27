@@ -1,6 +1,6 @@
 # コンパイラとリンク設定
 CXX = g++
-LDFLAGS = -lm -I /usr/local/include/eigen3
+LDFLAGS = -lm -I /usr/local/include/eigen3 -lX11
 
 # デフォルトで使用するC++のバージョン
 CXX_VERSION = c++17  # ここでC++バージョンを指定
