@@ -4,7 +4,7 @@
 
 RenderTarget::RenderTarget()
 {
-    RenderTarget(100, 100, Vector3f(255, 0, 255));
+    RenderTarget(100, 100, Vector3f(1, 0, 1));
 }
 RenderTarget::RenderTarget(const int &width, const int &height)
     : screenSize(width, height), array(width * height) {}
@@ -84,7 +84,10 @@ void RenderTarget::writeAsPPM(const string &filepath)
         for (int x = 0; x < this->screenSize.x(); x++)
         {
             Vector3f col = this->array[y * this->screenSize.y() + x];
-            file << " " << clamp((int)col.x(), 0, 255) << " " << clamp((int)col.y(), 0, 255) << " " << clamp((int)col.z(), 0, 255) << " ";
+            file << " " << clamp<int>(col.x() * 255, 0, 255)
+                 << " " << clamp<int>(col.y() * 255, 0, 255)
+                 << " " << clamp<int>(col.z() * 255, 0, 255)
+                 << " ";
         }
         file << "\n";
     }

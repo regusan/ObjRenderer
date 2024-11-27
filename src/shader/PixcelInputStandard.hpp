@@ -17,7 +17,7 @@ public:
     Vector4f normalWS = Vector4f(1, 0, 0, 1); // ワールド基準法線
     Vector4f normalVS = Vector4f(1, 0, 0, 1); // ビュー基準法線
 
-    Vector4f vertColor = Vector4f(255, 0, 255, 255); //  デバイス基準法線
+    Vector4f vertColor = Vector4f(1, 0, 1, 1); //  デバイス基準法線
     Vector2f uv = Vector2f(0, 0);
     PixcelInputStandard(/* args */) {}
 

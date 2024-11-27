@@ -32,5 +32,5 @@ public:
     // ファイルに出力する関数
     void writeAsPPM(const string &filepath,
                     const float positionModValue = 1,
-                    const float normalMulValue = 255);
+                    const float normalMulValue = 1);
 };
