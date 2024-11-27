@@ -5,17 +5,20 @@
 #include "TransformMat.hpp"
 #include "header/EigenHeader.hpp"
 #include "header/RenderingHeader.hpp"
-
+#include "GameObject/TurnTableCamera.hpp"
 #include "GUI/X11Display.hpp"
+#include "STL/EventDispatcher.hpp"
 using namespace std;
 using namespace Transform;
+void UpdateInput(const XEvent &event) {}
+EventDispatcher<XEvent> inputDispatcher;
+
 int main(int argc, char const *argv[])
 {
-    Vector2i size = Vector2i(500, 500);
+    Vector2i size = Vector2i(1000, 1000);
     cout << "起動" << endl;
 
     VertInputStandard in;
-    in.viewMat = Transform::MakeMatOffset(Vector3f(0, 3, 10)) * Transform::MakeRotMat(Vector3f(180, 50, 0));
 
     Model model = Model();
     // model.loadObj("models/room.obj");
@@ -25,6 +28,11 @@ int main(int argc, char const *argv[])
         perror("INVALID ARGS\n");
 
     X11Display display(size.x(), size.y());
+    TurnTableCamera camera;
+    inputDispatcher.addListener([&camera](const XEvent &event)
+                                {
+                                    camera.OnUpdateInput(event); // メンバ関数を呼び出す
+                                });
 
     auto start = std::chrono::high_resolution_clock::now();
     bool running = true;
@@ -38,7 +46,8 @@ int main(int argc, char const *argv[])
         GBuffers gb = GBuffers(size.x(), size.y());
 
         // 視点の更新
-        in.viewMat = Transform::MakeMatOffset(Vector3f(0.0, 5, 10.0)) * Transform::MakeRotMat(Vector3f(display.GetMousePos().y(), display.GetMousePos().x(), 0));
+        camera.SetRotation(Vector3f(display.GetMousePos().y(), display.GetMousePos().x(), 0));
+        in.viewMat = camera.getMat();
 
         // GBufferに格納
         RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
@@ -49,24 +58,7 @@ int main(int argc, char const *argv[])
         if (XPending(display.GetDisplay()) > 0)
         {
             XNextEvent(display.GetDisplay(), &event);
-            switch (event.type)
-            {
-            case KeyPress:
-                // キーが押された場合
-                std::cout << "Key pressed: " << XKeysymToString(XKeycodeToKeysym(display.GetDisplay(), event.xkey.keycode, 0)) << std::endl;
-                break;
-            case ClientMessage:
-                // WM_DELETE_WINDOWイベントが発生した場合（ウィンドウが閉じられた）
-                if (static_cast<Atom>(event.xclient.data.l[0]) == display.WM_DELETE_WINDOW)
-                {
-                    std::cout << "Window close detected!" << std::endl;
-                    running = false; // ウィンドウを閉じる
-                }
-                break;
-
-            default:
-                break;
-            }
+            inputDispatcher.dispatch(event);
         }
 
         if (!running) // 破棄
