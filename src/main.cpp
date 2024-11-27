@@ -34,13 +34,11 @@ int main(int argc, char const *argv[])
                                     camera.OnUpdateInput(event); // メンバ関数を呼び出す
                                 });
 
-    auto start = std::chrono::high_resolution_clock::now();
     bool running = true;
     while (true)
     {
         // 時間の計測
-        auto end = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        auto start = std::chrono::high_resolution_clock::now();
 
         // GBufferの定義
         GBuffers gb = GBuffers(size.x(), size.y());
@@ -67,6 +65,9 @@ int main(int argc, char const *argv[])
             display.~X11Display();
             break;
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        cout << "FPS::" << 1000 / elapsed.count() << endl;
     }
 
     return 0;
