@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
+#include <omp.h>
 #include "../header/EigenHeader.hpp"
 #include "../header/ShaderHeader.hpp"
 #include "../Model.hpp"

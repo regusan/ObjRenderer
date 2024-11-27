@@ -1,6 +1,6 @@
 # コンパイラとリンク設定
 CXX = g++
-LDFLAGS = -lm -I /usr/local/include/eigen3 -lX11
+LDFLAGS = -lm -I /usr/local/include/eigen3 -lX11 -fopenmp
 
 # デフォルトで使用するC++のバージョン
 CXX_VERSION = c++17  # ここでC++バージョンを指定
@@ -38,7 +38,7 @@ $(RELEASE_TARGET): $(OBJ)
 
 # ソースファイルからオブジェクトファイルを作成
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -fopenmp
 
 # クリーンターゲット（ビルドしたファイルを削除）
 clean:

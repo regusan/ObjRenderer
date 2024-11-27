@@ -14,13 +14,14 @@ namespace RenderingPipeline
             const VertOutputStandard (*vert)(const VertInputStandard &in),
             const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
         {
-            VertInputStandard vin = in;
-            vin.screenSize = gb.beauty.getScreenSize();
+            VertInputStandard nonparallel_vin = in;
+            nonparallel_vin.screenSize = gb.beauty.getScreenSize();
 
-            // model.transformVerts(vin, vert);
-            //  各面についてFor
+//  各面についてFor
+#pragma omp parallel for
             for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
             {
+                VertInputStandard vin = nonparallel_vin;
                 const vector<int> face = model.facesID[faceIndex];
                 const vector<int> facenorm = model.normalID[faceIndex];
                 const vector<int> faceuv = model.uvID[faceIndex];
