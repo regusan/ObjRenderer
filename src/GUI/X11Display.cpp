@@ -43,9 +43,9 @@ void X11Display::updateWindow(RenderTarget &renderTarget)
         for (int x = 0; x < width; ++x)
         {
             Vector3f color = renderTarget.SampleColor(x, y);
-            unsigned char r = static_cast<unsigned char>(color.x());
-            unsigned char g = static_cast<unsigned char>(color.y());
-            unsigned char b = static_cast<unsigned char>(color.z());
+            unsigned char r = clamp<unsigned char>(color.x(), 0, 255);
+            unsigned char g = clamp<unsigned char>(color.y(), 0, 255);
+            unsigned char b = clamp<unsigned char>(color.z(), 0, 255);
 
             // Set pixel at (x, y)
             unsigned long pixel = (r << 16) | (g << 8) | b; // RGB -> 32-bit value
