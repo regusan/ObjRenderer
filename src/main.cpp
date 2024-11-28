@@ -15,7 +15,7 @@ EventDispatcher<XEvent> inputDispatcher;
 
 int main(int argc, char const *argv[])
 {
-    Vector2i size = Vector2i(1000, 1000);
+    Vector2i size = Vector2i(800, 800);
     cout << "起動" << endl;
 
     VertInputStandard in;
@@ -29,6 +29,7 @@ int main(int argc, char const *argv[])
 
     X11Display display(size.x(), size.y());
     TurnTableCamera camera;
+    camera.SetPosition(Vector3f(0, 4, 0));
     inputDispatcher.addListener([&camera](const XEvent &event)
                                 {
                                     camera.OnUpdateInput(event); // メンバ関数を呼び出す
@@ -51,7 +52,10 @@ int main(int argc, char const *argv[])
         RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
 
         // GBufferからデバイスコンテキストにコピー
-        display.show(gb.forward);
+        RenderTarget rt = gb.positionWS % 1;
+        display.show(rt);
+
+        // イベント処理
         XEvent event;
         if (XPending(display.GetDisplay()) > 0)
         {
@@ -61,8 +65,8 @@ int main(int argc, char const *argv[])
 
         if (!running) // 破棄
         {
-            gb.writeAsPPM("outputs/out", .5); // 書き出し
             display.~X11Display();
+            gb.writeAsPPM("outputs/out", .5); // 書き出し
             break;
         }
         auto end = std::chrono::high_resolution_clock::now();

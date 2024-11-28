@@ -16,6 +16,7 @@ namespace RenderingPipeline
         {
             VertInputStandard nonparallel_vin = in;
             nonparallel_vin.screenSize = gb.beauty.getScreenSize();
+            bool backfaceCulling = true;
 
 //  各面についてFor
 #pragma omp parallel for
@@ -41,7 +42,7 @@ namespace RenderingPipeline
                 if (outs.size() >= 3)
                 {
                     Vector3f norm = ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
-                    if (norm.z() > -0.1)
+                    if (norm.z() > -0.1 || !backfaceCulling)
                     {
                         // 面を一つ描画
                         SimpleDefferedFillPolygon(RenderingPipeline::VertOuts2PixcelIns(outs), gb, *pixcel);
