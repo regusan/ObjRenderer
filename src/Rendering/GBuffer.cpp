@@ -13,6 +13,18 @@ GBuffers::GBuffers(const int &width, const int &height)
         this->screenSize.x(), this->screenSize.y(), Vector3f(floatMax, floatMax, floatMax));
     this->uv = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+
+    this->str2rt = {
+        {"forward", &forward},
+        {"beauty", &beauty},
+        {"diffuse", &diffuse},
+        {"depth", &depth},
+        {"positionWS", &positionWS},
+        {"positionVS", &positionVS},
+        {"normalWS", &normalWS},
+        {"normalVS", &normalVS},
+        {"uv", &uv},
+    };
 }
 
 GBuffers::~GBuffers()
@@ -34,4 +46,9 @@ void GBuffers::writeAsPPM(const string &filepath,
     (this->normalVS * normalMulValue).writeAsPPM(filepath + string("_normalVS.ppm"));
 
     (this->uv).writeAsPPM(filepath + string("_uv.ppm"));
+}
+
+RenderTarget &GBuffers::getRTFromString(string rtname)
+{
+    return *(this->str2rt[rtname]);
 }

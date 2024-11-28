@@ -4,12 +4,14 @@
 #include "../header/ShaderHeader.hpp"
 #include "RenderTarget.hpp"
 #include <limits>
+#include <map>
 using namespace std;
 
 class GBuffers
 {
 private:
-    /* data */
+    map<string, RenderTarget *> str2rt;
+
 public:
     Vector2i screenSize;
     RenderTarget forward;
@@ -33,4 +35,5 @@ public:
     void writeAsPPM(const string &filepath,
                     const float positionModValue = 1,
                     const float normalMulValue = 1);
+    RenderTarget &getRTFromString(string rtname);
 };

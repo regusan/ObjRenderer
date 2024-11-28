@@ -22,12 +22,12 @@ VertInputStandard initFromConfig(ConfigParser config, VertInputStandard original
     original.backfaceCulling = config.GetAsBool("BackfaceCulling");
     return original;
 }
+ConfigParser config = ConfigParser("config.ini");
 
 int main(int argc, char const *argv[])
 {
     cout << "起動" << endl;
     Vector2i size = Vector2i(800, 800);
-    ConfigParser config = ConfigParser("config.ini");
 
     VertInputStandard in;
     in = initFromConfig(config, in);
@@ -65,7 +65,7 @@ int main(int argc, char const *argv[])
         RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
 
         // GBufferからデバイスコンテキストにコピー
-        RenderTarget rt = gb.uv % 1;
+        RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display")) % 1;
         display.show(rt);
 
         // イベント処理
@@ -85,7 +85,8 @@ int main(int argc, char const *argv[])
                     {
 
                     case XK_Return: // コンフィグのリロード
-                        in = initFromConfig(ConfigParser("config.ini"), in);
+                        config = ConfigParser("config.ini");
+                        in = initFromConfig(config, in);
 
                         break;
                     }
