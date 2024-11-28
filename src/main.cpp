@@ -8,17 +8,29 @@
 #include "GameObject/TurnTableCamera.hpp"
 #include "GUI/X11Display.hpp"
 #include "STL/EventDispatcher.hpp"
+#include "STL/ConfigParser.hpp"
+
 using namespace std;
 using namespace Transform;
 void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
 
+VertInputStandard initFromConfig(ConfigParser config, VertInputStandard original)
+{
+    original.nearClip = config.GetAsNumeric("NearClip");
+    original.farClip = config.GetAsNumeric("NearClip");
+    original.backfaceCulling = config.GetAsBool("BackfaceCulling");
+    return original;
+}
+
 int main(int argc, char const *argv[])
 {
-    Vector2i size = Vector2i(800, 800);
     cout << "起動" << endl;
+    Vector2i size = Vector2i(800, 800);
+    ConfigParser config = ConfigParser("config.ini");
 
     VertInputStandard in;
+    in = initFromConfig(config, in);
 
     Model model = Model();
     // model.loadObj("models/room.obj");
@@ -35,6 +47,7 @@ int main(int argc, char const *argv[])
                                     camera.OnUpdateInput(event); // メンバ関数を呼び出す
                                 });
 
+    cout << config << endl;
     bool running = true;
     while (true)
     {
@@ -52,7 +65,7 @@ int main(int argc, char const *argv[])
         RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
 
         // GBufferからデバイスコンテキストにコピー
-        RenderTarget rt = gb.positionWS % 1;
+        RenderTarget rt = gb.uv % 1;
         display.show(rt);
 
         // イベント処理
@@ -61,18 +74,34 @@ int main(int argc, char const *argv[])
         {
             XNextEvent(display.GetDisplay(), &event);
             inputDispatcher.dispatch(event);
-        }
+            switch (event.type)
+            {
+            case KeyPress:
+                // キーが押された場合
+                {
+                    KeySym key = XLookupKeysym(&event.xkey, 0);
+                    // キーごとに処理を分ける
+                    switch (key)
+                    {
 
-        if (!running) // 破棄
-        {
-            display.~X11Display();
-            gb.writeAsPPM("outputs/out", .5); // 書き出し
-            break;
+                    case XK_Return: // コンフィグのリロード
+                        in = initFromConfig(ConfigParser("config.ini"), in);
+
+                        break;
+                    }
+                }
+
+                if (!running) // 破棄
+                {
+                    display.~X11Display();
+                    gb.writeAsPPM("outputs/out", .5); // 書き出し
+                    break;
+                }
+                auto end = std::chrono::high_resolution_clock::now();
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+                cout << "FPS::" << 1000 / elapsed.count() << endl;
+            }
         }
-        auto end = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        cout << "FPS::" << 1000 / elapsed.count() << endl;
     }
-
     return 0;
 }
