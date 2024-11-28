@@ -12,6 +12,7 @@ public:
     Vector4f positionVS = Vector4f(0, 0, 0, 1);  // ビュー基準位置
     Vector4f positionCS = Vector4f(0, 0, 0, 1);  // クリップ基準位置
     Vector4f positionNDC = Vector4f(0, 0, 0, 1); // デバイス基準位置
+    Vector4f positionSS = Vector4f(0, 0, 0, 1);  // スクリーン基準位置
 
     Vector4f normalOS = Vector4f(1, 0, 0, 1); // オブジェクト基準法線
     Vector4f normalWS = Vector4f(1, 0, 0, 1); // ワールド基準法線
@@ -28,6 +29,7 @@ public:
         this->positionVS = vo.positionVS;
         this->positionCS = vo.positionCS;
         this->positionNDC = vo.positionNDC;
+        this->positionSS = vo.positionSS;
 
         this->normalOS = vo.normalOS;
         this->normalWS = vo.normalWS;
@@ -46,6 +48,7 @@ public:
         lerped.positionVS = a.positionVS * r + b.positionVS * (1 - r);
         lerped.positionCS = a.positionCS * r + b.positionCS * (1 - r);
         lerped.positionNDC = a.positionNDC * r + b.positionNDC * (1 - r);
+        lerped.positionSS = a.positionSS * r + b.positionSS * (1 - r);
 
         lerped.normalOS = a.normalOS * r + b.normalOS * (1 - r);
         lerped.normalWS = a.normalWS * r + b.normalWS * (1 - r);
@@ -67,6 +70,7 @@ public:
         lerped.positionVS = a.positionVS * u + b.positionVS * v + c.positionVS * w;
         lerped.positionCS = a.positionCS * u + b.positionCS * v + c.positionCS * w;
         lerped.positionNDC = a.positionNDC * u + b.positionNDC * v + c.positionNDC * w;
+        lerped.positionSS = a.positionSS * u + b.positionSS * v + c.positionSS * w;
 
         lerped.normalOS = a.normalOS * u + b.normalOS * v + c.normalOS * w;
         lerped.normalWS = a.normalWS * u + b.normalWS * v + c.normalWS * w;

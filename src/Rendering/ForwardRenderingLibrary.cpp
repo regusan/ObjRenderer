@@ -53,9 +53,9 @@ namespace RenderingPipeline
                                    RenderTarget &rt,
                                    const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
         {
-            Vector2i startI = start.positionNDC.head<2>().cast<int>();
+            Vector2i startI = start.positionSS.head<2>().cast<int>();
             Vector2i current = startI;
-            Vector2i endI = end.positionNDC.head<2>().cast<int>();
+            Vector2i endI = end.positionSS.head<2>().cast<int>();
 
             float distance = (startI - endI).norm();
 
@@ -110,10 +110,10 @@ namespace RenderingPipeline
             int minX = INT_MAX, minY = INT_MAX, maxX = INT_MIN, maxY = INT_MIN;
             for (const auto &point : points)
             {
-                minX = min((float)minX, point.positionNDC.x());
-                minY = min((float)minY, point.positionNDC.y());
-                maxX = max((float)maxX, point.positionNDC.x());
-                maxY = max((float)maxY, point.positionNDC.y());
+                minX = min((float)minX, point.positionSS.x());
+                minY = min((float)minY, point.positionSS.y());
+                maxX = max((float)maxX, point.positionSS.x());
+                maxY = max((float)maxY, point.positionSS.y());
             }
 
             for (int y = minY; y <= maxY; ++y)
@@ -125,10 +125,10 @@ namespace RenderingPipeline
                     const auto &p2 = points[(i + 1) % points.size()];
 
                     // 頂点p1とp2がスキャンラインyに交差するなら
-                    if ((p1.positionNDC.y() > y && p2.positionNDC.y() <= y) || (p1.positionNDC.y() <= y && p2.positionNDC.y() > y))
+                    if ((p1.positionSS.y() > y && p2.positionSS.y() <= y) || (p1.positionSS.y() <= y && p2.positionSS.y() > y))
                     {
                         // 線分がスキャンラインと交差するなら
-                        int xIntersection = p1.positionNDC.x() + (y - p1.positionNDC.y()) * (p2.positionNDC.x() - p1.positionNDC.x()) / (p2.positionNDC.y() - p1.positionNDC.y());
+                        int xIntersection = p1.positionSS.x() + (y - p1.positionSS.y()) * (p2.positionSS.x() - p1.positionSS.x()) / (p2.positionSS.y() - p1.positionSS.y());
                         intersections.push_back(xIntersection);
                     }
                 }
@@ -143,9 +143,9 @@ namespace RenderingPipeline
                     {
                         if (points.size() <= 2)
                             continue;
-                        Vector3f uvw = computeBarycentricCoordinates(points[0].positionNDC.head<2>(),
-                                                                     points[1].positionNDC.head<2>(),
-                                                                     points[2].positionNDC.head<2>(),
+                        Vector3f uvw = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
+                                                                     points[1].positionSS.head<2>(),
+                                                                     points[2].positionSS.head<2>(),
                                                                      Vector2f(x, y));
                         PixcelInputStandard draw = PixcelInputStandard::barycentricLerp(
                             points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());

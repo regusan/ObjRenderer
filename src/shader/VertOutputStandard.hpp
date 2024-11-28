@@ -17,6 +17,7 @@ public:
     Vector4f positionVS = Vector4f(0, 0, 0, 1);  // ビュー基準位置
     Vector4f positionCS = Vector4f(0, 0, 0, 1);  // クリップ基準位置
     Vector4f positionNDC = Vector4f(0, 0, 0, 1); // デバイス基準位置
+    Vector4f positionSS = Vector4f(0, 0, 0, 1);  // スクリーン基準位置
 
     Vector4f normalOS = Vector4f(1, 0, 0, 1); // オブジェクト基準法線
     Vector4f normalWS = Vector4f(1, 0, 0, 1); // ワールド基準法線

@@ -9,6 +9,8 @@ private:
 public:
     VertInputStandard(/* args */) {}
     ~VertInputStandard() {}
+    float nearClip = 1;
+    float farClip = 100;
     Vector4f position = Vector4f(0, 0, 0, 1);
     Vector4f normal = Vector4f(1, 0, 0, 1);
     Vector2f uv = Vector2f(0, 0);
