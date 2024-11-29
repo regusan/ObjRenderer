@@ -14,12 +14,16 @@ using namespace std;
 using namespace Transform;
 void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
+Vector2i screenSize = Vector2i(1000, 1000);
 
 VertInputStandard initFromConfig(ConfigParser config, VertInputStandard original)
 {
     original.nearClip = config.GetAsNumeric("NearClip");
     original.farClip = config.GetAsNumeric("NearClip");
     original.backfaceCulling = config.GetAsBool("BackfaceCulling");
+    screenSize.x() = config.GetAsNumeric("ResolutionX");
+    screenSize.y() = config.GetAsNumeric("ResolutionY");
+    original.screenSize = screenSize;
     return original;
 }
 ConfigParser config = ConfigParser("config.ini");
@@ -27,9 +31,9 @@ ConfigParser config = ConfigParser("config.ini");
 int main(int argc, char const *argv[])
 {
     cout << "起動" << endl;
-    Vector2i size = Vector2i(800, 800);
 
     VertInputStandard in;
+    cout << config << endl;
     in = initFromConfig(config, in);
 
     Model model = Model();
@@ -39,7 +43,7 @@ int main(int argc, char const *argv[])
     else
         perror("INVALID ARGS\n");
 
-    X11Display display(size.x(), size.y());
+    X11Display display(screenSize.x(), screenSize.y());
     TurnTableCamera camera;
     camera.SetPosition(Vector3f(0, 4, 0));
     inputDispatcher.addListener([&camera](const XEvent &event)
@@ -47,7 +51,6 @@ int main(int argc, char const *argv[])
                                     camera.OnUpdateInput(event); // メンバ関数を呼び出す
                                 });
 
-    cout << config << endl;
     bool running = true;
     while (true)
     {
@@ -55,7 +58,7 @@ int main(int argc, char const *argv[])
         auto start = std::chrono::high_resolution_clock::now();
 
         // GBufferの定義
-        GBuffers gb = GBuffers(size.x(), size.y());
+        GBuffers gb = GBuffers(screenSize.x(), screenSize.y());
 
         // 視点の更新
         camera.SetRotation(Vector3f(display.GetMousePos().y(), display.GetMousePos().x(), 0));
