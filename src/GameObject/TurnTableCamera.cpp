@@ -32,11 +32,12 @@ void TurnTableCamera::OnUpdateInput(const XEvent &event)
 
             case XK_Up:
                 std::cout << "Up arrow key pressed!" << std::endl;
-                this->SetRadius(20);
+                this->SetRadius(this->radius * 0.9);
                 break;
 
             case XK_Down:
                 std::cout << "Down arrow key pressed!" << std::endl;
+                this->SetRadius(this->radius * 1.1);
                 break;
 
             case XK_Left:
