@@ -19,7 +19,7 @@ Vector2i screenSize = Vector2i(1000, 1000);
 VertInputStandard initFromConfig(ConfigParser config, VertInputStandard original)
 {
     original.nearClip = config.GetAsNumeric("NearClip");
-    original.farClip = config.GetAsNumeric("NearClip");
+    original.farClip = config.GetAsNumeric("FarClip");
     original.backfaceCulling = config.GetAsBool("BackfaceCulling");
     screenSize.x() = config.GetAsNumeric("ResolutionX");
     screenSize.y() = config.GetAsNumeric("ResolutionY");

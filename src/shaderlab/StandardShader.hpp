@@ -21,7 +21,7 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
                               out.positionVS.y() / out.positionVS.z(),
                               out.positionVS.z(), 1);
     // クリップ座標→正規化デバイス座標
-    out.positionNDC = Vector4f(out.positionCS.x(), out.positionCS.y(), (out.positionCS.z() - in.nearClip) / in.farClip, 1);
+    out.positionNDC = Vector4f(out.positionCS.x(), out.positionCS.y(), (out.positionCS.z() - in.nearClip) / (in.farClip - in.nearClip), 1);
     // 正規化デバイス座標系→ディスプレイ座標系
     out.positionSS = Vector4f((out.positionNDC.x() + 1) * 0.5 * in.screenSize.x(),
                               (out.positionNDC.y() + 1) * 0.5 * in.screenSize.y(),
