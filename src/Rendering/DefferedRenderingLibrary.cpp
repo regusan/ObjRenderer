@@ -18,7 +18,7 @@ namespace RenderingPipeline
             VertInputStandard nonparallel_vin = in;
             nonparallel_vin.screenSize = gb.beauty.getScreenSize();
 
-//  各面についてFor
+            //  各面についてFor
 #pragma omp parallel for
             for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
             {
@@ -26,6 +26,7 @@ namespace RenderingPipeline
                 const vector<int> face = model.facesID[faceIndex];
                 const vector<int> facenorm = model.normalID[faceIndex];
                 const vector<int> faceuv = model.uvID[faceIndex];
+                vin.material = &model.materials[model.materialNames[model.materialID[faceIndex]]];
 
                 // 面を構成する各頂点IDについてFor
                 vector<VertOutputStandard> outs;

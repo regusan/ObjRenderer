@@ -32,6 +32,7 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
     out.normalVS = Transform::ResetPosition(ResetScale(in.viewMat)) * out.normalWS;  // ワールド座標→カメラ座標
 
     out.uv = in.uv;
+    out.material = in.material;
     return out;
 }
 
@@ -43,6 +44,10 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     PixcelOutputStandard out;
     float light = in.normalWS.head<3>().dot(Vector3f(1, -1, -1).normalized());
     light = clamp<float>(light, 0.1f, 1.0f);
-    out.color = in.vertColor.head<3>() * light;
+    out.color = in.material->diffuse * light;
+    optional<RenderTarget> &diff = in.material->diffuseMap;
+    if (diff)
+        out.color = diff->SampleColor(diff->getScreenSize().x() * in.uv.x(),
+                                      diff->getScreenSize().y() * in.uv.y());
     return out;
 }

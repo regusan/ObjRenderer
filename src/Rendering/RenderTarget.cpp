@@ -1,6 +1,4 @@
 #include "RenderTarget.hpp"
-#include <fstream>
-#include <iostream>
 
 RenderTarget::RenderTarget()
 {
