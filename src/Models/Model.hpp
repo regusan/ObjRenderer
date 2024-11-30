@@ -39,9 +39,15 @@ public:
     /// @brief 法線を構成するID
     vector<vector<int>> normalID;
 
+    /// @brief 面毎のマテリアルのID
+    vector<int> materialID;
+    /// @brief マテリアルIDに対応するマテリアル名
+    vector<string> materialNames;
+
     map<string, Material> materials;
-    void LoadModelFromFIle(const filesystem::path &filepath);
+    void LoadModelFromFile(const filesystem::path &filepath);
     const string toString();
+    friend std::ostream &operator<<(std::ostream &os, const Model &model);
     void transformVerts(
         const VertInputStandard &in,
         const VertOutputStandard (*vertFunc)(const VertInputStandard &in))

@@ -4,15 +4,9 @@ Model::Model() {}
 
 Model::~Model() {}
 
-void Model::LoadModelFromFIle(const filesystem::path &filepath)
+void Model::LoadModelFromFile(const filesystem::path &filepath)
 {
-    filesystem::path parent = this->loadedFilepath.parent_path();
-    filesystem::path filename = this->loadedFilepath.filename().stem();
-    filesystem::path mtlpath = parent / filename / ".mtl";
-
-    cout << mtlpath << endl;
     this->loadObj(filepath);
-    this->materials = Material::ReadAllMaterialsFromMTL(filepath);
 }
 void Model::loadObj(const filesystem::path &filepath)
 {
@@ -23,6 +17,9 @@ void Model::loadObj(const filesystem::path &filepath)
     }
     this->loadedFilepath = filepath;
     string line;
+    string currentMaterial = "";       // 現在使用中のマテリアル名
+    map<string, int> materialNameToID; // マテリアル名→IDのマップ
+
     while (getline(file, line)) // 1行ずつ読み込む
     {
         istringstream ss(line); // 行をストリームに変換
@@ -34,14 +31,14 @@ void Model::loadObj(const filesystem::path &filepath)
             // 頂点 (x, y, z)
             float x, y, z;
             ss >> x >> y >> z;
-            verts.push_back(Vector4f(x, y, z, 1)); // Eigen::Vector3fに格納
+            verts.push_back(Vector4f(x, y, z, 1)); // Eigen::Vector4fに格納
         }
         else if (prefix == "vn")
         {
             // 法線ベクトル (nx, ny, nz)
             float nx, ny, nz;
             ss >> nx >> ny >> nz;
-            vertNormals.push_back(Vector4f(nx, ny, nz, 1)); // Eigen::Vector3fに格納
+            vertNormals.push_back(Vector4f(nx, ny, nz, 1)); // Eigen::Vector4fに格納
         }
         else if (prefix == "vt")
         {
@@ -57,7 +54,6 @@ void Model::loadObj(const filesystem::path &filepath)
             vector<int> faceVerts, faceUVs, faceNormals;
             while (ss >> token)
             {
-                // 頂点インデックス/テクスチャ座標インデックス/法線インデックス
                 size_t firstSlash = token.find('/');
                 size_t secondSlash = token.rfind('/');
 
@@ -66,27 +62,25 @@ void Model::loadObj(const filesystem::path &filepath)
                 if (firstSlash != string::npos)
                 {
                     string vertPart = token.substr(0, firstSlash);
-                    if (!vertPart.empty())              // 空文字列チェック
-                        vertIndex = stoi(vertPart) - 1; // 1-based to 0-based
+                    if (!vertPart.empty())
+                        vertIndex = stoi(vertPart) - 1; // 0基準
                 }
                 else if (!token.empty())
-                { // トークンが空でないかチェック
+                {
                     vertIndex = stoi(token) - 1;
                 }
 
-                // テクスチャ座標インデックスの取得
                 if (firstSlash != string::npos && secondSlash != firstSlash)
                 {
                     string uvPart = token.substr(firstSlash + 1, secondSlash - firstSlash - 1);
-                    if (!uvPart.empty()) // 空文字列チェック
+                    if (!uvPart.empty())
                         uvIndex = stoi(uvPart) - 1;
                 }
 
-                // 法線インデックスの取得
                 if (secondSlash != string::npos)
                 {
                     string normalPart = token.substr(secondSlash + 1);
-                    if (!normalPart.empty()) // 空文字列チェック
+                    if (!normalPart.empty())
                         normalIndex = stoi(normalPart) - 1;
                 }
 
@@ -95,16 +89,38 @@ void Model::loadObj(const filesystem::path &filepath)
                 faceNormals.push_back(normalIndex);
             }
 
-            // 3頂点で1つの面を作成
             if (faceVerts.size() == 3)
             {
-                facesID.push_back(faceVerts);    // 頂点インデックス
-                uvID.push_back(faceUVs);         // UVインデックス
-                normalID.push_back(faceNormals); // 法線インデックス
+                facesID.push_back(faceVerts);
+                uvID.push_back(faceUVs);
+                normalID.push_back(faceNormals);
+                if (!currentMaterial.empty())
+                {
+                    materialID.push_back(materialNameToID[currentMaterial]); // マテリアルIDを追加
+                }
             }
         }
-        else if (prefix == "f")
+        else if (prefix == "mtllib")
         {
+            // マテリアルライブラリの読み込み
+            string mtlFilename;
+            ss >> mtlFilename;
+            filesystem::path mtlFilePath = filepath.parent_path() / mtlFilename;
+
+            // マテリアルをロードしてmaterialsマップに格納
+            auto loadedMaterials = Material::ReadAllMaterialsFromMTL(mtlFilePath.string());
+            for (const auto &entry : loadedMaterials)
+            {
+                int id = materials.size();             // 新しいマテリアルID
+                materials[entry.first] = entry.second; // 名前でマッピング
+                materialNameToID[entry.first] = id;    // 名前→IDのマッピング
+                materialNames.push_back(entry.first);  // マテリアル名リストに追加
+            }
+        }
+        else if (prefix == "usemtl")
+        {
+            // 使用するマテリアルを設定
+            ss >> currentMaterial;
         }
     }
     file.close(); // ファイルを閉じる

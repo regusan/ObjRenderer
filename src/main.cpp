@@ -41,7 +41,7 @@ int main(int argc, char const *argv[])
     Model model = Model();
     // model.loadObj("models/room.obj");
     if (argc >= 2)
-        model.LoadModelFromFIle(argv[1]);
+        model.LoadModelFromFile(argv[1]);
     else
     {
         perror("INVALID ARGS\n");
