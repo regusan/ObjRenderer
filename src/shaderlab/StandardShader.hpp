@@ -2,6 +2,7 @@
 #include "../header/ShaderHeader.hpp"
 #include "../header/EigenHeader.hpp"
 #include "../TransformMat.hpp"
+#include "../Math/Math3D.hpp"
 #include <random>
 using namespace std;
 using namespace Transform;
@@ -42,12 +43,24 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    float light = in.normalWS.head<3>().dot(Vector3f(1, -1, -1).normalized());
-    light = clamp<float>(light, 0.1f, 1.0f);
-    out.color = in.material->diffuse * light;
+    Vector3f light0 = Vector3f(1, -1, -1).normalized();
+    float ambientLight = 0.1;
+
+    Vector3f ref = MathPhysics::Reflect(light0, in.normalVS.head<3>());
+    float refval = ref.dot(Vector3f(0, 0, -1));
+    float specularScalar = abs(refval) * in.material->specularShapness / 1000.0f;
+    Vector3f specular = in.material->specular * specularScalar;
+
+    float light = in.normalWS.head<3>().dot(light0);
+    light = clamp<float>(light, ambientLight, 1.0f);
+
     optional<RenderTarget> &diff = in.material->diffuseMap;
+    Vector3f diffuse;
     if (diff)
-        out.color = diff->SampleColor(diff->getScreenSize().x() * in.uv.x(),
-                                      diff->getScreenSize().y() * in.uv.y());
+        diffuse = diff->SampleColor(diff->getScreenSize().x() * in.uv.x(),
+                                    diff->getScreenSize().y() * in.uv.y());
+    else
+        diffuse = in.material->diffuse;
+    out.color = diffuse * light + specular;
     return out;
 }
