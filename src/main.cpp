@@ -1,4 +1,4 @@
-#include "Model.hpp"
+
 #include <iostream>
 #include <chrono>
 #include "shaderlab/StandardShader.hpp"
@@ -9,6 +9,8 @@
 #include "GUI/X11Display.hpp"
 #include "STL/EventDispatcher.hpp"
 #include "STL/ConfigParser.hpp"
+#include "Models/Material.hpp"
+#include "Models/Model.hpp"
 
 using namespace std;
 using namespace Transform;
@@ -32,17 +34,19 @@ int main(int argc, char const *argv[])
 {
     cout << "起動" << endl;
 
-    VertInputStandard in;
     cout << config << endl;
+    VertInputStandard in;
     in = initFromConfig(config, in);
 
     Model model = Model();
     // model.loadObj("models/room.obj");
     if (argc >= 2)
-        model.loadObj(argv[1]);
+        model.LoadModelFromFIle(argv[1]);
     else
+    {
         perror("INVALID ARGS\n");
-
+        exit(1);
+    }
     X11Display display(screenSize.x(), screenSize.y());
     TurnTableCamera camera;
     camera.SetPosition(Vector3f(0, 4, 0));
@@ -51,7 +55,6 @@ int main(int argc, char const *argv[])
                                     camera.OnUpdateInput(event); // メンバ関数を呼び出す
                                 });
 
-    bool running = true;
     while (true)
     {
         // 時間の計測
@@ -92,14 +95,11 @@ int main(int argc, char const *argv[])
                         in = initFromConfig(config, in);
 
                         break;
+                    case XK_Escape:
+                        display.~X11Display();
+                        gb.writeAsPPM("outputs/out", .5); // 書き出し
+                        break;
                     }
-                }
-
-                if (!running) // 破棄
-                {
-                    display.~X11Display();
-                    gb.writeAsPPM("outputs/out", .5); // 書き出し
-                    break;
                 }
                 auto end = std::chrono::high_resolution_clock::now();
                 auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

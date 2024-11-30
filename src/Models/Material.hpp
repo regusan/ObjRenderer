@@ -1,9 +1,12 @@
 #pragma once
 
-#include "../header/EigenHeader.hpp"
-#include "../header/RenderingHeader.hpp"
+#include <filesystem>
 #include <map>
-
+#include <iostream>
+#include <fstream>
+#include "../header/EigenHeader.hpp"
+#include "../Rendering/RenderTarget.hpp"
+using namespace std;
 class Material
 {
 private:

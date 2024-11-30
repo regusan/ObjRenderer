@@ -6,7 +6,7 @@
 #include <omp.h>
 #include "../header/EigenHeader.hpp"
 #include "../header/ShaderHeader.hpp"
-#include "../Model.hpp"
+#include "../Models/Model.hpp"
 #include "../TransformMat.hpp"
 #include "GBuffers.hpp"
 #include "RenderTarget.hpp"

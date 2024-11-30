@@ -1,5 +1,4 @@
 #include "Material.hpp"
-#include <filesystem>
 
 Material::Material(/* args */)
 {

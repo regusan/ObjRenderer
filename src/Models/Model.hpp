@@ -7,17 +7,21 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <filesystem>
 #include <stdexcept>
-#include "header/EigenHeader.hpp"
-#include "header/ShaderHeader.hpp"
+#include "../header/EigenHeader.hpp"
+#include "../header/ShaderHeader.hpp"
+#include "Material.hpp"
 using namespace std;
 class Model
 {
 private:
+    void loadObj(const filesystem::path &filepath);
+
 public:
     Model(/* args */);
     ~Model();
-    string loadedFilepath = string("NULL");
+    filesystem::path loadedFilepath = "";
     /// @brief 頂点座標
     vector<Vector4f> verts;
     /// @brief 変換後の頂点
@@ -35,7 +39,8 @@ public:
     /// @brief 法線を構成するID
     vector<vector<int>> normalID;
 
-    void loadObj(const string &filepath);
+    map<string, Material> materials;
+    void LoadModelFromFIle(const filesystem::path &filepath);
     const string toString();
     void transformVerts(
         const VertInputStandard &in,

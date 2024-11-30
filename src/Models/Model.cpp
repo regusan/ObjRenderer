@@ -3,14 +3,25 @@
 Model::Model() {}
 
 Model::~Model() {}
-void Model::loadObj(const string &filepath)
+
+void Model::LoadModelFromFIle(const filesystem::path &filepath)
+{
+    filesystem::path parent = this->loadedFilepath.parent_path();
+    filesystem::path filename = this->loadedFilepath.filename().stem();
+    filesystem::path mtlpath = parent / filename / ".mtl";
+
+    cout << mtlpath << endl;
+    this->loadObj(filepath);
+    this->materials = Material::ReadAllMaterialsFromMTL(filepath);
+}
+void Model::loadObj(const filesystem::path &filepath)
 {
     ifstream file(filepath); // ファイルを開く
     if (!file.is_open())
     {
-        throw runtime_error("Could not open file: " + filepath); // ファイルが開けない場合はエラー
+        throw runtime_error("Could not open file: " + filepath.string()); // ファイルが開けない場合はエラー
     }
-
+    this->loadedFilepath = filepath;
     string line;
     while (getline(file, line)) // 1行ずつ読み込む
     {
