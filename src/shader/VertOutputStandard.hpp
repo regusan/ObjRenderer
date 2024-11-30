@@ -1,8 +1,7 @@
 #pragma once
 
 #include "PixcelInputStandard.hpp"
-
-// #include "../header/EigenHeader.hpp"
+#include "../Models/Material.hpp"
 
 class VertOutputStandard
 {
@@ -25,4 +24,5 @@ public:
 
     Vector4f vertColor = Vector4f(1, 0, 1, 1); //  デバイス基準法線
     Vector2f uv = Vector2f(0, 0);
+    Material *material = nullptr;
 };

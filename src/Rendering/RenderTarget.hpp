@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <fstream>
+#include <iostream>
 #include "../header/EigenHeader.hpp"
 using namespace std;
 
@@ -42,11 +44,12 @@ public:
 
     inline Vector3f SampleColor(const int x, const int y)
     {
-        if (x >= 0 && x < screenSize.x() && y >= 0 && y < screenSize.y())
+        size_t index = y * screenSize.x() + x;
+        if (index < this->array.size())
         {
-            return array[y * screenSize.x() + x]; // ピクセルに色を設定
+            return array[index]; // ピクセルに色を設定
         }
-        return Vector3f(0, 0, 0);
+        return Vector3f(1, 0, 1);
     }
 
     RenderTarget rtAbs();

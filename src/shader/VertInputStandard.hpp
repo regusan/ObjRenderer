@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../header/EigenHeader.hpp"
-
+#include "../Models/Material.hpp"
 class VertInputStandard
 {
 private:
@@ -19,4 +19,6 @@ public:
     Matrix4f viewMat = Matrix4f::Identity();
     Vector4f vertColor = Vector4f(1, 0, 1, 1);
     Vector2i screenSize = Vector2i(1, 0);
+
+    Material *material = nullptr;
 };

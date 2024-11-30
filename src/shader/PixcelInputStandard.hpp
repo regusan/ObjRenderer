@@ -20,6 +20,7 @@ public:
 
     Vector4f vertColor = Vector4f(1, 0, 1, 1); //  デバイス基準法線
     Vector2f uv = Vector2f(0, 0);
+    Material *material = nullptr;
     PixcelInputStandard(/* args */) {}
 
     PixcelInputStandard(const VertOutputStandard &vo)
@@ -37,6 +38,8 @@ public:
 
         this->vertColor = vo.vertColor;
         this->uv = vo.uv;
+
+        this->material = vo.material;
     }
     ~PixcelInputStandard() {}
 
@@ -78,6 +81,8 @@ public:
 
         lerped.vertColor = a.vertColor * u + b.vertColor * v + c.vertColor * w;
         lerped.uv = a.uv * u + b.uv * v + c.uv * w;
+
+        lerped.material = a.material;
 
         return lerped;
     }
