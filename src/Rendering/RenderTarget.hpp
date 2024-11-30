@@ -13,6 +13,7 @@ private:
 
 public:
     RenderTarget();
+    RenderTarget(string path);
     RenderTarget(const int &width, const int &height);
     RenderTarget(const int &width, const int &height, const Vector3f &color);
     ~RenderTarget();

@@ -6,6 +6,80 @@ RenderTarget::RenderTarget()
 {
     RenderTarget(100, 100, Vector3f(1, 0, 1));
 }
+RenderTarget::RenderTarget(string path)
+{
+    // ファイルを開く
+    std::ifstream file(path, std::ios::binary);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Failed to open PPM file: " + path);
+    }
+
+    string format;
+    int width = 0, height = 0, maxColorValue = 0;
+    string word;
+    file >> format;
+    file >> width >> height >> maxColorValue;
+
+    if (format != "P3" && format != "P6")
+    {
+        cerr << path << ": Invalid format, expected P3 or P6, but got " << format << endl;
+        exit(1);
+    }
+
+    if (width <= 0 || height <= 0 || maxColorValue <= 0)
+    {
+        cerr << path << ": Invalid header values." << endl;
+        cerr << "width;" << width << ",height:" << height << ",maxColorValue:" << maxColorValue << endl;
+        exit(1);
+    }
+
+    // RenderTargetのサイズと初期化
+    screenSize = Vector2i(width, height);
+    array.resize(width * height);
+
+    // P6形式の場合は、バイナリデータを読み込む
+    if (format == "P6")
+    {
+        file.read(reinterpret_cast<char *>(array.data()), width * height * 3);
+        for (int i = 0; i < width * height; ++i)
+        {
+            // ピクセルをRGBに変換して、0-1範囲に正規化
+            array[i] = Vector3f(
+                static_cast<float>(array[i][0]) / maxColorValue,
+                static_cast<float>(array[i][1]) / maxColorValue,
+                static_cast<float>(array[i][2]) / maxColorValue);
+        }
+    }
+    else if (format == "P3")
+    {
+        // P3形式の場合は、スペース区切りでRGB値を読み込む
+        int r, g, b;
+        size_t pixelIndex = 0;
+        while (file >> r >> g >> b)
+        {
+            if (pixelIndex >= static_cast<size_t>(width * height))
+            {
+                throw std::runtime_error("PPM file contains more data than expected.");
+            }
+            array[pixelIndex] = Vector3f(
+                static_cast<float>(r) / maxColorValue,
+                static_cast<float>(g) / maxColorValue,
+                static_cast<float>(b) / maxColorValue);
+            ++pixelIndex;
+        }
+
+        // ピクセル数が足りない場合のチェック
+        if (pixelIndex != static_cast<size_t>(width * height))
+        {
+            cerr << "Expected " << width * height << " pixels, but got " << pixelIndex << endl;
+            throw std::runtime_error("PPM file contains insufficient pixel data.");
+        }
+    }
+
+    file.close(); // ファイルを閉じる
+}
+
 RenderTarget::RenderTarget(const int &width, const int &height)
     : screenSize(width, height), array(width * height) {}
 
