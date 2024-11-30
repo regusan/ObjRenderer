@@ -4,6 +4,7 @@
 #include <map>
 #include <iostream>
 #include <fstream>
+#include <optional>
 #include "../header/EigenHeader.hpp"
 #include "../Rendering/RenderTarget.hpp"
 using namespace std;
@@ -18,11 +19,11 @@ public:
     float specularShapness;
     float alpha;
     int illuminationModel;
-    RenderTarget diffuseMap;
-    RenderTarget ambientMap;
-    RenderTarget alphaMap;
-    RenderTarget bumpMap;
-    RenderTarget normalMap;
+    optional<RenderTarget> diffuseMap;
+    optional<RenderTarget> ambientMap;
+    optional<RenderTarget> alphaMap;
+    optional<RenderTarget> bumpMap;
+    optional<RenderTarget> normalMap;
 
     static map<string, Material> ReadAllMaterialsFromMTL(string path);
     friend std::ostream &operator<<(std::ostream &os, const Material &mt);
