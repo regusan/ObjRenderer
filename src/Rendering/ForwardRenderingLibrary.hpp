@@ -50,7 +50,7 @@ namespace RenderingPipeline
         /// @param model 描画する3Dモデル
         /// @param in カメラやモデル座標情報
         /// @param rt 描画出力先
-        [[depricated("Defferedに移行したためメンテナンス放棄")]]
+        [[deprecated("Defferedに移行したためメンテナンス放棄")]]
         void SimpleForwardDrawModelWireframe(Model &model,
                                              const VertInputStandard &in,
                                              RenderTarget &rt,
@@ -62,7 +62,7 @@ namespace RenderingPipeline
         /// @param end 線分の終端
         /// @param rt 描画先
         /// @param pixcel ピクセルシェーダー
-        [[depricated("Defferedに移行したためメンテナンス放棄")]]
+        [[deprecated("Defferedに移行したためメンテナンス放棄")]]
         void SimpleForwardDrawLine(const PixcelInputStandard &start,
                                    const PixcelInputStandard &end,
                                    RenderTarget &rt,
@@ -71,7 +71,7 @@ namespace RenderingPipeline
         /// @param points 線分の配列
         /// @param rt 描画先
         /// @param pixcel ピクセルシェーダー
-        [[depricated("Defferedに移行したためメンテナンス放棄")]]
+        [[deprecated("Defferedに移行したためメンテナンス放棄")]]
         void SimpleForwardDrawPolygonLine(const vector<PixcelInputStandard> &points,
                                           RenderTarget &rt,
                                           const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
@@ -80,7 +80,7 @@ namespace RenderingPipeline
         /// @param model 描画する3Dモデル
         /// @param in カメラやモデル座標情報
         /// @param rt 描画出力先
-        [[depricated("Defferedに移行したためメンテナンス放棄")]]
+        [[deprecated("Defferedに移行したためメンテナンス放棄")]]
         void SimpleForwardFillPolygon(const vector<PixcelInputStandard> &points,
                                       RenderTarget &rt,
                                       const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
