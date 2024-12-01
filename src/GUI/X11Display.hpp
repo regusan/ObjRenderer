@@ -10,6 +10,7 @@
 #include <iostream>
 #include "../header/RenderingHeader.hpp"
 
+/// @brief X11でのウィンドウ表示のためのクラス
 class X11Display
 {
 private:
@@ -21,15 +22,20 @@ private:
     int width, height;
 
     void createWindow(int width, int height);
+
     void updateWindow(RenderTarget &renderTarget);
 
 public:
     X11Display(int width, int height);
     ~X11Display();
 
+    /// @brief WIndow削除時のコールバック用
     Atom WM_DELETE_WINDOW;
 
+    /// @brief RenderTargetを表示
+    /// @param renderTarget
     void show(RenderTarget &renderTarget);
+    /// @brief Windowが破棄されるまで待機
     void waitUntilWindowBreak();
     XEvent GetEvent();
     Display *GetDisplay();

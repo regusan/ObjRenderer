@@ -48,6 +48,8 @@ public:
     void LoadModelFromFile(const filesystem::path &filepath);
     const string toString();
     friend std::ostream &operator<<(std::ostream &os, const Model &model);
+
+    [[deprecated("法線取得に問題あり")]]
     void transformVerts(
         const VertInputStandard &in,
         const VertOutputStandard (*vertFunc)(const VertInputStandard &in))

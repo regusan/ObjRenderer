@@ -1,4 +1,7 @@
 #pragma once
+/*
+3D系の数学ライブラリ
+*/
 
 #include "../header/EigenHeader.hpp"
 

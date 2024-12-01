@@ -2,6 +2,7 @@
 
 #include "../header/EigenHeader.hpp"
 
+/// @brief ピクセルシェーダー用の出力データクラス
 class PixcelOutputStandard
 {
 private:

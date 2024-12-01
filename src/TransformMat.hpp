@@ -2,6 +2,7 @@
 #include "header/ShaderHeader.hpp"
 #include "header/EigenHeader.hpp"
 
+/// @brief 行列系名前空間
 namespace Transform
 {
     Matrix4f MakeRotMatX(const float &degree);
@@ -15,6 +16,12 @@ namespace Transform
     Matrix4f ResetPosition(const Matrix4f &mat);
 };
 
+/// @brief 指定点の重心座標系での補完率を出力
+/// @param a 頂点
+/// @param b 頂点
+/// @param c 頂点
+/// @param P サンプル地点
+/// @return 補完率(uvw)
 static inline Vector3f computeBarycentricCoordinates(
     const VectorXf &a, const VectorXf &b, const VectorXf &c, const VectorXf &P)
 {

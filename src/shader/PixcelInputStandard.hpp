@@ -2,6 +2,8 @@
 
 #include "../header/EigenHeader.hpp"
 #include "VertOutputStandard.hpp"
+
+/// @brief ピクセルシェーダーへの入力用データクラス
 class PixcelInputStandard
 {
 private:
@@ -43,6 +45,11 @@ public:
     }
     ~PixcelInputStandard() {}
 
+    /// @brief 線形補完
+    /// @param a 値
+    /// @param b 値
+    /// @param r 補完率
+    /// @return 補完後の値
     static inline PixcelInputStandard lerp(const PixcelInputStandard &a, const PixcelInputStandard &b, const float &r)
     {
         PixcelInputStandard lerped;
@@ -61,7 +68,14 @@ public:
         lerped.uv = a.uv * r + b.uv * (1 - r);
         return lerped;
     }
-    // バリセントリック座標
+    /// @brief 重心座標系での補完(3頂点)
+    /// @param a 値
+    /// @param b 値
+    /// @param c 値
+    /// @param u aの比率
+    /// @param v bの比率
+    /// @param w cの比率
+    /// @return 補完後の値
     static inline PixcelInputStandard barycentricLerp(
         const PixcelInputStandard &a, const PixcelInputStandard &b, const PixcelInputStandard &c,
         const float &u, const float &v, const float &w)

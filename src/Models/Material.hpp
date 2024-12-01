@@ -19,12 +19,16 @@ public:
     float specularShapness;
     float alpha;
     int illuminationModel;
+    /*各種テクスチャ*/
     optional<RenderTarget> diffuseMap;
     optional<RenderTarget> ambientMap;
     optional<RenderTarget> alphaMap;
     optional<RenderTarget> bumpMap;
     optional<RenderTarget> normalMap;
 
+    /// @brief マテリアルをMap<名前、オブジェクト>で読み取り
+    /// @param path
+    /// @return マテリアル(Map<名前、オブジェクト>)
     static map<string, Material> ReadAllMaterialsFromMTL(string path);
     friend std::ostream &operator<<(std::ostream &os, const Material &mt);
 

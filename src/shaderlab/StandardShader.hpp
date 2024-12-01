@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Transform;
 
-/// @brief 頂点シェーダー
+/// @brief 頂点シェーダーの例
 /// @param in 入力データ格納構造体
 /// @return 出力データ格納構造体
 inline const VertOutputStandard VertStandard(const VertInputStandard &in)
@@ -37,7 +37,7 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
     return out;
 }
 
-/// @brief ピクセルシェーダー
+/// @brief ピクセルシェーダーの例
 /// @param in 入力データ格納構造体
 /// @return 出力データ格納構造体
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)

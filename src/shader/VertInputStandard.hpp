@@ -2,6 +2,8 @@
 
 #include "../header/EigenHeader.hpp"
 #include "../Models/Material.hpp"
+
+/// @brief 頂点シェーダーの入力データクラス
 class VertInputStandard
 {
 private:

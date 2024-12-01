@@ -1,5 +1,5 @@
 #pragma once
-
+/*Eigen関連のマスターヘッダ*/
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>

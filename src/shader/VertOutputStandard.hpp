@@ -3,6 +3,7 @@
 #include "PixcelInputStandard.hpp"
 #include "../Models/Material.hpp"
 
+/// @brief 頂点シェーダーの出力データクラス
 class VertOutputStandard
 {
 private:
