@@ -1,4 +1,5 @@
 #include "DefferedRenderingLibrary.hpp"
+#define PARALLEL_FOR_TRANSFORM
 namespace RenderingPipeline
 {
 
@@ -18,8 +19,10 @@ namespace RenderingPipeline
             VertInputStandard nonparallel_vin = in;
             nonparallel_vin.screenSize = gb.beauty.getScreenSize();
 
-            //  各面についてFor
+//  各面についてFor(並列処理)
+#ifdef PARALLEL_FOR_TRANSFORM
 #pragma omp parallel for
+#endif
             for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
             {
                 VertInputStandard vin = nonparallel_vin;
@@ -54,8 +57,9 @@ namespace RenderingPipeline
             GBuffers &gb,
             const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
         {
-            // BB
-            int minX = INT_MAX, minY = INT_MAX, maxX = INT_MIN, maxY = INT_MIN;
+            // BBをディスプレイサイズで初期化
+            int minX = gb.screenSize.x(), minY = gb.screenSize.y(), maxX = 0, maxY = 0;
+            // BBを計算
             for (const auto &point : points)
             {
                 minX = min((float)minX, point.positionSS.x());
