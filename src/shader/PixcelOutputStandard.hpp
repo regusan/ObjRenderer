@@ -11,4 +11,7 @@ public:
     PixcelOutputStandard(/* args */) {}
     ~PixcelOutputStandard() {}
     Vector3f color;
+    Vector3f diffuse;
+    Vector3f normal;
+    Vector3f specular;
 };

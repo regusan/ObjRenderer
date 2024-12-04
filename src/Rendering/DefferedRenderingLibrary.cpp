@@ -107,7 +107,7 @@ namespace RenderingPipeline
                             continue;
                         gb.forward.PaintPixel(x, y, out.color);
                         gb.depth.PaintPixel(x, y, Vector3f(draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z()));
-                        gb.diffuse.PaintPixel(x, y, draw.vertColor.head<3>());
+                        gb.diffuse.PaintPixel(x, y, out.diffuse);
 
                         gb.positionWS.PaintPixel(x, y, draw.positionWS.head<3>());
                         gb.positionVS.PaintPixel(x, y, draw.positionVS.head<3>());

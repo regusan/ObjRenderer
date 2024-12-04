@@ -55,12 +55,11 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     light = clamp<float>(light, ambientLight, 1.0f);
 
     optional<RenderTarget> &diff = in.material->diffuseMap;
-    Vector3f diffuse;
     if (diff)
-        diffuse = diff->SampleColor(diff->getScreenSize().x() * in.uv.x(),
-                                    diff->getScreenSize().y() * in.uv.y());
+        out.diffuse = diff->SampleColor(diff->getScreenSize().x() * in.uv.x(),
+                                        diff->getScreenSize().y() * in.uv.y());
     else
-        diffuse = in.material->diffuse;
-    out.color = diffuse * light + specular;
+        out.diffuse = in.material->diffuse;
+    out.color = out.diffuse * light + specular;
     return out;
 }
