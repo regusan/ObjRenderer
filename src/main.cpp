@@ -26,6 +26,13 @@ RenderingEnvironmentParameters initFromConfig(ConfigParser config, RenderingEnvi
     screenSize.x() = config.GetAsNumeric("ResolutionX");
     screenSize.y() = config.GetAsNumeric("ResolutionY");
     param.screenSize = screenSize;
+    param.ambientLight = Vector3f(config.GetAsNumeric("AmbientLightR"),
+                                  config.GetAsNumeric("AmbientLightG"),
+                                  config.GetAsNumeric("AmbientLightB"));
+    param.directionalLights.clear();
+    param.directionalLights.push_back(Vector3f(config.GetAsNumeric("Light0DirectionX"),
+                                               config.GetAsNumeric("Light0DirectionY"),
+                                               config.GetAsNumeric("Light0DirectionZ")));
     return param;
 }
 ConfigParser config = ConfigParser("config.ini");
