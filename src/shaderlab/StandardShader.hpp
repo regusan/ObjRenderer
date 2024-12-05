@@ -45,8 +45,7 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    Vector3f light0 = Vector3f(1, -1, -1).normalized();
-    float ambientLight = 0.1;
+    Vector3f light0 = in.environment.directionalLights.at(0);
 
     Vector3f ref = MathPhysics::Reflect(light0, in.normalVS.head<3>());
     float refval = ref.dot(Vector3f(0, 0, -1));
@@ -54,7 +53,7 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     Vector3f specular = in.material->specular * specularScalar;
 
     float light = in.normalWS.head<3>().dot(light0);
-    light = clamp<float>(light, ambientLight, 1.0f);
+    light = clamp<float>(light, 0.0f, 1.0f);
 
     optional<RenderTarget> &diffmap = in.material->diffuseMap;
     if (diffmap) // DiffuseMapが存在するなら、サンプル
@@ -62,6 +61,6 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
                                            diffmap->getScreenSize().y() * in.uv.y());
     else // DiffuseMapが存在しないなら、マテリアルの値を使用
         out.diffuse = in.material->diffuse;
-    out.color = out.diffuse * light + specular;
+    out.color = out.diffuse * light + specular + in.environment.ambientLight;
     return out;
 }
