@@ -2,6 +2,7 @@
 
 #include "../header/EigenHeader.hpp"
 #include "VertOutputStandard.hpp"
+#include "../Rendering/RenderingEnvironmentParameters.hpp"
 
 /// @brief ピクセルシェーダーへの入力用データクラス
 class PixcelInputStandard
@@ -9,6 +10,7 @@ class PixcelInputStandard
 private:
     /* data */
 public:
+    RenderingEnvironmentParameters environment;
     Vector4f positionOS = Vector4f(0, 0, 0, 1);  // オブジェクト基準位置
     Vector4f positionWS = Vector4f(0, 0, 0, 1);  // ワールド基準位置
     Vector4f positionVS = Vector4f(0, 0, 0, 1);  // ビュー基準位置
@@ -27,6 +29,7 @@ public:
 
     PixcelInputStandard(const VertOutputStandard &vo)
     {
+        this->environment = vo.environment;
         this->positionOS = vo.positionOS;
         this->positionWS = vo.positionWS;
         this->positionVS = vo.positionVS;
@@ -53,6 +56,10 @@ public:
     static inline PixcelInputStandard lerp(const PixcelInputStandard &a, const PixcelInputStandard &b, const float &r)
     {
         PixcelInputStandard lerped;
+
+        lerped.material = a.material;
+        lerped.environment = a.environment;
+
         lerped.positionOS = a.positionOS * r + b.positionOS * (1 - r);
         lerped.positionWS = a.positionWS * r + b.positionWS * (1 - r);
         lerped.positionVS = a.positionVS * r + b.positionVS * (1 - r);
@@ -81,6 +88,9 @@ public:
         const float &u, const float &v, const float &w)
     {
         PixcelInputStandard lerped;
+
+        lerped.material = a.material;
+        lerped.environment = a.environment;
 
         lerped.positionOS = a.positionOS * u + b.positionOS * v + c.positionOS * w;
         lerped.positionWS = a.positionWS * u + b.positionWS * v + c.positionWS * w;

@@ -18,15 +18,15 @@ void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
 Vector2i screenSize = Vector2i(1000, 1000);
 
-VertInputStandard initFromConfig(ConfigParser config, VertInputStandard original)
+RenderingEnvironmentParameters initFromConfig(ConfigParser config, RenderingEnvironmentParameters param)
 {
-    original.nearClip = config.GetAsNumeric("NearClip");
-    original.farClip = config.GetAsNumeric("FarClip");
-    original.backfaceCulling = config.GetAsBool("BackfaceCulling");
+    param.nearClip = config.GetAsNumeric("NearClip");
+    param.farClip = config.GetAsNumeric("FarClip");
+    param.backfaceCulling = config.GetAsBool("BackfaceCulling");
     screenSize.x() = config.GetAsNumeric("ResolutionX");
     screenSize.y() = config.GetAsNumeric("ResolutionY");
-    original.screenSize = screenSize;
-    return original;
+    param.screenSize = screenSize;
+    return param;
 }
 ConfigParser config = ConfigParser("config.ini");
 
@@ -36,7 +36,9 @@ int main(int argc, char const *argv[])
 
     cout << config << endl;
     VertInputStandard in;
-    in = initFromConfig(config, in);
+    RenderingEnvironmentParameters param;
+    param = initFromConfig(config, param);
+    in.environment = param;
 
     Model model = Model();
     // model.loadObj("models/room.obj");
@@ -92,7 +94,7 @@ int main(int argc, char const *argv[])
 
                     case XK_Return: // コンフィグのリロード
                         config = ConfigParser("config.ini");
-                        in = initFromConfig(config, in);
+                        in.environment = initFromConfig(config, in.environment);
 
                         break;
                     case XK_Escape:

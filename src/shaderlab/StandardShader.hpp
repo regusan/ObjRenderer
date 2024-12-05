@@ -13,6 +13,8 @@ using namespace Transform;
 inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 {
     VertOutputStandard out;
+    out.environment = in.environment;
+
     // 座標変換
     out.positionOS = in.position;                  // モデル座標
     out.positionWS = in.modelMat * out.positionOS; // モデル座標→ワールド座標
@@ -22,10 +24,10 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
                               out.positionVS.y() / out.positionVS.z(),
                               out.positionVS.z(), 1);
     // クリップ座標→正規化デバイス座標
-    out.positionNDC = Vector4f(out.positionCS.x(), out.positionCS.y(), (out.positionCS.z() - in.nearClip) / (in.farClip - in.nearClip), 1);
+    out.positionNDC = Vector4f(out.positionCS.x(), out.positionCS.y(), (out.positionCS.z() - in.environment.nearClip) / (in.environment.farClip - in.environment.nearClip), 1);
     // 正規化デバイス座標系→ディスプレイ座標系
-    out.positionSS = Vector4f((out.positionNDC.x() + 1) * 0.5 * in.screenSize.x(),
-                              (out.positionNDC.y() + 1) * 0.5 * in.screenSize.y(),
+    out.positionSS = Vector4f((out.positionNDC.x() + 1) * 0.5 * in.environment.screenSize.x(),
+                              (out.positionNDC.y() + 1) * 0.5 * in.environment.screenSize.y(),
                               out.positionNDC.z(), 1);
     // 法線変換
     out.normalOS = in.normal;                                                        // モデル座標
@@ -54,11 +56,11 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     float light = in.normalWS.head<3>().dot(light0);
     light = clamp<float>(light, ambientLight, 1.0f);
 
-    optional<RenderTarget> &diff = in.material->diffuseMap;
-    if (diff)
-        out.diffuse = diff->SampleColor(diff->getScreenSize().x() * in.uv.x(),
-                                        diff->getScreenSize().y() * in.uv.y());
-    else
+    optional<RenderTarget> &diffmap = in.material->diffuseMap;
+    if (diffmap) // DiffuseMapが存在するなら、サンプル
+        out.diffuse = diffmap->SampleColor(diffmap->getScreenSize().x() * in.uv.x(),
+                                           diffmap->getScreenSize().y() * in.uv.y());
+    else // DiffuseMapが存在しないなら、マテリアルの値を使用
         out.diffuse = in.material->diffuse;
     out.color = out.diffuse * light + specular;
     return out;

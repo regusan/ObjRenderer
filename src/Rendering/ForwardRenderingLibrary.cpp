@@ -26,7 +26,7 @@ namespace RenderingPipeline
                                              const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
         {
             VertInputStandard vin = in;
-            vin.screenSize = rt.getScreenSize();
+            vin.environment.screenSize = rt.getScreenSize();
 
             model.transformVerts(vin, vert);
             // 各面についてFor
