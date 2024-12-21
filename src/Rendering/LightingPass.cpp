@@ -7,9 +7,9 @@ namespace RenderingPass
     {
 //  行ごとに並列処理
 #pragma omp parallel for
-        for (size_t y = 0; y < gbuffers.screenSize.y(); y++)
+        for (int y = 0; y < gbuffers.screenSize.y(); y++)
         {
-            for (size_t x = 0; x < gbuffers.screenSize.x(); x++)
+            for (int x = 0; x < gbuffers.screenSize.x(); x++)
             {
                 gbuffers.beauty.PaintPixel(x, y, lightingPass(gbuffers, environment, x, y));
             }
