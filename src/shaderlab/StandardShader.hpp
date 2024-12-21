@@ -61,6 +61,7 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
                                            diffmap->getScreenSize().y() * in.uv.y());
     else // DiffuseMapが存在しないなら、マテリアルの値を使用
         out.diffuse = in.material->diffuse;
-    out.color = out.diffuse * light + specular + in.environment.ambientLight;
+    Vector3f lightColor = in.environment.ambientLight + Vector3f(light, light, light);
+    out.color = out.diffuse.array() * lightColor.array() + specular.array();
     return out;
 }
