@@ -10,7 +10,6 @@
 #include "../TransformMat.hpp"
 #include "GBuffers.hpp"
 #include "RenderTarget.hpp"
-#include "ForwardRenderingLibrary.hpp"
 using namespace std;
 
 namespace RenderingPass
