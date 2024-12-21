@@ -34,6 +34,7 @@ RenderingEnvironmentParameters initFromConfig(ConfigParser config, RenderingEnvi
     param.directionalLights.push_back(Vector3f(config.GetAsNumeric("Light0DirectionX"),
                                                config.GetAsNumeric("Light0DirectionY"),
                                                config.GetAsNumeric("Light0DirectionZ")));
+    cout << config << endl;
     return param;
 }
 ConfigParser config = ConfigParser("config.ini");
@@ -44,9 +45,7 @@ int main(int argc, char const *argv[])
 
     cout << config << endl;
     VertInputStandard in;
-    RenderingEnvironmentParameters param;
-    param = initFromConfig(config, param);
-    in.environment = param;
+    in.environment = initFromConfig(config, in.environment);
 
     Model model = Model();
     // model.loadObj("models/room.obj");
@@ -79,7 +78,7 @@ int main(int argc, char const *argv[])
 
         // GBufferに格納
         RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
-        RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, param);
+        RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
 
         // GBufferからデバイスコンテキストにコピー
         RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display")) % 1;
