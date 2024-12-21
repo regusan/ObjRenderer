@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include "shaderlab/StandardShader.hpp"
+#include "shaderlab/LightingPassShader.hpp"
 #include "TransformMat.hpp"
 #include "header/EigenHeader.hpp"
 #include "header/RenderingHeader.hpp"
@@ -78,6 +79,7 @@ int main(int argc, char const *argv[])
 
         // GBufferに格納
         RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
+        RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, param);
 
         // GBufferからデバイスコンテキストにコピー
         RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display")) % 1;

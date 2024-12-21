@@ -5,3 +5,4 @@
 #include "../Rendering/GBuffers.hpp"
 #include "../Rendering/RenderTarget.hpp"
 #include "../Rendering/RenderingEnvironmentParameters.hpp"
+#include "../Rendering/LightingPass.hpp"
