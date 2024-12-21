@@ -11,7 +11,7 @@ Material::~Material()
 map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
 {
     filesystem::path dir = filesystem::path(pathstring).parent_path();
-    map<string, Material> materials;
+    map<string, Material> materials = {};
     std::ifstream file(pathstring);
 
     if (!file.is_open())

@@ -13,12 +13,12 @@ class Material
 private:
     /* data */
 public:
-    Vector3f ambientReflection;
-    Vector3f diffuse;
-    Vector3f specular;
-    float specularShapness;
-    float alpha;
-    int illuminationModel;
+    Vector3f ambientReflection = Vector3f(0, 0, 0);
+    Vector3f diffuse = Vector3f(0, 0, 0);
+    Vector3f specular = Vector3f(0, 0, 0);
+    float specularShapness = 0;
+    float alpha = 1;
+    int illuminationModel = 0;
     /*各種テクスチャ*/
     optional<RenderTarget> diffuseMap;
     optional<RenderTarget> ambientMap;
