@@ -1,4 +1,4 @@
-#include "DefferedRenderingLibrary.hpp"
+#include "GeometryPass.hpp"
 #define PARALLEL_FOR_TRANSFORM
 namespace RenderingPipeline
 {
@@ -9,7 +9,7 @@ namespace RenderingPipeline
         /// @param model 描画する3Dモデル
         /// @param in カメラやモデル座標情報
         /// @param rt 描画出力先
-        void DefferedDrawModel(
+        void ExecGeometryPass(
             Model &model,
             const VertInputStandard &in,
             GBuffers &gb,

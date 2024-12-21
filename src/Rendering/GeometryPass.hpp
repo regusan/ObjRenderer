@@ -22,7 +22,7 @@ namespace RenderingPipeline
         /// @param gb 描画出力先GBuffer
         /// @param vert 利用する頂点シェーダーポインタ
         /// @param pixcel 利用するピクセルシェーダーポインタ
-        void DefferedDrawModel(
+        void ExecGeometryPass(
             Model &model,
             const VertInputStandard &in,
             GBuffers &gb,

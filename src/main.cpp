@@ -78,7 +78,7 @@ int main(int argc, char const *argv[])
         in.viewMat = camera.getMat();
 
         // GBufferに格納
-        RenderingPipeline::Deffered::DefferedDrawModel(model, in, gb, VertStandard, PixcelStandard);
+        RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, param);
 
         // GBufferからデバイスコンテキストにコピー
