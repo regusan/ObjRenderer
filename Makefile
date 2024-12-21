@@ -42,6 +42,6 @@ $(RELEASE_TARGET): $(OBJ)
 
 # クリーンターゲット（ビルドしたファイルを削除）
 clean:
-	rm -f $(OBJ) $(DEBUG_TARGET) $(RELEASE_TARGET)
+	rm -f $(OBJ) $(DEBUG_TARGET) $(RELEASE_TARGET) $(OBJ:.o=.d)
 
 # 必要に応じて依存関係のターゲットを追加
