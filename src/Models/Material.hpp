@@ -13,9 +13,9 @@ class Material
 private:
     /* data */
 public:
-    Vector3f ambientReflection = Vector3f(0, 0, 0);
-    Vector3f diffuse = Vector3f(0, 0, 0);
-    Vector3f specular = Vector3f(0, 0, 0);
+    Vector3f ambientReflection = Vector3f(1, 0, 1);
+    Vector3f diffuse = Vector3f(1, 0, 1);
+    Vector3f specular = Vector3f(1, 0, 1);
     float specularShapness = 0;
     float alpha = 1;
     int illuminationModel = 0;

@@ -16,7 +16,8 @@ map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
 
     if (!file.is_open())
     {
-        std::cerr << "Failed to open MTL file: " << pathstring << std::endl;
+        std::cerr << "Failed to open MTL file.Use default material: " << pathstring << std::endl;
+        materials["Default"] = Material();
         return materials;
     }
 
