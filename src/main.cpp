@@ -58,12 +58,11 @@ int main(int argc, char const *argv[])
     }
     X11Display display(screenSize.x(), screenSize.y());
     TurnTableCamera camera;
-    camera.SetPosition(Vector3f(0, 4, 0));
+    camera.SetPosition(Vector3f(0, 0, 0));
     inputDispatcher.addListener([&camera](const XEvent &event)
                                 {
                                     camera.OnUpdateInput(event); // メンバ関数を呼び出す
                                 });
-
     while (true)
     {
         // 時間の計測
@@ -75,13 +74,14 @@ int main(int argc, char const *argv[])
         // 視点の更新
         camera.SetRotation(Vector3f(display.GetMousePos().y(), display.GetMousePos().x(), 0));
         in.viewMat = camera.getMat();
+        in.environment.viewMat = in.viewMat;
 
         // GBufferに格納
         RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
 
         // GBufferからデバイスコンテキストにコピー
-        RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display")) % 1;
+        RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
         display.show(rt);
 
         // イベント処理
