@@ -9,6 +9,8 @@ GBuffers::GBuffers(const int &width, const int &height)
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->beauty = this->diffuse = this->forward = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+    this->diffuse = this->specular = this->emission = RenderTarget(
+        this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->depth = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(floatMax, floatMax, floatMax));
     this->uv = RenderTarget(
@@ -18,6 +20,8 @@ GBuffers::GBuffers(const int &width, const int &height)
         {"forward", &forward},
         {"beauty", &beauty},
         {"diffuse", &diffuse},
+        {"specular", &specular},
+        {"emission", &emission},
         {"depth", &depth},
         {"positionWS", &positionWS},
         {"positionVS", &positionVS},
@@ -35,17 +39,23 @@ void GBuffers::writeAsPPM(const string &filepath,
                           const float positionModValue,
                           const float normalMulValue)
 {
-    this->beauty.writeAsPPM(filepath + string("_beauty.ppm"));
-    this->forward.writeAsPPM(filepath + string("_forward.ppm"));
-    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(filepath + string("_depth.ppm"));
-    this->diffuse.writeAsPPM(filepath + string("_diffuse.ppm"));
+    auto appendToFilepath = [&filepath](const string &suffix) -> string
+    {
+        return filepath + suffix;
+    };
+    this->beauty.writeAsPPM(appendToFilepath("_beauty.ppm"));
+    this->forward.writeAsPPM(appendToFilepath("_forward.ppm"));
+    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(appendToFilepath("_depth.ppm"));
+    this->diffuse.writeAsPPM(appendToFilepath("_diffuse.ppm"));
+    this->specular.writeAsPPM(appendToFilepath("_specular.ppm"));
+    this->emission.writeAsPPM(appendToFilepath("_emission.ppm"));
 
-    (this->positionWS.Abs() % positionModValue).writeAsPPM(filepath + string("_positionWS.ppm"));
-    (this->positionVS.Abs() % positionModValue).writeAsPPM(filepath + string("_positionVS.ppm"));
-    (this->normalWS * normalMulValue).writeAsPPM(filepath + string("_normalWS.ppm"));
-    (this->normalVS * normalMulValue).writeAsPPM(filepath + string("_normalVS.ppm"));
+    (this->positionWS.Abs() % positionModValue).writeAsPPM(appendToFilepath("_positionWS.ppm"));
+    (this->positionVS.Abs() % positionModValue).writeAsPPM(appendToFilepath("_positionVS.ppm"));
+    (this->normalWS * normalMulValue).writeAsPPM(appendToFilepath("_normalWS.ppm"));
+    (this->normalVS * normalMulValue).writeAsPPM(appendToFilepath("_normalVS.ppm"));
 
-    (this->uv).writeAsPPM(filepath + string("_uv.ppm"));
+    (this->uv).writeAsPPM(appendToFilepath("_uv.ppm"));
 }
 
 RenderTarget &GBuffers::getRTFromString(string rtname)

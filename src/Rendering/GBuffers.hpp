@@ -20,7 +20,10 @@ public:
     /*RenderTarget*/
     RenderTarget forward;
     RenderTarget beauty;
+
     RenderTarget diffuse;
+    RenderTarget specular;
+    RenderTarget emission;
 
     RenderTarget depth;
 
