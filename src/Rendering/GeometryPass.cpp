@@ -44,7 +44,8 @@ namespace RenderingPipeline
                 if (outs.size() >= 3)
                 {
                     Vector3f norm = ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
-                    if ((norm.z() > -0.1 || !in.environment.backfaceCulling) && isInFrustum(outs))
+                    bool backfacecull = in.environment.backFaceCullingDirection * norm.z() >= 0 || !in.environment.backfaceCulling;
+                    if (backfacecull && isInFrustum(outs))
                     {
                         // 面を一つ描画
                         SimpleDefferedFillPolygon(RenderingPipeline::VertOuts2PixcelIns(outs), gb, *pixcel);

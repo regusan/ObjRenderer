@@ -19,24 +19,6 @@ void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
 Vector2i screenSize = Vector2i(1000, 1000);
 
-RenderingEnvironmentParameters initFromConfig(ConfigParser config, RenderingEnvironmentParameters param)
-{
-    param.nearClip = config.GetAsNumeric("NearClip");
-    param.farClip = config.GetAsNumeric("FarClip");
-    param.backfaceCulling = config.GetAsBool("BackfaceCulling");
-    screenSize.x() = config.GetAsNumeric("ResolutionX");
-    screenSize.y() = config.GetAsNumeric("ResolutionY");
-    param.screenSize = screenSize;
-    param.ambientLight = Vector3f(config.GetAsNumeric("AmbientLightR"),
-                                  config.GetAsNumeric("AmbientLightG"),
-                                  config.GetAsNumeric("AmbientLightB"));
-    param.directionalLights.clear();
-    param.directionalLights.push_back(Vector3f(config.GetAsNumeric("Light0DirectionX"),
-                                               config.GetAsNumeric("Light0DirectionY"),
-                                               config.GetAsNumeric("Light0DirectionZ")));
-    cout << config << endl;
-    return param;
-}
 ConfigParser config = ConfigParser("config.ini");
 
 int main(int argc, char const *argv[])
@@ -45,7 +27,7 @@ int main(int argc, char const *argv[])
 
     cout << config << endl;
     VertInputStandard in;
-    in.environment = initFromConfig(config, in.environment);
+    in.environment.loadFromConfig(config);
 
     Model model = Model();
     // model.loadObj("models/room.obj");
@@ -102,13 +84,13 @@ int main(int argc, char const *argv[])
 
                     case XK_Return: // コンフィグのリロード
                         config = ConfigParser("config.ini");
-                        in.environment = initFromConfig(config, in.environment);
+                        in.environment.loadFromConfig(config);
 
                         break;
                     case XK_Escape:
                         display.~X11Display();
                         gb.writeAsPPM("outputs/out", .5); // 書き出し
-                        break;
+                        exit(0);
                     }
                 }
                 auto end = std::chrono::high_resolution_clock::now();
