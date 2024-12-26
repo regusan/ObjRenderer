@@ -139,7 +139,35 @@ void RenderTarget::DrawPolygonWireframe(const vector<Vector2f> &points, const Ve
         }
     }
 }
-
+const Vector3f RenderTarget::GetMax()
+{
+    Vector3f retval = Vector3f(0, 0, 0);
+    for (Vector3f current : this->array)
+    {
+        if (current.x() != numeric_limits<float>::max() &&
+            current.y() != numeric_limits<float>::max() &&
+            current.z() != numeric_limits<float>::max())
+            if (current.norm() > retval.norm())
+            {
+                retval = current;
+            }
+    }
+    return retval;
+}
+const Vector3f RenderTarget::GetMin()
+{
+    if (this->array.size() == 0)
+        return Vector3f(0, 0, 0);
+    Vector3f retval = this->array[0];
+    for (Vector3f current : this->array)
+    {
+        if (current.norm() > retval.norm())
+        {
+            retval = current;
+        }
+    }
+    return retval;
+}
 void RenderTarget::writeAsPPM(const string &filepath)
 {
     std::ofstream file(filepath);
@@ -182,7 +210,7 @@ float RenderTarget::FindMaxEuclideanDistance()
     return maxDistance;
 }
 
-RenderTarget RenderTarget::rtAbs()
+RenderTarget RenderTarget::Abs()
 {
     RenderTarget retval = RenderTarget((*this));
     for (size_t i = 0; i < this->array.size(); i++)

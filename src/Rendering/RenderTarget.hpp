@@ -51,11 +51,14 @@ public:
 
     float FindMaxEuclideanDistance();
 
+    const Vector3f GetMax();
+    const Vector3f GetMin();
+
     /// @brief 色をサンプリング。範囲外ならエラー色を返す
     /// @param x
     /// @param y
     /// @return 色
-    inline Vector3f SampleColor(const int x, const int y)
+    inline const Vector3f SampleColor(const int x, const int y)
     {
         size_t index = y * screenSize.x() + x;
         if (index < this->array.size())
@@ -66,7 +69,7 @@ public:
     }
     /// @brief RenderTargetの各ピクセルにabs()を適用
     /// @return
-    RenderTarget rtAbs();
+    RenderTarget Abs();
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend RenderTarget operator%(const RenderTarget &rt, const float &mul);
