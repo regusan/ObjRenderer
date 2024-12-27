@@ -15,10 +15,10 @@ private:
 public:
     Vector3f ambientReflection = Vector3f(1, 0, 1);
     Vector3f diffuse = Vector3f(1, 0, 1);
-    Vector3f specular = Vector3f(1, 0, 1);
-    float specularShapness = 0;
+    Vector3f specular = Vector3f(1, 1, 1);
+    float specularShapness = 30;
     float alpha = 1;
-    int illuminationModel = 0;
+    int illuminationModel = 2;
     /*各種テクスチャ*/
     optional<RenderTarget> diffuseMap;
     optional<RenderTarget> ambientMap;

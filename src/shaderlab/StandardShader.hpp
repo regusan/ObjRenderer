@@ -45,24 +45,14 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    Vector3f light0 = in.environment.directionalLights.at(0);
+    out.diffuse = in.material->diffuse;
+    out.specular = in.material->specular * in.material->specularShapness;
 
-    optional<RenderTarget> &diffmap = in.material->diffuseMap;
-    if (diffmap) // DiffuseMapが存在するなら、サンプル
-        out.diffuse = diffmap->SampleColor(diffmap->getScreenSize().x() * in.uv.x(),
-                                           diffmap->getScreenSize().y() * in.uv.y());
-    else // DiffuseMapが存在しないなら、マテリアルの値を使用
-        out.diffuse = in.material->diffuse;
+    if (optional<RenderTarget> &map = in.material->diffuseMap) // DiffuseMapが存在するなら、サンプル
+        out.diffuse = out.diffuse.array() * map->SampleColor01(in.uv.x(), in.uv.y()).array();
+    if (optional<RenderTarget> &map = in.material->normalMap) // NormalMapが存在するなら、サンプル
+        out.normal = out.normal.array() * map->SampleColor01(in.uv.x(), in.uv.y()).array();
 
-    Vector3f ref = MathPhysics::Reflect(light0, in.normalVS.head<3>());
-    float refval = ref.dot(Vector3f(0, 0, -1));
-    float specularScalar = abs(refval) * in.material->specularShapness / 1000.0f;
-    Vector3f specular = in.material->specular * specularScalar;
-
-    float light = in.normalWS.head<3>().dot(light0);
-    light = clamp<float>(light, 0.0f, 1.0f);
-
-    Vector3f lightColor = in.environment.ambientLight + Vector3f(light, light, light);
-    out.color = out.diffuse.array() * lightColor.array() + specular.array();
+    out.color = out.diffuse;
     return out;
 }

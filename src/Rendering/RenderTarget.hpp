@@ -67,6 +67,17 @@ public:
         }
         return Vector3f(1, 0, 1);
     }
+    inline const Vector3f SampleColor01(const float x, const float y)
+    {
+        int x01 = x * screenSize.x();
+        int y01 = y * screenSize.y();
+        size_t index = y01 * screenSize.x() + x01;
+        if (index < this->array.size())
+        {
+            return array[index]; // ピクセルに色を設定
+        }
+        return Vector3f(1, 0, 1);
+    }
     /// @brief RenderTargetの各ピクセルにabs()を適用
     /// @return
     RenderTarget Abs();
