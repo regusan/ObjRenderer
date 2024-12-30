@@ -2,6 +2,7 @@
 *.ppm
 *.blend*
 build/*
+!build/config.ini
 # Prerequisites
 *.d
 
