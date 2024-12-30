@@ -1,7 +1,7 @@
 .vscode/*
 *.ppm
 *.blend*
-
+build/*
 # Prerequisites
 *.d
 

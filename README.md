@@ -30,6 +30,7 @@
 * Ubuntu(WSL2)
 # Requirement
 * make
+* CMake
 * g++(C++17)
 * Eigen
 
@@ -37,8 +38,10 @@
 ```bash
 apt install make
 apt install g++
+apt install cmake
 apt install libeigen3-dev
 apt install x11-apps
+apt install libopencv-dev
 
 git clone https://github.com/regusan/ObjRenderer.git
 cd ObjRenderer
@@ -46,8 +49,11 @@ cd ObjRenderer
 
 # Usage
 ```bash
-make release
-./renderer_release.out models/room.obj
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+./Regu3D models/room.obj
 ```
 
 # Customize
