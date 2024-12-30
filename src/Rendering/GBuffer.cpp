@@ -39,23 +39,24 @@ void GBuffers::writeAsPPM(const string &filepath,
                           const float positionModValue,
                           const float normalMulValue)
 {
+    std::filesystem::create_directory(filepath);
     auto appendToFilepath = [&filepath](const string &suffix) -> string
     {
         return filepath + suffix;
     };
-    this->beauty.writeAsPPM(appendToFilepath("_beauty.ppm"));
-    this->forward.writeAsPPM(appendToFilepath("_forward.ppm"));
-    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(appendToFilepath("_depth.ppm"));
-    this->diffuse.writeAsPPM(appendToFilepath("_diffuse.ppm"));
-    this->specular.writeAsPPM(appendToFilepath("_specular.ppm"));
-    this->emission.writeAsPPM(appendToFilepath("_emission.ppm"));
+    this->beauty.writeAsPPM(appendToFilepath("/out_beauty.ppm"));
+    this->forward.writeAsPPM(appendToFilepath("/out_forward.ppm"));
+    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(appendToFilepath("/out_depth.ppm"));
+    this->diffuse.writeAsPPM(appendToFilepath("/out_diffuse.ppm"));
+    this->specular.writeAsPPM(appendToFilepath("/out_specular.ppm"));
+    this->emission.writeAsPPM(appendToFilepath("/out_emission.ppm"));
 
-    (this->positionWS.Abs() % positionModValue).writeAsPPM(appendToFilepath("_positionWS.ppm"));
-    (this->positionVS.Abs() % positionModValue).writeAsPPM(appendToFilepath("_positionVS.ppm"));
-    (this->normalWS * normalMulValue).writeAsPPM(appendToFilepath("_normalWS.ppm"));
-    (this->normalVS * normalMulValue).writeAsPPM(appendToFilepath("_normalVS.ppm"));
+    (this->positionWS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionWS.ppm"));
+    (this->positionVS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionVS.ppm"));
+    (this->normalWS * normalMulValue).writeAsPPM(appendToFilepath("/out_normalWS.ppm"));
+    (this->normalVS * normalMulValue).writeAsPPM(appendToFilepath("/out_normalVS.ppm"));
 
-    (this->uv).writeAsPPM(appendToFilepath("_uv.ppm"));
+    (this->uv).writeAsPPM(appendToFilepath("/out_uv.ppm"));
 }
 
 RenderTarget &GBuffers::getRTFromString(string rtname)

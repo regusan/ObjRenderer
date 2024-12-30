@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
         model.LoadModelFromFile(argv[1]);
     else
     {
-        perror("INVALID ARGS\n");
+        fprintf(stderr, "Invalid args:takes 1 arguments but %c were given.\nUsage:%s <ObjFiepath> \n", argc, argv[0]);
         exit(1);
     }
     X11Display display(screenSize.x(), screenSize.y());
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[])
                         break;
                     case XK_Escape:
                         display.~X11Display();
-                        gb.writeAsPPM("outputs/out", .5); // 書き出し
+                        gb.writeAsPPM("outputs", .5); // 書き出し
                         exit(0);
                     }
                 }

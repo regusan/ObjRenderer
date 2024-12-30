@@ -16,7 +16,7 @@ void ConfigParser::load(string path)
     ifstream infile(path);
     if (!infile)
     {
-        cerr << "ファイルを開けませんでした！" << std::endl;
+        fprintf(stderr, "Failure at open Config file<%s>\n", path.c_str());
         exit(1);
     }
 
