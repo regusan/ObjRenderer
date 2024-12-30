@@ -14,4 +14,5 @@ public:
     Vector3f diffuse;
     Vector3f normal;
     Vector3f specular;
+    Vector3f emission;
 };

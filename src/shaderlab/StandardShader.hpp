@@ -52,7 +52,7 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
         out.diffuse = out.diffuse.array() * map->SampleColor01(in.uv.x(), in.uv.y()).array();
     if (optional<RenderTarget> &map = in.material->normalMap) // NormalMapが存在するなら、サンプル
         out.normal = out.normal.array() * map->SampleColor01(in.uv.x(), in.uv.y()).array();
-
+    out.emission = in.material->emission;
     out.color = out.diffuse;
     return out;
 }

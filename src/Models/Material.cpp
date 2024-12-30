@@ -59,6 +59,10 @@ map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
         {
             iss >> currentMaterial.specularShapness;
         }
+        else if (key == "Ke")
+        {
+            iss >> currentMaterial.emission.x() >> currentMaterial.emission.y() >> currentMaterial.emission.z();
+        }
         else if (key == "d" || key == "Tr")
         {
             iss >> currentMaterial.alpha;
