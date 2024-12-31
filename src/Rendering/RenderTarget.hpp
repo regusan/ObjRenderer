@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include "../header/EigenHeader.hpp"
+
 using namespace std;
 
 /// @brief 書き込み先の画像
@@ -81,6 +82,23 @@ public:
     /// @brief RenderTargetの各ピクセルにabs()を適用
     /// @return
     RenderTarget Abs();
+
+    /// @brief 指定解像度にダウンサンプル(ニアレストネイバー)
+    /// @param size
+    /// @return
+    RenderTarget DownSample(const Vector2i size);
+
+    /// @brief 指定解像度にアップサンプル(バイリニア)
+    /// @param size
+    /// @return
+    RenderTarget UpSample(const Vector2i size);
+
+    /// @brief ボックスブラー適用
+    /// @param kernelSize カーネルサイズ
+    /// @param kernelScale カーネルのスキップ数(デフォルト1)
+    /// @return
+    RenderTarget BoxBlur(const int kernelSize, const int kernelScale = 1);
+
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend RenderTarget operator%(const RenderTarget &rt, const float &mul);

@@ -219,6 +219,70 @@ RenderTarget RenderTarget::Abs()
     }
     return retval;
 }
+
+RenderTarget RenderTarget::DownSample(const Vector2i size)
+{
+    RenderTarget retval = RenderTarget(size.x(), size.y());
+    for (int y = 0; y < size.y(); y++)
+    {
+        for (int x = 0; x < size.x(); x++)
+        {
+            retval.PaintPixel(x, y, this->SampleColor01(static_cast<float>(x) / size.x(), static_cast<float>(y) / size.y()));
+        }
+    }
+    return retval;
+}
+RenderTarget RenderTarget::UpSample(const Vector2i size)
+{
+    RenderTarget scaledX = RenderTarget(size.x(), this->screenSize.y());
+    RenderTarget scaledXY = RenderTarget(size.x(), size.y());
+    for (int y = 0; y < scaledX.screenSize.y(); y++)
+    {
+        for (int x = 0; x < scaledX.screenSize.x(); x++)
+        {
+            Vector2f samplePos = Vector2f(static_cast<float>(x) / scaledX.screenSize.x() * this->screenSize.x(), y);
+            Vector3f left = this->SampleColor(samplePos.x(), samplePos.y());
+            Vector3f right = this->SampleColor(samplePos.x() + 1, samplePos.y());
+            float r = samplePos.x() - floor(samplePos.x());
+            Vector3f color = r * right + (1 - r) * left;
+            scaledX.PaintPixel(x, y, color);
+        }
+    }
+    for (int y = 0; y < scaledXY.screenSize.y(); y++)
+    {
+        for (int x = 0; x < scaledXY.screenSize.x(); x++)
+        {
+            Vector2f samplePos = Vector2f(x, static_cast<float>(y) / scaledXY.screenSize.y() * this->screenSize.y());
+            Vector3f up = scaledX.SampleColor(samplePos.x(), samplePos.y());
+            Vector3f down = scaledX.SampleColor(samplePos.x(), samplePos.y() + 1);
+            float r = samplePos.y() - floor(samplePos.y());
+            Vector3f color = r * down + (1 - r) * up;
+            scaledXY.PaintPixel(x, y, color);
+        }
+    }
+    return scaledXY;
+}
+
+RenderTarget RenderTarget::BoxBlur(const int kernelSize, const int kernelScale)
+{
+    RenderTarget retval = RenderTarget((*this));
+    for (int y = 0; y < this->screenSize.y(); y++)
+    {
+        for (int x = 0; x < this->screenSize.x(); x++)
+        {
+            Vector3f sum = Vector3f(0, 0, 0);
+            for (int lx = -kernelSize / 2; lx < kernelSize / 2; lx++)
+            {
+                for (int ly = -kernelSize / 2; ly < kernelSize / 2; ly++)
+                {
+                    sum += this->SampleColor(x + lx * kernelScale, y + ly * kernelScale); // * kernel[abs(lx)] * kernel[abs(ly)];
+                }
+            }
+            retval.PaintPixel(x, y, sum / (kernelSize * kernelSize));
+        }
+    }
+    return retval;
+}
 RenderTarget operator*(const RenderTarget &rt, const float &mul)
 {
     RenderTarget retval = RenderTarget(rt);
