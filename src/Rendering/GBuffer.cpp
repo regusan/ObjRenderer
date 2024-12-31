@@ -13,6 +13,8 @@ GBuffers::GBuffers(const int &width, const int &height)
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->depth = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(floatMax, floatMax, floatMax));
+    this->AO = RenderTarget(
+        this->screenSize.x(), this->screenSize.y(), Vector3f(1, 1, 1));
     this->uv = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
 
@@ -23,6 +25,7 @@ GBuffers::GBuffers(const int &width, const int &height)
         {"specular", &specular},
         {"emission", &emission},
         {"depth", &depth},
+        {"AO", &AO},
         {"positionWS", &positionWS},
         {"positionVS", &positionVS},
         {"normalWS", &normalWS},
@@ -46,10 +49,12 @@ void GBuffers::writeAsPPM(const string &filepath,
     };
     this->beauty.writeAsPPM(appendToFilepath("/out_beauty.ppm"));
     this->forward.writeAsPPM(appendToFilepath("/out_forward.ppm"));
-    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(appendToFilepath("/out_depth.ppm"));
     this->diffuse.writeAsPPM(appendToFilepath("/out_diffuse.ppm"));
     this->specular.writeAsPPM(appendToFilepath("/out_specular.ppm"));
     this->emission.writeAsPPM(appendToFilepath("/out_emission.ppm"));
+
+    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(appendToFilepath("/out_depth.ppm"));
+    (this->AO).writeAsPPM(appendToFilepath("/out_AO.ppm"));
 
     (this->positionWS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionWS.ppm"));
     (this->positionVS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionVS.ppm"));

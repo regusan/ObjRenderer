@@ -26,6 +26,7 @@ public:
     RenderTarget emission;
 
     RenderTarget depth;
+    RenderTarget AO;
 
     RenderTarget positionWS;
     RenderTarget positionVS;
