@@ -30,6 +30,6 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
     // light = light.normalized();
     Vector3f ambient = environment.ambientLight;
 
-    Vector3f finalColor = directionalLight + specular + ambient;
+    Vector3f finalColor = directionalLight + specular + ambient + gbuffers.emission.SampleColor(x, y);
     return finalColor;
 }

@@ -3,6 +3,8 @@
 #include <chrono>
 #include "shaderlab/StandardShader.hpp"
 #include "shaderlab/LightingPassShader.hpp"
+#include "shaderlab/PostProcessShader.hpp"
+#include "Rendering/PostProcessPass.hpp"
 #include "TransformMat.hpp"
 #include "header/EigenHeader.hpp"
 #include "header/RenderingHeader.hpp"
@@ -61,6 +63,8 @@ int main(int argc, char const *argv[])
         // GBufferに格納
         RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
+        // RenderingPass::ExecPostProcessPass(gb, Bloom, in.environment);
+        PostProcessShader::BloomWithDownSampling(gb);
 
         // GBufferからデバイスコンテキストにコピー
         RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
@@ -89,7 +93,9 @@ int main(int argc, char const *argv[])
                         break;
                     case XK_Escape:
                         display.~X11Display();
+                        gb.beauty.DownSample(Vector2i(100, 100)).UpSample(Vector2i(500, 500)).writeAsPPM("outputs2.ppm");
                         gb.writeAsPPM("outputs", .5); // 書き出し
+
                         exit(0);
                     }
                 }
