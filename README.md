@@ -1,8 +1,9 @@
 # ObjRenderer
 
 # DEMO
-![image](https://github.com/user-attachments/assets/6b595a14-b87a-4f93-9029-b1fc26f5975a)
-![image](https://github.com/user-attachments/assets/f9d97b65-8f6a-41e0-95df-8e3ba060b247)
+![out_beauty](https://github.com/user-attachments/assets/c47dedca-a889-4085-80e2-755ae3c0e3a7)
+![image](https://github.com/user-attachments/assets/794d9e64-7604-422e-9b6f-572ae8c7bcfc)
+
 
 # Features
 ### Rendering Features
@@ -36,12 +37,13 @@
 
 # Installation
 ```bash
-apt install make
-apt install g++
-apt install cmake
-apt install libeigen3-dev
-apt install x11-apps
-apt install libopencv-dev
+sudo apt install make -y
+sudo apt install g++ -y
+sudo apt install cmake -y
+sudo apt install libeigen3-dev -y 
+sudo apt install x11-apps -y
+sudo apt install libx11-dev -y
+sudo apt install libopencv-dev -y
 
 git clone https://github.com/regusan/ObjRenderer.git
 cd ObjRenderer
