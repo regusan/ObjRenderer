@@ -43,7 +43,7 @@ namespace RenderingPipeline
                 }
                 if (outs.size() >= 3)
                 {
-                    Vector3f norm = ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
+                    Vector3f norm = GeometryMath::ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
                     bool backfacecull = in.environment.backFaceCullingDirection * norm.z() >= 0 || !in.environment.backfaceCulling;
                     if (backfacecull && isInFrustum(outs))
                     {
@@ -96,10 +96,12 @@ namespace RenderingPipeline
                     {
                         if (points.size() <= 2)
                             continue;
+                        // 現在のピクセルの重心座標を計算
                         Vector3f uvw = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
                                                                      points[1].positionSS.head<2>(),
                                                                      points[2].positionSS.head<2>(),
                                                                      Vector2f(x, y));
+                        // 重心座標を元にピクセルの情報を補間
                         PixcelInputStandard draw = PixcelInputStandard::barycentricLerp(
                             points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
                         PixcelOutputStandard out = pixcel(draw);
@@ -107,7 +109,7 @@ namespace RenderingPipeline
                         if (depth > gb.depth.SampleColor(x, y).x()) // 深度チェック
                             continue;
                         gb.forward.PaintPixel(x, y, out.color);
-                        gb.depth.PaintPixel(x, y, Vector3f(draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z(), draw.positionVS.head<3>().z()));
+                        gb.depth.PaintPixel(x, y, Vector3f(depth, depth, depth));
 
                         gb.diffuse.PaintPixel(x, y, out.diffuse);
                         gb.specular.PaintPixel(x, y, out.specular);

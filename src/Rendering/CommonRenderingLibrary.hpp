@@ -13,15 +13,6 @@
 using namespace std;
 namespace RenderingPipeline
 {
-    inline Vector3f ComputeFaceNormal(const Vector3f &v0, const Vector3f &v1, const Vector3f &v2)
-    {
-        Vector3f ab = v1 - v0;
-        Vector3f ac = v2 - v0;
-
-        Vector3f normal = ab.cross(ac).normalized();
-
-        return normal;
-    }
     inline bool isInFrustum(const vector<VertOutputStandard> &poly)
     {
         bool anyInBox = false;
