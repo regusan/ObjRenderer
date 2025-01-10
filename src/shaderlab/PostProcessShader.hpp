@@ -47,7 +47,7 @@ namespace PostProcessShader
 
                 gbuffers.beauty.PaintPixel(x, y, gbuffers.beauty.SampleColor(x, y) + sum / downSampledBuffers.size());
             }
-        }
+    }
     void ScreenSpaceAmbientOcculusionCryTek(GBuffers &gbuffers)
     {
         int N = 30;
@@ -83,5 +83,68 @@ namespace PostProcessShader
             }
         }
         gbuffers.AO = gbuffers.AO.BoxBlur(5);
+    }
+    void ScreenSpaceReflection(GBuffers &gbuffers)
+    {
+        // 光線を飛ばす回数
+        const int maxRayNum = 30;
+        // レイの最大距離
+        const float maxRayLength = 3;
+        const float rayLength = maxRayLength / maxRayNum;
+        // 自分自身に反射するのを防ぐための最小距離
+        const float minimumLength = rayLength * 0;
+
+        float maxThickness = 20.0f / maxRayNum;
+
+#pragma omp parallel for
+        for (int y = 0; y < gbuffers.screenSize.y(); y++)
+        {
+            for (int x = 0; x < gbuffers.screenSize.x(); x++)
+            {
+                // 深度が無限遠だったら処理しない
+                if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
+                {
+                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
+                    continue;
+                }
+
+                const Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
+                Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
+                Vector3f reflect = MathPhysics::Reflect(positionVS, normalVS).normalized();
+                // TODO:二分探索にして高速化する
+                for (int i = 1; i <= maxRayNum; i++)
+                {
+                    const float currentRayLength = rayLength * i + minimumLength;
+                    const Vector3f offsetVS = reflect * currentRayLength;
+                    const Vector3f rayPosVS = positionVS + offsetVS;
+                    const Vector3f rayPosSS = (rayPosVS / rayPosVS.z() + Vector3f(1, 1, 1)) * 0.5;
+                    // レイが画面外に行ったら強制終了
+                    if (rayPosSS.x() < 0 || rayPosSS.x() > 1 || rayPosSS.y() < 0 || rayPosSS.y() > 1)
+                        break;
+
+                    // GBufferから取得した実際の深度
+                    const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
+                    // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
+                    if (rayPosVS.z() > actualDepth && rayPosVS.z() - actualDepth < maxThickness)
+                    {
+                        gbuffers.reflection.PaintPixel(x, y, gbuffers.beauty.SampleColor01(rayPosSS.x(), rayPosSS.y()));
+                        break;
+                    }
+                }
+            }
+        }
+        // SSRの結果を合成
+#pragma omp parallel for
+        for (int y = 0; y < gbuffers.screenSize.y(); y++)
+        {
+            for (int x = 0; x < gbuffers.screenSize.x(); x++)
+            {
+                // TODO:強度のみの簡易版
+                Vector3f spec = gbuffers.specular.SampleColor(x, y);
+                float alpha = spec.norm() / 1000;
+                Vector3f col = gbuffers.reflection.SampleColor(x, y) * alpha + gbuffers.beauty.SampleColor(x, y) * (1 - alpha);
+                gbuffers.beauty.PaintPixel(x, y, col);
+            }
+        }
     }
 }
