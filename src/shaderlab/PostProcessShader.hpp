@@ -29,23 +29,22 @@ namespace PostProcessShader
 
     void BloomWithDownSampling(GBuffers &gbuffers)
     {
+        // ダウンサンプリングしたバッファを用意
         vector<RenderTarget> downSampledBuffers;
-        // for (int i = 2; i < DownSampleCount + 2; i++)
-        //   downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / i).BoxBlur(i * kernelSizeRate));
-
-        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 8).BoxBlur(2).UpSample(gbuffers.screenSize));
+        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 4).BoxBlur(4).UpSample(gbuffers.screenSize));
+        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 8).BoxBlur(4).UpSample(gbuffers.screenSize));
         downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 32).BoxBlur(3).UpSample(gbuffers.screenSize));
         downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 64).BoxBlur(3).UpSample(gbuffers.screenSize));
-        // downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 128).BoxBlur(3).UpSample(gbuffers.screenSize));
+        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 128).BoxBlur(3).UpSample(gbuffers.screenSize));
+#pragma omp parallel for
         for (int y = 0; y < gbuffers.emission.getScreenSize().y(); y++)
-        {
             for (int x = 0; x < gbuffers.emission.getScreenSize().x(); x++)
             {
+                // ダウンサンプリングしたバッファを合成
                 Vector3f sum = Vector3f(0, 0, 0);
                 for (size_t i = 0; i < downSampledBuffers.size(); i++)
-                {
                     sum += downSampledBuffers[i].SampleColor(x, y);
-                }
+
                 gbuffers.beauty.PaintPixel(x, y, gbuffers.beauty.SampleColor(x, y) + sum / downSampledBuffers.size());
             }
         }
