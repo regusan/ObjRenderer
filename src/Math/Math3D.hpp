@@ -23,13 +23,32 @@ namespace GeometryMath
 
         return normal;
     }
-    inline Vector3f RandomPointInSphere(const Vector3f &centor, const float radius)
+    inline uint xorshift(uint y)
     {
-        float theta = 2 * M_PI * static_cast<float>(rand()) / RAND_MAX;
-        float phi = acos(1 - 2 * static_cast<float>(rand()) / RAND_MAX);
+        // shift して xor する
+        y = y ^ (y << 13);
+        y = y ^ (y >> 17);
+        y = y ^ (y << 5);
+
+        // [0, 1] に正規化して返す
+        return y;
+    }
+
+    inline Vector3f MakePointOnSphere(const Vector3f &centor, const float radius, const float theta, const float phi)
+    {
         float x = radius * sin(phi) * cos(theta) + centor.x();
         float y = radius * sin(phi) * sin(theta) + centor.y();
         float z = radius * cos(phi) + centor.z();
         return Vector3f(x, y, z);
+    }
+    inline Vector3f MakeRandomPointInSphereByUVSeed(const Vector3f &centor, const float maxRadius, uint seed)
+    {
+        seed = xorshift(seed);
+        float theta = (float)seed * 0.0001;
+        seed = xorshift(seed);
+        float phi = (float)seed * 0.0001;
+        seed = xorshift(seed);
+        float radius = fmod(seed * 0.0001, maxRadius);
+        return MakePointOnSphere(centor, radius, theta, phi);
     }
 }
