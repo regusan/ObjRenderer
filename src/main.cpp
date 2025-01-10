@@ -19,7 +19,6 @@ using namespace std;
 using namespace Transform;
 void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
-Vector2i screenSize = Vector2i(1000, 1000);
 
 ConfigParser config = ConfigParser("config.ini");
 
@@ -40,9 +39,9 @@ int main(int argc, char const *argv[])
         fprintf(stderr, "Invalid args:takes 1 arguments but %c were given.\nUsage:%s <ObjFiepath> \n", argc, argv[0]);
         exit(1);
     }
-    X11Display display(screenSize.x(), screenSize.y());
+    X11Display display(in.environment.screenSize.x(), in.environment.screenSize.y());
     TurnTableCamera camera;
-    camera.SetPosition(Vector3f(0, 0, 0));
+    camera.SetPosition(Vector3f(0, 3, 0));
     inputDispatcher.addListener([&camera](const XEvent &event)
                                 {
                                     camera.OnUpdateInput(event); // メンバ関数を呼び出す
@@ -53,7 +52,7 @@ int main(int argc, char const *argv[])
         auto start = std::chrono::high_resolution_clock::now();
 
         // GBufferの定義
-        GBuffers gb = GBuffers(screenSize.x(), screenSize.y());
+        GBuffers gb = GBuffers(in.environment.screenSize.x(), in.environment.screenSize.y());
 
         // 視点の更新
         camera.SetRotation(Vector3f(display.GetMousePos().y(), display.GetMousePos().x(), 0));
@@ -63,8 +62,9 @@ int main(int argc, char const *argv[])
         // GBufferに格納
         RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
-        // RenderingPass::ExecPostProcessPass(gb, Bloom, in.environment);
+        PostProcessShader::ScreenSpaceReflection(gb);
         PostProcessShader::BloomWithDownSampling(gb);
+        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb);
 
         // GBufferからデバイスコンテキストにコピー
         RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
