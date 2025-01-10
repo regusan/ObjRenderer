@@ -27,6 +27,7 @@ public:
 
     RenderTarget depth;
     RenderTarget AO;
+    RenderTarget reflection;
 
     RenderTarget positionWS;
     RenderTarget positionVS;
