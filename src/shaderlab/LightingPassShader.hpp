@@ -25,12 +25,12 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
     Vector3f positionWSSampled = gbuffers.positionWS.SampleColor(x, y);
     Vector3f emissionSampled = gbuffers.emission.SampleColor(x, y);
     float aoSampled = gbuffers.AO.SampleColor(x, y).x();
+    float shadowSampled = gbuffers.SSShadow.SampleColor(x, y).x();
 
     Vector3f cameraPosWS = environment.viewMat.inverse().col(3).head<3>();
 
     // DirectionalLight関連の情報を取得
     DirectionalLight light0 = environment.directionalLights.at(0);
-    Vector3f directionalLightColor = Vector3f(.8, .8, .8);
 
     // 反射ベクトルの計算
     Vector3f ref = MathPhysics::Reflect(light0.direction, normalWSSampled);
@@ -44,7 +44,7 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
 
     // DirectionalLightによるDiffuseライティング計算
     float directIntencity = max<float>(normalWSSampled.dot(light0.direction), 0);
-    Vector3f directionalLight = diffuseSampled.array() * light0.color.array() * directIntencity * aoSampled;
+    Vector3f directionalLight = diffuseSampled.array() * light0.color.array() * directIntencity * aoSampled * shadowSampled;
 
     // アンビエントライト取得
     Vector3f ambient = environment.ambientLight.array() * diffuseSampled.array() * aoSampled;

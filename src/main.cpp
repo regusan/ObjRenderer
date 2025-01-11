@@ -62,10 +62,11 @@ int main(int argc, char const *argv[])
 
         // GBufferに格納
         RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
+        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
+        PostProcessShader::ScreenSpaceShadow(gb, in.environment);
         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
-        PostProcessShader::ScreenSpaceReflection(gb);
+        PostProcessShader::ScreenSpaceReflection(gb, in.environment);
         PostProcessShader::BloomWithDownSampling(gb);
-        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb);
 
         // GBufferからデバイスコンテキストにコピー
         RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));

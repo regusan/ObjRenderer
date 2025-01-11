@@ -187,4 +187,61 @@ namespace PostProcessShader
             }
         }
     }
+    void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
+    {
+        // 光線を飛ばす回数
+        const int maxRayNum = 100;
+        // レイの最大距離
+        const float maxRayLength = 10;
+        const float rayLength = maxRayLength / maxRayNum;
+        // 自分自身に反射するのを防ぐための最小距離
+        const float minimumLength = rayLength * 5;
+        const int NoiseCount = 100;
+
+        float maxThickness = 30.0f / maxRayNum;
+
+#pragma omp parallel for
+        for (int y = 0; y < gbuffers.screenSize.y(); y++)
+        {
+            uint seed = y + environment.time + 1;
+            for (int x = 0; x < gbuffers.screenSize.x(); x++)
+            {
+                // 深度が無限遠だったら処理しない
+                if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
+                {
+                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
+                    continue;
+                }
+
+                const Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
+                Vector3f lightWS = environment.directionalLights.at(0).direction;
+                Vector3f normalVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * Vector4f(lightWS.x(), lightWS.y(), lightWS.z(), 1)).head<3>().normalized();
+                // normalVS = Vector3f(1, 1, -1).normalized();
+                //  TODO:二分探索にして高速化する
+                for (int i = 1; i <= maxRayNum; i++)
+                {
+
+                    float noise = seed % 1000 / 1000.0f;
+                    const float currentRayLength = rayLength * (i + noise) + minimumLength;
+                    seed = GeometryMath::xorshift(seed);
+                    const Vector3f offsetVS = normalVS * currentRayLength;
+                    const Vector3f rayPosVS = positionVS + offsetVS;
+                    const Vector3f rayPosSS = (rayPosVS / rayPosVS.z() + Vector3f(1, 1, 1)) * 0.5;
+                    // レイが画面外に行ったら強制終了
+                    if (rayPosSS.x() < 0 || rayPosSS.x() > 1 || rayPosSS.y() < 0 || rayPosSS.y() > 1)
+                        break;
+
+                    // GBufferから取得した実際の深度
+                    const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
+                    // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
+                    if (rayPosVS.z() > actualDepth && rayPosVS.z() - actualDepth < maxThickness)
+                    {
+                        gbuffers.SSShadow.PaintPixel(x, y, Vector3f(0, 0, 0));
+                        break;
+                    }
+                }
+            }
+        }
+        // gbuffers.SSShadow = gbuffers.SSShadow.GausiannBlur(11);
+    }
 }

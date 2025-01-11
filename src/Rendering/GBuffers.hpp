@@ -28,6 +28,7 @@ public:
     RenderTarget depth;
     RenderTarget AO;
     RenderTarget reflection;
+    RenderTarget SSShadow;
 
     RenderTarget positionWS;
     RenderTarget positionVS;

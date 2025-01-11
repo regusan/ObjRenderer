@@ -17,6 +17,9 @@ GBuffers::GBuffers(const int &width, const int &height)
         this->screenSize.x(), this->screenSize.y(), Vector3f(1, 1, 1));
     this->reflection = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+    this->SSShadow = RenderTarget(
+        this->screenSize.x(), this->screenSize.y(), Vector3f(1, 1, 1));
+
     this->uv = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->temp = RenderTarget(
@@ -31,6 +34,7 @@ GBuffers::GBuffers(const int &width, const int &height)
         {"depth", &depth},
         {"AO", &AO},
         {"reflection", &reflection},
+        {"SSShadow", &SSShadow},
         {"positionWS", &positionWS},
         {"positionVS", &positionVS},
         {"normalWS", &normalWS},
@@ -62,6 +66,7 @@ void GBuffers::writeAsPPM(const string &filepath,
     (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(appendToFilepath("/out_depth.ppm"));
     (this->AO).writeAsPPM(appendToFilepath("/out_AO.ppm"));
     (this->reflection).writeAsPPM(appendToFilepath("/out_reflection.ppm"));
+    (this->SSShadow).writeAsPPM(appendToFilepath("/out_SSShadow.ppm"));
 
     (this->positionWS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionWS.ppm"));
     (this->positionVS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionVS.ppm"));
