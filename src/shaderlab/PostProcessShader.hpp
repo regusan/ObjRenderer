@@ -30,12 +30,27 @@ namespace PostProcessShader
     void BloomWithDownSampling(GBuffers &gbuffers)
     {
         // ダウンサンプリングしたバッファを用意
-        vector<RenderTarget> downSampledBuffers;
-        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 4).BoxBlur(4).UpSample(gbuffers.screenSize));
-        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 8).BoxBlur(4).UpSample(gbuffers.screenSize));
-        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 32).BoxBlur(3).UpSample(gbuffers.screenSize));
-        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 64).BoxBlur(3).UpSample(gbuffers.screenSize));
-        downSampledBuffers.push_back(gbuffers.emission.DownSample(gbuffers.screenSize / 128).BoxBlur(3).UpSample(gbuffers.screenSize));
+
+        vector<Vector2i> downSampleSizes = {
+            // gbuffers.screenSize / 2,
+            gbuffers.screenSize / 4,
+            gbuffers.screenSize / 8,
+            gbuffers.screenSize / 16,
+            gbuffers.screenSize / 32,
+        };
+        vector<int> kernelSizes = {
+            // 3,
+            3,
+            5,
+            7,
+            15,
+        };
+        vector<RenderTarget> downSampledBuffers(downSampleSizes.size());
+#pragma omp parallel for
+        for (size_t i = 0; i < downSampleSizes.size(); i++)
+        {
+            downSampledBuffers[i] = gbuffers.emission.DownSample(downSampleSizes[i]).GausiannBlur(kernelSizes[i]).UpSample(gbuffers.screenSize);
+        }
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.emission.getScreenSize().y(); y++)
             for (int x = 0; x < gbuffers.emission.getScreenSize().x(); x++)
@@ -44,8 +59,7 @@ namespace PostProcessShader
                 Vector3f sum = Vector3f(0, 0, 0);
                 for (size_t i = 0; i < downSampledBuffers.size(); i++)
                     sum += downSampledBuffers[i].SampleColor(x, y);
-
-                gbuffers.beauty.PaintPixel(x, y, gbuffers.beauty.SampleColor(x, y) + sum / downSampledBuffers.size());
+                gbuffers.beauty.PaintPixel(x, y, sum + gbuffers.beauty.SampleColor(x, y));
             }
     }
     void ScreenSpaceAmbientOcculusionCryTek(GBuffers &gbuffers)
