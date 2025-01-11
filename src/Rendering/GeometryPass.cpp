@@ -67,6 +67,10 @@ namespace RenderingPipeline
                 minY = min((float)minY, point.positionSS.y());
                 maxX = max((float)maxX, point.positionSS.x());
                 maxY = max((float)maxY, point.positionSS.y());
+                minX = max(minX, 0);
+                minY = max(minY, 0);
+                maxX = min(maxX, gb.screenSize.x() - 1);
+                maxY = min(maxY, gb.screenSize.y() - 1);
             }
 
             for (int y = minY; y <= maxY; ++y)
