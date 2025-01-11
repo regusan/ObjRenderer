@@ -4,6 +4,7 @@
 // #include "../Light/ILight.hpp"
 // #include "../Light/RadialPointLight.hpp"
 #include "../STL/ConfigParser.hpp"
+#include "../Light/DirectionalLight.hpp"
 
 // class ILight;
 // class RadialPointLight;
@@ -20,7 +21,7 @@ public:
     int backFaceCullingDirection = 1;
     Vector2i screenSize = Vector2i(1, 1);
     // vector<RadialPointLight> lights;
-    vector<Vector3f> directionalLights = {Vector3f(1, -1, -1).normalized()};
+    vector<DirectionalLight> directionalLights = {DirectionalLight(Vector3f(1, 1, 1), Vector3f(.8, .8, .8))};
     Matrix4f viewMat = Matrix4f::Identity();
     Vector3f ambientLight = Vector3f(0.1, 0.1, 0.1);
 

@@ -12,7 +12,11 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
                             config.GetAsNumeric("AmbientLightG"),
                             config.GetAsNumeric("AmbientLightB"));
     directionalLights.clear();
-    directionalLights.push_back(Vector3f(config.GetAsNumeric("Light0DirectionX"),
-                                         config.GetAsNumeric("Light0DirectionY"),
-                                         config.GetAsNumeric("Light0DirectionZ")));
+    directionalLights.push_back(DirectionalLight(
+        Vector3f(config.GetAsNumeric("Light0DirectionX"),
+                 config.GetAsNumeric("Light0DirectionY"),
+                 config.GetAsNumeric("Light0DirectionZ")),
+        Vector3f(config.GetAsNumeric("Light0ColorR"),
+                 config.GetAsNumeric("Light0ColorG"),
+                 config.GetAsNumeric("Light0ColorB"))));
 }
