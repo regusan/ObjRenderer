@@ -99,6 +99,12 @@ public:
     /// @return
     RenderTarget BoxBlur(const int kernelSize, const int kernelScale = 1);
 
+    /// @brief ガウスブラー適用
+    /// @param kernelSize
+    /// @param kernelScale
+    /// @return
+    RenderTarget GausiannBlur(const int kernelSize, const int kernelScale = 1);
+
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend RenderTarget operator%(const RenderTarget &rt, const float &mul);

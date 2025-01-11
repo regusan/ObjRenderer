@@ -223,15 +223,27 @@ RenderTarget RenderTarget::Abs()
 RenderTarget RenderTarget::DownSample(const Vector2i size)
 {
     RenderTarget retval = RenderTarget(size.x(), size.y());
+    int ratioX = this->screenSize.x() / size.x();
+    int ratioY = this->screenSize.y() / size.y();
+
     for (int y = 0; y < size.y(); y++)
     {
         for (int x = 0; x < size.x(); x++)
         {
-            retval.PaintPixel(x, y, this->SampleColor01(static_cast<float>(x) / size.x(), static_cast<float>(y) / size.y()));
+            Vector3f sum = Vector3f(0, 0, 0);
+            for (int dy = 0; dy < ratioY; dy++)
+            {
+                for (int dx = 0; dx < ratioX; dx++)
+                {
+                    sum += this->SampleColor(x * ratioX + dx, y * ratioY + dy);
+                }
+            }
+            retval.PaintPixel(x, y, sum / (ratioX * ratioY));
         }
     }
     return retval;
 }
+
 RenderTarget RenderTarget::UpSample(const Vector2i size)
 {
     RenderTarget scaledX = RenderTarget(size.x(), this->screenSize.y());
@@ -281,6 +293,63 @@ RenderTarget RenderTarget::BoxBlur(const int kernelSize, const int kernelScale)
             retval.PaintPixel(x, y, sum / (kernelSize * kernelSize));
         }
     }
+    return retval;
+}
+RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const int kernelScale)
+{
+    RenderTarget retval = RenderTarget((*this));
+    int actualKernelSize = kernelSize / 2 * 2 + 1; // サイズを奇数に変換
+    vector<float> kernel(actualKernelSize, 0.0f);
+
+    // ガウスカーネルの生成
+    float sigma = static_cast<float>(kernelSize) / 2.0f;
+    float gaussSum = 0.0f;
+    for (int i = 0; i < actualKernelSize; i++)
+    {
+        int x = i - actualKernelSize / 2;
+        kernel[i] = exp(-0.5f * (x * x) / (sigma * sigma));
+        gaussSum += kernel[i];
+    }
+    // 正規化
+    for (int i = 0; i < actualKernelSize; i++)
+    {
+        kernel[i] /= gaussSum;
+    }
+
+    // 横方向のぼかし
+    for (int y = 0; y < this->screenSize.y(); y++)
+    {
+        for (int x = 0; x < this->screenSize.x(); x++)
+        {
+            Vector3f sum = Vector3f(0, 0, 0);
+            for (int lx = -actualKernelSize / 2; lx <= actualKernelSize / 2; lx++)
+            {
+                int sampleX = max(min(x + lx * kernelScale, this->screenSize.x() - 1), 0);
+                if (sampleX < 0 || sampleX >= this->screenSize.x())
+                    continue;
+                sum += this->SampleColor(sampleX, y) * kernel[lx + actualKernelSize / 2];
+            }
+            retval.PaintPixel(x, y, sum);
+        }
+    }
+
+    // 縦方向のぼかし
+    for (int y = 0; y < this->screenSize.y(); y++)
+    {
+        for (int x = 0; x < this->screenSize.x(); x++)
+        {
+            Vector3f sum = Vector3f(0, 0, 0);
+            for (int ly = -actualKernelSize / 2; ly <= actualKernelSize / 2; ly++)
+            {
+                int sampleY = y + ly * kernelScale;
+                if (sampleY < 0 || sampleY >= this->screenSize.y())
+                    continue;
+                sum += retval.SampleColor(x, sampleY) * kernel[ly + actualKernelSize / 2];
+            }
+            retval.PaintPixel(x, y, sum);
+        }
+    }
+
     return retval;
 }
 RenderTarget operator*(const RenderTarget &rt, const float &mul)
