@@ -9,6 +9,8 @@
 // class ILight;
 // class RadialPointLight;
 #include <vector>
+#include <chrono>
+#include <ctime>
 using namespace std;
 class RenderingEnvironmentParameters
 {
@@ -24,10 +26,12 @@ public:
     vector<DirectionalLight> directionalLights = {DirectionalLight(Vector3f(1, 1, 1), Vector3f(.8, .8, .8))};
     Matrix4f viewMat = Matrix4f::Identity();
     Vector3f ambientLight = Vector3f(0.1, 0.1, 0.1);
+    float time = 0;
 
     /// @brief コンフィグから読み取り
     /// @param config
     void loadFromConfig(ConfigParser config);
+    void setCurrentTIme();
     RenderingEnvironmentParameters(/* args */) {}
     ~RenderingEnvironmentParameters() {}
 };

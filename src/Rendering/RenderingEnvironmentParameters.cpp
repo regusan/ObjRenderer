@@ -20,3 +20,8 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
                  config.GetAsNumeric("Light0ColorG"),
                  config.GetAsNumeric("Light0ColorB"))));
 }
+
+void RenderingEnvironmentParameters::setCurrentTIme()
+{
+    time = static_cast<float>(clock()) / CLOCKS_PER_SEC * 1000;
+}

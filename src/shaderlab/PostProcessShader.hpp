@@ -72,7 +72,7 @@ namespace PostProcessShader
                 gbuffers.beauty.PaintPixel(x, y, sum + gbuffers.beauty.SampleColor(x, y));
             }
     }
-    void ScreenSpaceAmbientOcculusionCryTek(GBuffers &gbuffers)
+    void ScreenSpaceAmbientOcculusionCryTek(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
         int N = 50;
         int NoiseCount = N * 10;
@@ -90,7 +90,7 @@ namespace PostProcessShader
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.depth.getScreenSize().y(); y += skipSize)
         {
-            uint seed = y;
+            uint seed = y + environment.time + 1;
             for (int x = 0; x < gbuffers.depth.getScreenSize().x(); x += skipSize)
             {
                 // 深度が無限遠だったら処理しない
@@ -114,9 +114,9 @@ namespace PostProcessShader
                 gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
             }
         }
-        gbuffers.AO = gbuffers.AO.GausiannBlur(7);
+        // gbuffers.AO = gbuffers.AO.GausiannBlur(3);
     }
-    void ScreenSpaceReflection(GBuffers &gbuffers)
+    void ScreenSpaceReflection(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
         // 光線を飛ばす回数
         const int maxRayNum = 30;
@@ -125,12 +125,16 @@ namespace PostProcessShader
         const float rayLength = maxRayLength / maxRayNum;
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = rayLength * 0;
+        const int NoiseCount = 100;
+
+        float roughness = 0.2;
 
         float maxThickness = 7.0f / maxRayNum;
 
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y++)
         {
+            uint seed = y + environment.time + 1;
             for (int x = 0; x < gbuffers.screenSize.x(); x++)
             {
                 // 深度が無限遠だったら処理しない
@@ -141,12 +145,15 @@ namespace PostProcessShader
                 }
 
                 const Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
-                Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
+                Vector3f normalVS = (gbuffers.normalVS.SampleColor(x, y)); //* (1 - roughness) + noises[seed % NoiseCount] * roughness).normalized();
                 Vector3f reflect = MathPhysics::Reflect(positionVS, normalVS).normalized();
                 // TODO:二分探索にして高速化する
                 for (int i = 1; i <= maxRayNum; i++)
                 {
-                    const float currentRayLength = rayLength * i + minimumLength;
+
+                    float noise = seed % 1000 / 1000.0f;
+                    const float currentRayLength = rayLength * (i + noise) + minimumLength;
+                    seed = GeometryMath::xorshift(seed);
                     const Vector3f offsetVS = reflect * currentRayLength;
                     const Vector3f rayPosVS = positionVS + offsetVS;
                     const Vector3f rayPosSS = (rayPosVS / rayPosVS.z() + Vector3f(1, 1, 1)) * 0.5;
@@ -165,7 +172,8 @@ namespace PostProcessShader
                 }
             }
         }
-        // SSRの結果を合成
+        gbuffers.reflection = gbuffers.reflection.GausiannBlur(11);
+        //    SSRの結果を合成
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y++)
         {

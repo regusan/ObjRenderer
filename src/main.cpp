@@ -58,6 +58,7 @@ int main(int argc, char const *argv[])
         camera.SetRotation(Vector3f(display.GetMousePos().y(), display.GetMousePos().x(), 0));
         in.viewMat = camera.getMat();
         in.environment.viewMat = in.viewMat;
+        in.environment.setCurrentTIme();
 
         // GBufferに格納
         RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
