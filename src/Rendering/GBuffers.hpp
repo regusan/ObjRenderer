@@ -36,6 +36,7 @@ public:
     RenderTarget normalVS;
 
     RenderTarget uv;
+    RenderTarget temp;
 
     GBuffers(const int &width, const int &height);
     ~GBuffers();
