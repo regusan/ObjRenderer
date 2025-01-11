@@ -48,7 +48,34 @@ namespace GeometryMath
         seed = xorshift(seed);
         float phi = (float)seed * 0.0001;
         seed = xorshift(seed);
-        float radius = fmod(seed * 0.0001, maxRadius);
+        float radius = sqrt(fmod(seed * 0.0001, maxRadius));
         return MakePointOnSphere(centor, radius, theta, phi);
     }
+    inline Vector3f MakeRandomPointInHalfSphereByUVSeed(const Vector3f &centor, const float maxRadius, uint seed)
+    {
+        seed = xorshift(seed);
+        float theta = (float)seed * 0.0001;
+        seed = xorshift(seed);
+        float phi = (float)seed * 0.0001;
+        seed = xorshift(seed);
+        float radius = fmod(seed * 0.0001, maxRadius);
+
+        float x = radius * sin(phi) * cos(theta) + centor.x();
+        float y = radius * sin(phi) * sin(theta) + centor.y();
+        float z = radius * cos(phi) + centor.z();
+        z = abs(z);
+        return Vector3f(x, y, z);
+    }
+    inline Vector3f RotateVectorToBasis(const Vector3f &v, const Vector3f &dir)
+    {
+        Vector3f zAxis(0, 0, 1);
+        Vector3f axis = zAxis.cross(dir).normalized();   // 回転軸を計算
+        float angle = acos(zAxis.dot(dir.normalized())); // 回転角を計算
+
+        // ロドリゲスの回転公式による回転行列適用
+        Vector3f rotatedA = v * cos(angle) + axis.cross(v) * sin(angle) + axis * (axis.dot(v)) * (1 - cos(angle));
+
+        return rotatedA;
+    }
+
 }
