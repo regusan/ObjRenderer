@@ -50,8 +50,9 @@ namespace PostProcessShader
     }
     void ScreenSpaceAmbientOcculusionCryTek(GBuffers &gbuffers)
     {
-        int N = 30;
+        int N = 50;
         int NoiseCount = N * 10;
+        int skipSize = 1;
         float sphereRadius = 0.001 * gbuffers.screenSize.x(); // 解像度1000で半径1
         // ノイズを事前計算
         vector<Vector3f> noises;
@@ -63,26 +64,33 @@ namespace PostProcessShader
         }
 
 #pragma omp parallel for
-        for (int y = 0; y < gbuffers.depth.getScreenSize().y(); y++)
+        for (int y = 0; y < gbuffers.depth.getScreenSize().y(); y += skipSize)
         {
             uint seed = y;
-            for (int x = 0; x < gbuffers.depth.getScreenSize().x(); x++)
+            for (int x = 0; x < gbuffers.depth.getScreenSize().x(); x += skipSize)
             {
+                // 深度が無限遠だったら処理しない
+                if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
+            {
+                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
+                    continue;
+                }
                 int visibleCount = 0;
                 Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
+                Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
                 for (int i = 0; i < N; i++)
                 {
-                    Vector3f randomVS = positionVS + noises[seed % NoiseCount];
+                    Vector3f randomVS = positionVS + noises[seed % NoiseCount]; // + GeometryMath::RotateVectorToBasis(noises[seed % NoiseCount], -normalVS);
                     seed = GeometryMath::xorshift(seed);
                     const Vector3f randomSS = (randomVS / randomVS.z() + Vector3f(1, 1, 1)) * 0.5;
                     float factDepth = gbuffers.positionVS.SampleColor01(randomSS.x(), randomSS.y()).z();
                     visibleCount += factDepth > randomVS.z();
                 }
-                float ratio = static_cast<float>(visibleCount) / N;
+                float ratio = fmin(1, static_cast<float>(visibleCount) / N * 2);
                 gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
             }
         }
-        gbuffers.AO = gbuffers.AO.BoxBlur(5);
+        gbuffers.AO = gbuffers.AO.GausiannBlur(7);
     }
     void ScreenSpaceReflection(GBuffers &gbuffers)
     {
