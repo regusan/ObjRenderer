@@ -45,13 +45,21 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
-    out.diffuse = in.material->diffuse;
-    out.specular = in.material->specular * in.material->specularShapness;
 
-    if (optional<RenderTarget> &map = in.material->diffuseMap) // DiffuseMapが存在するなら、サンプル
+    out.specular = in.material->specular; // * in.material->specularShapness;
+
+    out.diffuse = in.material->diffuse; // Diffuseをマテリアルから設定
+    // DiffuseMapが存在するなら、テクスチャのディフューズを掛け合わせる
+    if (optional<RenderTarget> &map = in.material->diffuseMap)
         out.diffuse = out.diffuse.array() * map->SampleColor01(in.uv.x(), in.uv.y()).array();
     if (optional<RenderTarget> &map = in.material->normalMap) // NormalMapが存在するなら、サンプル
-        out.normal = out.normal.array() * map->SampleColor01(in.uv.x(), in.uv.y()).array();
+    {
+        Vector3f sampledNormal = map->SampleColor01(in.uv.x(), in.uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f); // タンジェント空間へ
+        out.normal = in.normalWS.head<3>().array() * sampledNormal.array();
+        out.normal.normalize();
+        out.normal = sampledNormal;
+    }
+
     out.emission = in.material->emission;
     out.color = out.diffuse;
     return out;
