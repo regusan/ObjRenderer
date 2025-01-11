@@ -45,15 +45,25 @@ namespace PostProcessShader
             7,
             15,
         };
+        RenderTarget bloomSource(gbuffers.screenSize.x(), gbuffers.screenSize.y());
+#pragma omp parallel for
+        for (int y = 0; y < bloomSource.getScreenSize().y(); y++)
+            for (int x = 0; x < bloomSource.getScreenSize().x(); x++)
+            {
+                Vector3f beauty = gbuffers.beauty.SampleColor(x, y);
+                Vector3f overflow = Vector3f(fmax(0, beauty.x() - 1), fmax(0, beauty.y() - 1), fmax(0, beauty.z() - 1));
+                bloomSource.PaintPixel(x, y, gbuffers.emission.SampleColor(x, y) + overflow);
+            }
+
         vector<RenderTarget> downSampledBuffers(downSampleSizes.size());
 #pragma omp parallel for
         for (size_t i = 0; i < downSampleSizes.size(); i++)
         {
-            downSampledBuffers[i] = gbuffers.emission.DownSample(downSampleSizes[i]).GausiannBlur(kernelSizes[i]).UpSample(gbuffers.screenSize);
+            downSampledBuffers[i] = bloomSource.DownSample(downSampleSizes[i]).GausiannBlur(kernelSizes[i]).UpSample(gbuffers.screenSize);
         }
 #pragma omp parallel for
-        for (int y = 0; y < gbuffers.emission.getScreenSize().y(); y++)
-            for (int x = 0; x < gbuffers.emission.getScreenSize().x(); x++)
+        for (int y = 0; y < bloomSource.getScreenSize().y(); y++)
+            for (int x = 0; x < bloomSource.getScreenSize().x(); x++)
             {
                 // ダウンサンプリングしたバッファを合成
                 Vector3f sum = Vector3f(0, 0, 0);
@@ -85,7 +95,7 @@ namespace PostProcessShader
             {
                 // 深度が無限遠だったら処理しない
                 if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
-            {
+                {
                     gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
                     continue;
                 }
@@ -116,7 +126,7 @@ namespace PostProcessShader
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = rayLength * 0;
 
-        float maxThickness = 20.0f / maxRayNum;
+        float maxThickness = 7.0f / maxRayNum;
 
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y++)
@@ -163,8 +173,8 @@ namespace PostProcessShader
             {
                 // TODO:強度のみの簡易版
                 Vector3f spec = gbuffers.specular.SampleColor(x, y);
-                float alpha = spec.norm() / 1000;
-                Vector3f col = gbuffers.reflection.SampleColor(x, y) * alpha + gbuffers.beauty.SampleColor(x, y) * (1 - alpha);
+                Vector3f col = gbuffers.reflection.SampleColor(x, y).array() * spec.array() +
+                               gbuffers.beauty.SampleColor(x, y).array() * (Vector3f(1, 1, 1) - spec).array();
                 gbuffers.beauty.PaintPixel(x, y, col);
             }
         }
