@@ -15,7 +15,7 @@ private:
 public:
     Vector3f ambientReflection = Vector3f(1, 0, 1);
     Vector3f diffuse = Vector3f(1, 0, 1);
-    Vector3f specular = Vector3f(1, 1, 1);
+    Vector3f specular = Vector3f(.3, .3, .3);
     Vector3f emission = Vector3f(0, 0, 0);
     float specularShapness = 30;
     float alpha = 1;
