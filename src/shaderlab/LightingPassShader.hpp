@@ -51,5 +51,32 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
 
     // ライト結果の合成
     Vector3f finalColor = directionalLight + specular + ambient + emissionSampled;
+
+    return finalColor;
+}
+
+/// @brief フォンシェーダーのライトパスシェーダー
+/// @param gbuffers
+/// @param environment
+/// @param x
+/// @param y
+/// @return 該当ピクセルの色
+inline const Vector3f FinalLightingPassShader(GBuffers &gbuffers, RenderingEnvironmentParameters &environment, int x, int y)
+{
+    Vector3f fogColor = environment.fogColor;
+    // 物体がなければフォグカラー
+    float depthSampled = gbuffers.depth.SampleColor(x, y).x();
+    if (depthSampled == numeric_limits<float>::max())
+        return fogColor;
+    Vector3f finalColor = gbuffers.beauty.SampleColor(x, y);
+    if (environment.quality < RenderingQuality::Low)
+    {
+        // TODO:強度のみの簡易版
+        Vector3f spec = gbuffers.specular.SampleColor(x, y);
+        Vector3f finalColor = gbuffers.reflection.SampleColor(x, y).array() * spec.array() +
+                              finalColor.array() * (Vector3f(1, 1, 1) - spec).array();
+    }
+    float depthFogRatio = clamp<float>((depthSampled - environment.fogNearFar.x()) / (environment.fogNearFar.y() - environment.fogNearFar.x()), 0, 1);
+    finalColor = finalColor * (1 - depthFogRatio) + fogColor * depthFogRatio;
     return finalColor;
 }

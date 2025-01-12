@@ -19,6 +19,10 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
         Vector3f(config.GetAsNumeric("Light0ColorR"),
                  config.GetAsNumeric("Light0ColorG"),
                  config.GetAsNumeric("Light0ColorB"))));
+    this->fogColor = Vector3f(config.GetAsNumeric("FogColorR"),
+                              config.GetAsNumeric("FogColorG"),
+                              config.GetAsNumeric("FogColorB"));
+    this->fogNearFar = Vector2f(config.GetAsNumeric("FogNear"), config.GetAsNumeric("FogFar"));
 
     string qualityStr = config.GetAsString("Quality");
     if (qualityStr == "Low")

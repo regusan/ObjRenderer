@@ -36,6 +36,10 @@ public:
     Vector2i screenSize = Vector2i(1, 1);
     // vector<RadialPointLight> lights;
     vector<DirectionalLight> directionalLights = {DirectionalLight(Vector3f(1, 1, 1), Vector3f(.8, .8, .8))};
+
+    Vector3f fogColor = Vector3f(1, 1, 1);
+    Vector2f fogNearFar = Vector2f(0, 100);
+
     Matrix4f viewMat = Matrix4f::Identity();
     Vector3f ambientLight = Vector3f(0.1, 0.1, 0.1);
     float time = 0;

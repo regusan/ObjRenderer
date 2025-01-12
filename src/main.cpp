@@ -90,7 +90,7 @@ int main(int argc, char const *argv[])
             PostProcessShader::ScreenSpaceReflection(gb, in.environment);
             PostProcessShader::BloomWithDownSampling(gb, in.environment);
         }
-
+        RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
         // GBufferからデバイスコンテキストにコピー
         RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
         display.show(rt);
@@ -132,6 +132,7 @@ int main(int argc, char const *argv[])
                         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
                         PostProcessShader::ScreenSpaceReflection(gb, in.environment);
                         PostProcessShader::BloomWithDownSampling(gb, in.environment);
+                        RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
 
                         auto now = std::chrono::system_clock::now();
                         auto now_time_t = std::chrono::system_clock::to_time_t(now);
