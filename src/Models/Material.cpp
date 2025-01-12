@@ -75,7 +75,7 @@ map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
         {
             string texturePath;
             iss >> texturePath;
-            currentMaterial.diffuseMap = RenderTarget(dir / texturePath); // 適切なテクスチャ読み込み処理を実装
+            currentMaterial.diffuseMap = RenderTarget(dir / texturePath);
         }
         else if (key == "map_Ka")
         {
