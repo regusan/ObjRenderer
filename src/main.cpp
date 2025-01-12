@@ -9,6 +9,7 @@
 #include "header/EigenHeader.hpp"
 #include "header/RenderingHeader.hpp"
 #include "GameObject/TurnTableCamera.hpp"
+#include "GameObject/FPSCamera.hpp"
 #include "GUI/X11Display.hpp"
 #include "STL/EventDispatcher.hpp"
 #include "STL/ConfigParser.hpp"
@@ -17,6 +18,7 @@
 
 using namespace std;
 using namespace Transform;
+
 void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
 
@@ -40,11 +42,17 @@ int main(int argc, char const *argv[])
         exit(1);
     }
     X11Display display(in.environment.screenSize.x(), in.environment.screenSize.y());
-    TurnTableCamera camera;
-    camera.SetPosition(Vector3f(0, 3, 0));
-    inputDispatcher.addListener([&camera](const XEvent &event)
+    TurnTableCamera turnTableCamera;
+    FPSCamera fpsCamera;
+    // camera.SetPosition(Vector3f(0, 3, 0));
+    fpsCamera.SetPosition(Vector3f(0, 0, 10));
+    inputDispatcher.addListener([&turnTableCamera](const XEvent &event)
                                 {
-                                    camera.OnUpdateInput(event); // メンバ関数を呼び出す
+                                    turnTableCamera.OnUpdateInput(event); // メンバ関数を呼び出す
+                                });
+    inputDispatcher.addListener([&fpsCamera](const XEvent &event)
+                                {
+                                    fpsCamera.OnUpdateInput(event); // メンバ関数を呼び出す
                                 });
     while (true)
     {
@@ -55,8 +63,17 @@ int main(int argc, char const *argv[])
         GBuffers gb = GBuffers(in.environment.screenSize.x(), in.environment.screenSize.y());
 
         // 視点の更新
-        camera.SetRotation(Vector3f(display.GetMousePos().y(), display.GetMousePos().x(), 0));
-        in.viewMat = camera.getMat();
+        if (in.environment.cameraMoveMode == CameraMoveMode::FPS)
+        {
+            fpsCamera.SetRotation(Vector3f(0, display.GetMousePos().x(), display.GetMousePos().y()));
+            in.viewMat = fpsCamera.getMat();
+        }
+        else if (in.environment.cameraMoveMode == CameraMoveMode::TurnTable)
+        {
+            turnTableCamera.SetRotation(Vector3f(0, display.GetMousePos().x(), display.GetMousePos().y()));
+            in.viewMat = turnTableCamera.getMat();
+        }
+
         in.environment.viewMat = in.viewMat;
         in.environment.setCurrentTIme();
 
