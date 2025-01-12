@@ -23,19 +23,19 @@ void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
 
 ConfigParser config = ConfigParser("config.ini");
+VertInputStandard in;
+Model primaryModel = Model();
 
 int main(int argc, char const *argv[])
 {
+    // 初期化処理
     cout << "起動" << endl;
-
     cout << config << endl;
-    VertInputStandard in;
+
     in.environment.loadFromConfig(config);
 
-    Model model = Model();
-    // model.loadObj("models/room.obj");
     if (argc >= 2)
-        model.LoadModelFromFile(argv[1]);
+        primaryModel.LoadModelFromFile(argv[1]);
     else
     {
         fprintf(stderr, "Invalid args:takes 1 arguments but %c were given.\nUsage:%s <ObjFiepath> \n", argc, argv[0]);
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
     X11Display display(in.environment.screenSize.x(), in.environment.screenSize.y());
     TurnTableCamera turnTableCamera;
     FPSCamera fpsCamera;
-    // camera.SetPosition(Vector3f(0, 3, 0));
+    turnTableCamera.SetPosition(Vector3f(0, 3, 0));
     fpsCamera.SetPosition(Vector3f(0, 0, 10));
     inputDispatcher.addListener([&turnTableCamera](const XEvent &event)
                                 {
@@ -73,17 +73,23 @@ int main(int argc, char const *argv[])
             turnTableCamera.SetRotation(Vector3f(0, display.GetMousePos().x(), display.GetMousePos().y()));
             in.viewMat = turnTableCamera.getMat();
         }
-
         in.environment.viewMat = in.viewMat;
         in.environment.setCurrentTIme();
 
-        // GBufferに格納
-        RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, VertStandard, PixcelStandard);
-        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
-        PostProcessShader::ScreenSpaceShadow(gb, in.environment);
+        // 各レンダリングパスを実行
+        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
+        // Low未満ではそもそもパスを実行しない
+        if (in.environment.quality > RenderingQuality::Low)
+        {
+            PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
+            PostProcessShader::ScreenSpaceShadow(gb, in.environment);
+        }
         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
-        PostProcessShader::ScreenSpaceReflection(gb, in.environment);
-        PostProcessShader::BloomWithDownSampling(gb);
+        if (in.environment.quality > RenderingQuality::Low)
+        {
+            PostProcessShader::ScreenSpaceReflection(gb, in.environment);
+            PostProcessShader::BloomWithDownSampling(gb);
+        }
 
         // GBufferからデバイスコンテキストにコピー
         RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
@@ -108,13 +114,41 @@ int main(int argc, char const *argv[])
                     case XK_Return: // コンフィグのリロード
                         config = ConfigParser("config.ini");
                         in.environment.loadFromConfig(config);
-
+                        display.Resize(in.environment.screenSize);
                         break;
-                    case XK_Escape:
-                        display.~X11Display();
-                        gb.beauty.DownSample(Vector2i(100, 100)).UpSample(Vector2i(500, 500)).writeAsPPM("outputs2.ppm");
-                        gb.writeAsPPM("outputs", .5); // 書き出し
+                    case XK_space: // スナップショットを記録
+                    {              // 括弧で囲わないとローカル変数定義できない
+                        cout << "キャプチャ開始" << endl;
+                        Vector2i preResolution = in.environment.screenSize;
+                        RenderingQuality preQuality = in.environment.quality;
 
+                        in.environment.screenSize = Vector2i(2048, 2048);
+                        in.environment.quality = RenderingQuality::Cinema;
+
+                        gb = GBuffers(in.environment.screenSize.x(), in.environment.screenSize.y());
+                        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
+                        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
+                        PostProcessShader::ScreenSpaceShadow(gb, in.environment);
+                        RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
+                        PostProcessShader::ScreenSpaceReflection(gb, in.environment);
+                        PostProcessShader::BloomWithDownSampling(gb);
+
+                        auto now = std::chrono::system_clock::now();
+                        auto now_time_t = std::chrono::system_clock::to_time_t(now);
+
+                        // 時刻を人間可読形式で表示
+                        std::tm local_tm = *std::localtime(&now_time_t);
+                        ostringstream outputPath;
+                        outputPath << "outputs/out_" << std::put_time(&local_tm, "%Y-%m-%d-%H-%M-%S");
+                        gb.writeAsPPM(outputPath.str(), 1); // 書き出し
+                        cout << outputPath.str() << "にキャプチャ完了" << endl;
+
+                        in.environment.screenSize = preResolution;
+                        in.environment.quality = preQuality;
+                    }
+                    break;
+                    case XK_Escape: // 終了処理
+                        display.~X11Display();
                         exit(0);
                     }
                 }
