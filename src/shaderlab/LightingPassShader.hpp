@@ -39,7 +39,7 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
 
     // スペキュラの計算
     float specularScalar = clamp<float>(refval, 0.0, 1.0);
-    specularScalar = powf(specularScalar, 100.0f / specularSampled.norm());
+    specularScalar = powf(specularScalar, 10.0f / specularSampled.norm());
     Vector3f specular = specularSampled.normalized() * specularScalar;
 
     // DirectionalLightによるDiffuseライティング計算

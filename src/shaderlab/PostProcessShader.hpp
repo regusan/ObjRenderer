@@ -125,7 +125,7 @@ namespace PostProcessShader
         const float rayLength = maxRayLength / maxRayNum;
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = rayLength * 0;
-        const int NoiseCount = 100;
+        const int NoiseCount = maxRayNum * 10;
 
         float roughness = 0.2;
 
@@ -172,8 +172,8 @@ namespace PostProcessShader
                 }
             }
         }
-        gbuffers.reflection = gbuffers.reflection.GausiannBlur(11);
-        //    SSRの結果を合成
+        // gbuffers.reflection = gbuffers.reflection.GausiannBlur(11);
+        //     SSRの結果を合成
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y++)
         {
