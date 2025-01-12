@@ -88,7 +88,7 @@ int main(int argc, char const *argv[])
         if (in.environment.quality > RenderingQuality::Low)
         {
             PostProcessShader::ScreenSpaceReflection(gb, in.environment);
-            PostProcessShader::BloomWithDownSampling(gb);
+            PostProcessShader::BloomWithDownSampling(gb, in.environment);
         }
 
         // GBufferからデバイスコンテキストにコピー
@@ -131,7 +131,7 @@ int main(int argc, char const *argv[])
                         PostProcessShader::ScreenSpaceShadow(gb, in.environment);
                         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
                         PostProcessShader::ScreenSpaceReflection(gb, in.environment);
-                        PostProcessShader::BloomWithDownSampling(gb);
+                        PostProcessShader::BloomWithDownSampling(gb, in.environment);
 
                         auto now = std::chrono::system_clock::now();
                         auto now_time_t = std::chrono::system_clock::to_time_t(now);
