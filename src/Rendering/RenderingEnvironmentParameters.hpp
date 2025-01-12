@@ -11,6 +11,18 @@
 #include <vector>
 #include <chrono>
 #include <ctime>
+
+enum class RenderingQuality
+{
+    Low,
+    Mid,
+    Cinema,
+};
+enum class CameraMoveMode
+{
+    FPS,
+    TurnTable,
+};
 using namespace std;
 class RenderingEnvironmentParameters
 {
@@ -27,6 +39,8 @@ public:
     Matrix4f viewMat = Matrix4f::Identity();
     Vector3f ambientLight = Vector3f(0.1, 0.1, 0.1);
     float time = 0;
+    RenderingQuality quality = RenderingQuality::Mid;
+    CameraMoveMode cameraMoveMode = CameraMoveMode::FPS;
 
     /// @brief コンフィグから読み取り
     /// @param config
