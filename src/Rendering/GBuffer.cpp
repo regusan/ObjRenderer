@@ -52,7 +52,7 @@ void GBuffers::writeAsPPM(const string &filepath,
                           const float positionModValue,
                           const float normalMulValue)
 {
-    std::filesystem::create_directory(filepath);
+    std::filesystem::create_directories(filepath);
     auto appendToFilepath = [&filepath](const string &suffix) -> string
     {
         return filepath + suffix;
