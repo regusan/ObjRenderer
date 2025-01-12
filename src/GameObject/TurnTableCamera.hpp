@@ -1,26 +1,19 @@
 #pragma once
+#include "Camera.hpp"
+#include "FPSCamera.hpp"
 
-#include "../header/EigenHeader.hpp"
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include "../TransformMat.hpp"
-#include <iostream>
-#include "Actor.hpp"
-using namespace Transform;
-class TurnTableCamera : Actor
+/// @brief ある点を中心に回転するカメラ
+class TurnTableCamera : public FPSCamera
 {
 private:
-    Matrix4f mat;
     float radius = 10;
-    void matUpdate();
+    void matUpdate() override;
 
 public:
     TurnTableCamera(/* args */);
     ~TurnTableCamera();
+    /// @brief カメラブームの半径
+    /// @param radius
     void SetRadius(float radius);
-    void SetRotation(Vector3f rotate);
-    void SetPosition(Vector3f position);
-    void OnUpdateInput(const XEvent &event);
-
-    Matrix4f getMat();
+    void OnUpdateInput(const XEvent &event) override;
 };
