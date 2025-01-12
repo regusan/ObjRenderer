@@ -56,7 +56,7 @@ float ConfigParser::GetAsNumeric(string key)
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
-        std::cerr << "\"" << key << "\":\"" << this->GetAsString(key) << "\"は変換不可能な値" << '\n';
+        std::cerr << "コンフィグ値エラー:\"" << key << "\":\"" << this->GetAsString(key) << "\"はNumericでない値" << '\n';
         exit(1);
     }
 }
@@ -67,13 +67,22 @@ string ConfigParser::GetAsString(string key)
 
     else
     {
-        std::cerr << "Key:\"" << key << "\"は存在しないキー" << '\n';
+        std::cerr << "Key:\"" << key << "\"は存在しないキーです。configファイルに\"" << key << "=value\"を追加してください。" << '\n';
         exit(1);
     }
 }
 bool ConfigParser::GetAsBool(string key)
 {
-    return (this->GetAsString(key) == "True") || (this->GetAsString(key) == "true");
+    if (this->GetAsString(key) == "True" || this->GetAsString(key) == "true")
+        return true;
+    else if (this->GetAsString(key) == "False" || this->GetAsString(key) == "false")
+        return false;
+    else
+    {
+        std::cerr << "コンフィグ値エラー:\"" << key << "\":\"" << this->GetAsString(key)
+                  << "\"はBoolでない値。\"True\",\"true\",\"False\",\"false\"の中から選択してください。" << '\n';
+        exit(1);
+    }
 }
 
 std::ostream &operator<<(std::ostream &os, const ConfigParser &cfg)
