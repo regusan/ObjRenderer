@@ -14,6 +14,10 @@ namespace Transform
     Matrix4f ResetScale(const Matrix4f &mat);
     Matrix4f SetPosition(const Matrix4f &mat, const Vector4f &pos);
     Matrix4f ResetPosition(const Matrix4f &mat);
+    Vector4f GetForwardVector(const Matrix4f &mat);
+    Vector4f GetRightVector(const Matrix4f &mat);
+    Vector4f GetUpVector(const Matrix4f &mat);
+
 };
 
 /// @brief 指定点の重心座標系での補完率を出力

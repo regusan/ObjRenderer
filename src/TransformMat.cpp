@@ -80,4 +80,16 @@ namespace Transform
         transformed(2, 3) = pos.z();
         return transformed;
     }
+    Vector4f GetForwardVector(const Matrix4f &mat)
+    {
+        return mat.col(2);
+    }
+    Vector4f GetRightVector(const Matrix4f &mat)
+    {
+        return mat.col(0);
+    }
+    Vector4f GetUpVector(const Matrix4f &mat)
+    {
+        return mat.col(1);
+    }
 }
