@@ -51,7 +51,7 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     out.diffuse = in.material->diffuse; // Diffuseをマテリアルから設定
     // DiffuseMapが存在するなら、テクスチャのディフューズを掛け合わせる
     if (optional<RenderTarget> &map = in.material->diffuseMap)
-        out.diffuse = out.diffuse.array() * map->SampleColor01(in.uv.x(), in.uv.y()).array();
+        out.diffuse = out.diffuse.array() * map->SampleColor01(fmod(in.uv.x(), 1), fmod(in.uv.y(), 1)).array();
     if (optional<RenderTarget> &map = in.material->normalMap) // NormalMapが存在するなら、サンプル
     {
         Vector3f sampledNormal = map->SampleColor01(in.uv.x(), in.uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f); // タンジェント空間へ
