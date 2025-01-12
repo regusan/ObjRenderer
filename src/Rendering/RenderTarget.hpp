@@ -3,7 +3,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 #include "../header/EigenHeader.hpp"
+#include "../lib/stb/stb_image.h"
+#include "../lib/stb/stb_image_write.h"
 
 using namespace std;
 
@@ -13,12 +16,12 @@ class RenderTarget
 private:
     Vector2i screenSize = Vector2i(100, 100);
     vector<Vector3f> array; // 3次元ベクトルで色を保持
+    void ReadFromPPM(filesystem::path filepath);
+    void ReadWithStb(filesystem::path filepath);
 
 public:
     RenderTarget();
-    /// @brief 指定パスのPPMを取り込む
-    /// @param path
-    RenderTarget(string path);
+    RenderTarget(filesystem::path filepath);
     RenderTarget(const int &width, const int &height);
     RenderTarget(const int &width, const int &height, const Vector3f &color);
     ~RenderTarget();
@@ -49,6 +52,8 @@ public:
     /// @brief 指定パスにPPMファイルとして出力
     /// @param filepath
     void writeAsPPM(const string &filepath);
+
+    void writeAsPNG(const filesystem::path filepath);
 
     float FindMaxEuclideanDistance();
 

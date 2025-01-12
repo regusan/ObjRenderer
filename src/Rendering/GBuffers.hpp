@@ -46,7 +46,7 @@ public:
     /// @param filepath 出力パス
     /// @param positionModValue 指定値でピクセル値をＭｏｄする
     /// @param normalMulValue 指定値でピクセル値を乗算する
-    void writeAsPPM(const string &filepath,
+    void writeAsPNG(const string &filepath,
                     const float positionModValue = 1,
                     const float normalMulValue = 1);
     /// @brief 名前からRenderTargetを取得

@@ -48,7 +48,7 @@ GBuffers::~GBuffers()
 {
 }
 
-void GBuffers::writeAsPPM(const string &filepath,
+void GBuffers::writeAsPNG(const string &filepath,
                           const float positionModValue,
                           const float normalMulValue)
 {
@@ -57,24 +57,25 @@ void GBuffers::writeAsPPM(const string &filepath,
     {
         return filepath + suffix;
     };
-    this->beauty.writeAsPPM(appendToFilepath("/out_beauty.ppm"));
-    this->forward.writeAsPPM(appendToFilepath("/out_forward.ppm"));
-    this->diffuse.writeAsPPM(appendToFilepath("/out_diffuse.ppm"));
-    this->specular.writeAsPPM(appendToFilepath("/out_specular.ppm"));
-    this->emission.writeAsPPM(appendToFilepath("/out_emission.ppm"));
+    this->beauty.writeAsPNG(appendToFilepath("/out_beauty.png"));
+    this->beauty.writeAsPNG(appendToFilepath("/out_beauty.png"));
+    this->forward.writeAsPNG(appendToFilepath("/out_forward.png"));
+    this->diffuse.writeAsPNG(appendToFilepath("/out_diffuse.png"));
+    this->specular.writeAsPNG(appendToFilepath("/out_specular.png"));
+    this->emission.writeAsPNG(appendToFilepath("/out_emission.png"));
 
-    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPPM(appendToFilepath("/out_depth.ppm"));
-    (this->AO).writeAsPPM(appendToFilepath("/out_AO.ppm"));
-    (this->reflection).writeAsPPM(appendToFilepath("/out_reflection.ppm"));
-    (this->SSShadow).writeAsPPM(appendToFilepath("/out_SSShadow.ppm"));
+    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPNG(appendToFilepath("/out_depth.png"));
+    (this->AO).writeAsPNG(appendToFilepath("/out_AO.png"));
+    (this->reflection).writeAsPNG(appendToFilepath("/out_reflection.png"));
+    (this->SSShadow).writeAsPNG(appendToFilepath("/out_SSShadow.png"));
 
-    (this->positionWS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionWS.ppm"));
-    (this->positionVS.Abs() % positionModValue).writeAsPPM(appendToFilepath("/out_positionVS.ppm"));
-    (this->normalWS * normalMulValue).writeAsPPM(appendToFilepath("/out_normalWS.ppm"));
-    (this->normalVS * normalMulValue).writeAsPPM(appendToFilepath("/out_normalVS.ppm"));
+    (this->positionWS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/out_positionWS.png"));
+    (this->positionVS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/out_positionVS.png"));
+    (this->normalWS * normalMulValue).writeAsPNG(appendToFilepath("/out_normalWS.png"));
+    (this->normalVS * normalMulValue).writeAsPNG(appendToFilepath("/out_normalVS.png"));
 
-    (this->uv).writeAsPPM(appendToFilepath("/out_uv.ppm"));
-    (this->temp).writeAsPPM(appendToFilepath("/out_temp.ppm"));
+    (this->uv).writeAsPNG(appendToFilepath("/out_uv.png"));
+    (this->temp).writeAsPNG(appendToFilepath("/out_temp.png"));
 }
 
 RenderTarget &GBuffers::getRTFromString(string rtname)

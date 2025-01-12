@@ -4,13 +4,39 @@ RenderTarget::RenderTarget()
 {
     RenderTarget(100, 100, Vector3f(1, 0, 1));
 }
-RenderTarget::RenderTarget(string path)
+RenderTarget::RenderTarget(filesystem::path filepath)
 {
-    // ファイルを開く
-    std::ifstream file(path, std::ios::binary);
+    if (!std::filesystem::exists(filepath))
+    {
+        cerr << "RenderTarget::テクスチャ\"" << filepath.root_path().string() << "\"の読み込みに失敗しました。" << endl;
+        return;
+    }
+    if (filepath.extension() == ".ppm")
+    {
+        this->ReadFromPPM(filepath);
+        return;
+    }
+    this->ReadWithStb(filepath);
+}
+void RenderTarget::ReadWithStb(filesystem::path filepath)
+{
+    int channel;
+    unsigned char *pixels = stbi_load(filepath.string().c_str(), &this->screenSize.x(), &this->screenSize.y(), &channel, 0);
+    this->array.resize(this->screenSize.x() * this->screenSize.y());
+    for (int i = 0; i < this->screenSize.x() * this->screenSize.y(); i++)
+    {
+        int pixIndex = channel * i;
+        this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex + 1] / 255.0f, pixels[pixIndex + 2] / 255.0f);
+    }
+    stbi_image_free(pixels);
+}
+void RenderTarget::ReadFromPPM(filesystem::path filepath)
+{
+
+    std::ifstream file(filepath, std::ios::binary);
     if (!file.is_open())
     {
-        throw std::runtime_error("Failed to open PPM file: " + path);
+        throw std::runtime_error("Failed to open PPM file: " + filepath.root_path().string());
     }
 
     string format;
@@ -21,13 +47,13 @@ RenderTarget::RenderTarget(string path)
 
     if (format != "P3" && format != "P6")
     {
-        cerr << path << ": Invalid format, expected P3 or P6, but got " << format << endl;
+        cerr << filepath.root_path().string() << ": Invalid format, expected P3 or P6, but got " << format << endl;
         exit(1);
     }
 
     if (width <= 0 || height <= 0 || maxColorValue <= 0)
     {
-        cerr << path << ": Invalid header values." << endl;
+        cerr << filepath.root_path().string() << ": Invalid header values." << endl;
         cerr << "width;" << width << ",height:" << height << ",maxColorValue:" << maxColorValue << endl;
         exit(1);
     }
@@ -193,7 +219,19 @@ void RenderTarget::writeAsPPM(const string &filepath)
     }
     file.close();
 }
-
+void RenderTarget::writeAsPNG(const filesystem::path filepath)
+{
+    int channel = 3;
+    vector<unsigned char> pixels(channel * this->screenSize.x() * this->screenSize.y());
+    for (int i = 0; i < this->screenSize.x() * this->screenSize.y(); i++)
+    {
+        int pixIndex = channel * i;
+        pixels[pixIndex + 0] = static_cast<unsigned char>(clamp<int>(this->array[i].x() * 255, 0, 255));
+        pixels[pixIndex + 1] = static_cast<unsigned char>(clamp<int>(this->array[i].y() * 255, 0, 255));
+        pixels[pixIndex + 2] = static_cast<unsigned char>(clamp<int>(this->array[i].z() * 255, 0, 255));
+    }
+    stbi_write_png(filepath.string().c_str(), this->screenSize.x(), this->screenSize.y(), 3, pixels.data(), this->screenSize.x() * 3);
+}
 float RenderTarget::FindMaxEuclideanDistance()
 {
     float maxDistance = 0.0f; // 最大距離を格納する変数

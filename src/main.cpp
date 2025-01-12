@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <filesystem>
 #include "shaderlab/StandardShader.hpp"
 #include "shaderlab/LightingPassShader.hpp"
 #include "shaderlab/PostProcessShader.hpp"
@@ -15,6 +16,9 @@
 #include "STL/ConfigParser.hpp"
 #include "Models/Material.hpp"
 #include "Models/Model.hpp"
+
+#include "lib/stb/stb_image.h"
+#include "lib/stb/stb_image_write.h"
 
 using namespace std;
 using namespace Transform;
@@ -141,7 +145,7 @@ int main(int argc, char const *argv[])
                         std::tm local_tm = *std::localtime(&now_time_t);
                         ostringstream outputPath;
                         outputPath << "outputs/out_" << std::put_time(&local_tm, "%Y-%m-%d-%H-%M-%S");
-                        gb.writeAsPPM(outputPath.str(), 1); // 書き出し
+                        gb.writeAsPNG(outputPath.str(), 1); // 書き出し
                         cout << outputPath.str() << "にキャプチャ完了" << endl;
 
                         in.environment.screenSize = preResolution;
