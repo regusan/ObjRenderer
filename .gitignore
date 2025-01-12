@@ -2,6 +2,7 @@
 *.ppm
 *.blend*
 build/*
+hidemodels/*
 !build/config.ini
 # Prerequisites
 *.d
