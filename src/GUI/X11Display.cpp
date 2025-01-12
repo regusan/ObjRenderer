@@ -98,3 +98,7 @@ Vector2i X11Display::GetMousePos()
     // ウィンドウ内の相対位置（winX, winY）を返す
     return Vector2i(winX, winY);
 }
+void X11Display::Resize(Vector2i size)
+{
+    XResizeWindow(display, window, size.x(), size.y());
+}

@@ -40,4 +40,5 @@ public:
     XEvent GetEvent();
     Display *GetDisplay();
     Vector2i GetMousePos();
+    void Resize(Vector2i size);
 };
