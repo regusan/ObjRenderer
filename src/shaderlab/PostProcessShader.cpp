@@ -110,7 +110,8 @@ namespace PostProcessShader
                 gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
             }
         }
-        // gbuffers.AO = gbuffers.AO.GausiannBlur(3);
+        if (environment.quality == RenderingQuality::Cinema)
+            gbuffers.AO = gbuffers.AO.GausiannBlur(3);
     }
     void ScreenSpaceReflection(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
@@ -156,8 +157,9 @@ namespace PostProcessShader
 
                     // GBufferから取得した実際の深度
                     const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
+                    const float actualBackDepth = gbuffers.backPositionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
-                    if (rayPosVS.z() > actualDepth && rayPosVS.z() - actualDepth < maxThickness)
+                    if (rayPosVS.z() > actualDepth && rayPosVS.z() < actualBackDepth) // rayPosVS.z() - actualDepth < maxThickness)
                     {
                         gbuffers.reflection.PaintPixel(x, y, gbuffers.beauty.SampleColor01(rayPosSS.x(), rayPosSS.y()));
                         break;
@@ -183,14 +185,15 @@ namespace PostProcessShader
     void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
         // 光線を飛ばす回数
-        const int maxRayNum = (environment.quality == RenderingQuality::Cinema) ? 300 : 30;
+        const int maxRayNum = (environment.quality == RenderingQuality::Cinema) ? 1000 : 30;
         // レイの最大距離
-        const float maxRayLength = 10;
+        const float maxRayLength = (environment.quality == RenderingQuality::Cinema) ? 30 : 10;
         const float rayLength = maxRayLength / maxRayNum;
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = rayLength * 5;
 
         float maxThickness = 30.0f / maxRayNum;
+        maxThickness = 1;
 
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y++)
@@ -225,8 +228,9 @@ namespace PostProcessShader
 
                     // GBufferから取得した実際の深度
                     const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
+                    const float actualBackDepth = gbuffers.backPositionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
-                    if (rayPosVS.z() > actualDepth && rayPosVS.z() - actualDepth < maxThickness)
+                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth || rayPosVS.z() - actualDepth < maxThickness))
                     {
                         gbuffers.SSShadow.PaintPixel(x, y, Vector3f(0, 0, 0));
                         break;
@@ -234,6 +238,7 @@ namespace PostProcessShader
                 }
             }
         }
-        // gbuffers.SSShadow = gbuffers.SSShadow.GausiannBlur(11);
+        if (environment.quality == RenderingQuality::Cinema)
+            gbuffers.SSShadow = gbuffers.SSShadow.GausiannBlur(11);
     }
 }
