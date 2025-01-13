@@ -5,12 +5,14 @@
 // #include "../Light/RadialPointLight.hpp"
 #include "../STL/ConfigParser.hpp"
 #include "../Light/DirectionalLight.hpp"
+#include "../Rendering/RenderTarget.hpp"
 
 // class ILight;
 // class RadialPointLight;
 #include <vector>
 #include <chrono>
 #include <ctime>
+#include <optional>
 
 enum class RenderingQuality
 {
@@ -46,9 +48,13 @@ public:
     RenderingQuality quality = RenderingQuality::Mid;
     CameraMoveMode cameraMoveMode = CameraMoveMode::FPS;
 
+    optional<RenderTarget> skySphereSpecular;
+    optional<RenderTarget> skySphereDiffuse;
+
     /// @brief コンフィグから読み取り
     /// @param config
-    void loadFromConfig(ConfigParser config);
+    void
+    loadFromConfig(ConfigParser config);
     void setCurrentTIme();
     RenderingEnvironmentParameters(/* args */) {}
     ~RenderingEnvironmentParameters() {}

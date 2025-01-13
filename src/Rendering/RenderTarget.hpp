@@ -20,6 +20,17 @@ private:
     void ReadWithStb(filesystem::path filepath);
 
 public:
+    class DownSampleData
+    {
+    public:
+        DownSampleData(Vector2i bufferSize, int kernelSize)
+        {
+            this->bufferSize = bufferSize;
+            this->kernelSize = kernelSize;
+        }
+        Vector2i bufferSize;
+        int kernelSize;
+    };
     RenderTarget();
     RenderTarget(filesystem::path filepath);
     RenderTarget(const int &width, const int &height);
@@ -109,6 +120,7 @@ public:
     /// @param kernelScale
     /// @return
     RenderTarget GausiannBlur(const int kernelSize, const int kernelScale = 1);
+    vector<RenderTarget> GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData);
 
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);

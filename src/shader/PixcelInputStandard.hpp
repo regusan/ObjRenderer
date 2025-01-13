@@ -10,7 +10,7 @@ class PixcelInputStandard
 private:
     /* data */
 public:
-    RenderingEnvironmentParameters environment;
+    RenderingEnvironmentParameters &environment;
     Vector4f positionOS = Vector4f(0, 0, 0, 1);  // オブジェクト基準位置
     Vector4f positionWS = Vector4f(0, 0, 0, 1);  // ワールド基準位置
     Vector4f positionVS = Vector4f(0, 0, 0, 1);  // ビュー基準位置
@@ -25,9 +25,9 @@ public:
     Vector4f vertColor = Vector4f(1, 0, 1, 1); //  デバイス基準法線
     Vector2f uv = Vector2f(0, 0);
     Material *material = nullptr;
-    PixcelInputStandard(/* args */) {}
+    PixcelInputStandard(RenderingEnvironmentParameters &environment) : environment(environment) {}
 
-    PixcelInputStandard(const VertOutputStandard &vo)
+    PixcelInputStandard(VertOutputStandard &vo) : environment(vo.environment)
     {
         this->environment = vo.environment;
         this->positionOS = vo.positionOS;
@@ -55,7 +55,7 @@ public:
     /// @return 補完後の値
     static inline PixcelInputStandard lerp(const PixcelInputStandard &a, const PixcelInputStandard &b, const float &r)
     {
-        PixcelInputStandard lerped;
+        PixcelInputStandard lerped(a.environment);
 
         lerped.material = a.material;
         lerped.environment = a.environment;
@@ -87,7 +87,7 @@ public:
         const PixcelInputStandard &a, const PixcelInputStandard &b, const PixcelInputStandard &c,
         const float &u, const float &v, const float &w)
     {
-        PixcelInputStandard lerped;
+        PixcelInputStandard lerped(a.environment);
 
         lerped.material = a.material;
         lerped.environment = a.environment;

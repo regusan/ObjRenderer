@@ -24,22 +24,22 @@ namespace PostProcessShader
     {
         // ダウンサンプリングしたバッファを用意
 
-        vector<DownSampleData> cinemaDSD = {
-            DownSampleData(gbuffers.screenSize / 1, 3),
-            DownSampleData(gbuffers.screenSize / 2, 5),
-            DownSampleData(gbuffers.screenSize / 4, 9),
-            DownSampleData(gbuffers.screenSize / 8, 17),
-            DownSampleData(gbuffers.screenSize / 16, 33),
-            DownSampleData(gbuffers.screenSize / 32, 33),
-            DownSampleData(gbuffers.screenSize / 64, 33),
+        vector<RenderTarget::DownSampleData> cinemaDSD = {
+            RenderTarget::DownSampleData(gbuffers.screenSize / 1, 3),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 2, 5),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 4, 9),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 8, 17),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 16, 33),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 32, 33),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 64, 33),
         };
-        vector<DownSampleData> midDSD = {
-            DownSampleData(gbuffers.screenSize / 4, 3),
-            DownSampleData(gbuffers.screenSize / 8, 5),
-            DownSampleData(gbuffers.screenSize / 16, 7),
-            DownSampleData(gbuffers.screenSize / 32, 15),
+        vector<RenderTarget::DownSampleData> midDSD = {
+            RenderTarget::DownSampleData(gbuffers.screenSize / 4, 3),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 8, 5),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 16, 7),
+            RenderTarget::DownSampleData(gbuffers.screenSize / 32, 15),
         };
-        vector<DownSampleData> dsd = (environment.quality == RenderingQuality::Cinema) ? cinemaDSD : midDSD;
+        vector<RenderTarget::DownSampleData> dsd = (environment.quality == RenderingQuality::Cinema) ? cinemaDSD : midDSD;
 
         RenderTarget bloomSource(gbuffers.screenSize.x(), gbuffers.screenSize.y());
 #pragma omp parallel for
@@ -51,13 +51,7 @@ namespace PostProcessShader
                 bloomSource.PaintPixel(x, y, gbuffers.emission.SampleColor(x, y) + overflow);
             }
 
-        vector<RenderTarget> downSampledBuffers(dsd.size());
-#pragma omp parallel for
-        for (size_t i = 0; i < dsd.size(); i++)
-        {
-            downSampledBuffers[i] = bloomSource.DownSample(dsd[i].bufferSize).GausiannBlur(dsd[i].kernelSize).UpSample(gbuffers.screenSize);
-        }
-#pragma omp parallel for
+        vector<RenderTarget> downSampledBuffers = bloomSource.GausiannBlurWithDownSample(dsd);
         for (int y = 0; y < bloomSource.getScreenSize().y(); y++)
             for (int x = 0; x < bloomSource.getScreenSize().x(); x++)
             {
@@ -134,7 +128,6 @@ namespace PostProcessShader
                 // 深度が無限遠だったら処理しない
                 if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
                 {
-                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
                     continue;
                 }
 
@@ -167,20 +160,8 @@ namespace PostProcessShader
                 }
             }
         }
-        // gbuffers.reflection = gbuffers.reflection.GausiannBlur(11);
-        //     SSRの結果を合成
-#pragma omp parallel for
-        for (int y = 0; y < gbuffers.screenSize.y(); y++)
-        {
-            for (int x = 0; x < gbuffers.screenSize.x(); x++)
-            {
-                // TODO:強度のみの簡易版
-                Vector3f spec = gbuffers.specular.SampleColor(x, y);
-                Vector3f col = gbuffers.reflection.SampleColor(x, y).array() * spec.array() +
-                               gbuffers.beauty.SampleColor(x, y).array() * (Vector3f(1, 1, 1) - spec).array();
-                gbuffers.beauty.PaintPixel(x, y, col);
-            }
-        }
+        if (environment.quality == RenderingQuality::Cinema)
+            gbuffers.reflection = gbuffers.reflection.GausiannBlur(11);
     }
     void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
@@ -204,7 +185,6 @@ namespace PostProcessShader
                 // 深度が無限遠だったら処理しない
                 if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
                 {
-                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
                     continue;
                 }
 

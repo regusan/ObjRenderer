@@ -2,7 +2,7 @@
 
 RenderTarget::RenderTarget()
 {
-    RenderTarget(100, 100, Vector3f(1, 0, 1));
+    RenderTarget(0, 0, Vector3f(1, 0, 1));
 }
 RenderTarget::RenderTarget(filesystem::path filepath)
 {
@@ -390,6 +390,20 @@ RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const int kernelSc
 
     return retval;
 }
+
+vector<RenderTarget> RenderTarget::GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData)
+{
+    vector<RenderTarget> downSampledBuffers(downSampleData.size());
+#pragma omp parallel for
+    for (size_t i = 0; i < downSampleData.size(); i++)
+    {
+        downSampledBuffers[i] = this->DownSample(downSampleData[i].bufferSize)
+                                    .GausiannBlur(downSampleData[i].kernelSize)
+                                    .UpSample(this->screenSize);
+    }
+    return downSampledBuffers;
+}
+
 RenderTarget operator*(const RenderTarget &rt, const float &mul)
 {
     RenderTarget retval = RenderTarget(rt);

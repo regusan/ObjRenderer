@@ -10,9 +10,9 @@ class VertOutputStandard
 private:
     /* data */
 public:
-    VertOutputStandard(/* args */) {}
-    ~VertOutputStandard() {}
-    RenderingEnvironmentParameters environment;
+    VertOutputStandard(RenderingEnvironmentParameters &environment) : environment(environment) {};
+    ~VertOutputStandard() {};
+    RenderingEnvironmentParameters &environment;
     Vector4f positionOS = Vector4f(0, 0, 0, 1);  // オブジェクト基準位置
     Vector4f positionWS = Vector4f(0, 0, 0, 1);  // ワールド基準位置
     Vector4f positionVS = Vector4f(0, 0, 0, 1);  // ビュー基準位置

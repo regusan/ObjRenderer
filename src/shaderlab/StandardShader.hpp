@@ -12,8 +12,7 @@ using namespace Transform;
 /// @return 出力データ格納構造体
 inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 {
-    VertOutputStandard out;
-    out.environment = in.environment;
+    VertOutputStandard out(in.environment);
 
     // 座標変換
     out.positionOS = in.position;                  // モデル座標

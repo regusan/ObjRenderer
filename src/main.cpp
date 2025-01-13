@@ -27,7 +27,8 @@ void UpdateInput(const XEvent &event) {}
 EventDispatcher<XEvent> inputDispatcher;
 
 ConfigParser config = ConfigParser("config.ini");
-VertInputStandard in;
+RenderingEnvironmentParameters environment = RenderingEnvironmentParameters();
+VertInputStandard in = VertInputStandard(environment);
 Model primaryModel = Model();
 
 int main(int argc, char const *argv[])
@@ -92,11 +93,14 @@ int main(int argc, char const *argv[])
         if (in.environment.quality > RenderingQuality::Low)
         {
             PostProcessShader::ScreenSpaceReflection(gb, in.environment);
-            PostProcessShader::BloomWithDownSampling(gb, in.environment);
         }
         RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
-        // GBufferからデバイスコンテキストにコピー
-        RenderTarget rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
+        if (in.environment.quality > RenderingQuality::Low)
+        {
+            PostProcessShader::BloomWithDownSampling(gb, in.environment);
+        }
+        //   GBufferからデバイスコンテキストにコピー
+        RenderTarget &rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
         display.show(rt);
 
         // イベント処理
@@ -135,8 +139,9 @@ int main(int argc, char const *argv[])
                         PostProcessShader::ScreenSpaceShadow(gb, in.environment);
                         RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
                         PostProcessShader::ScreenSpaceReflection(gb, in.environment);
-                        PostProcessShader::BloomWithDownSampling(gb, in.environment);
                         RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
+                        PostProcessShader::BloomWithDownSampling(gb, in.environment);
+                        cout << "レンダリング終了" << endl;
 
                         auto now = std::chrono::system_clock::now();
                         auto now_time_t = std::chrono::system_clock::to_time_t(now);

@@ -10,14 +10,14 @@ class VertInputStandard
 private:
     /* data */
 public:
-    VertInputStandard(/* args */) {}
+    VertInputStandard(RenderingEnvironmentParameters &environment) : environment(environment) {}
     ~VertInputStandard() {}
     float nearClip = 1;
     float farClip = 100;
     bool backfaceCulling = false;
     Vector2i screenSize = Vector2i(1, 0);
 
-    RenderingEnvironmentParameters environment;
+    RenderingEnvironmentParameters &environment;
 
     Vector4f position = Vector4f(0, 0, 0, 1);
     Vector4f normal = Vector4f(1, 0, 0, 1);
