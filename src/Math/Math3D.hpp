@@ -4,7 +4,7 @@
 */
 
 #include "../header/EigenHeader.hpp"
-
+using namespace std;
 namespace MathPhysics
 {
     inline Vector3f Reflect(const Vector3f &in, const Vector3f &normal)
@@ -76,6 +76,16 @@ namespace GeometryMath
         Vector3f rotatedA = v * cos(angle) + axis.cross(v) * sin(angle) + axis * (axis.dot(v)) * (1 - cos(angle));
 
         return rotatedA;
+    }
+
+    inline Vector2f DirVec2SphereUV(const Vector3f &dirWS)
+    {
+        Vector3f normedDirWS = dirWS.normalized();
+        float th = acosf(normedDirWS.y());
+        float p = atan2(normedDirWS.z(), normedDirWS.x());
+        float phi = (p < 0) ? (p + M_PI * 2) : p;
+        return Vector2f(clamp<float>(phi * (M_1_PI * 0.5), 0.0f, 1.0f),
+                        clamp<float>(th * M_1_PI, 0.0f, 1.0f));
     }
 
 }
