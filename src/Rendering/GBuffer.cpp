@@ -5,13 +5,13 @@ GBuffers::GBuffers(const int &width, const int &height)
     float floatMax = numeric_limits<float>::max();
 
     this->screenSize = Vector2i(width, height);
-    this->normalWS = this->normalVS = this->positionWS = this->positionVS = RenderTarget(
+    this->normalWS = this->normalVS = this->positionWS = this->positionVS = this->backNormalVS = this->backPositionVS = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->beauty = this->diffuse = this->forward = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->diffuse = this->specular = this->emission = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
-    this->depth = RenderTarget(
+    this->depth = this->backDepth = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(floatMax, floatMax, floatMax));
     this->AO = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(1, 1, 1));
@@ -39,6 +39,9 @@ GBuffers::GBuffers(const int &width, const int &height)
         {"positionVS", &positionVS},
         {"normalWS", &normalWS},
         {"normalVS", &normalVS},
+        {"backPositionVS", &backPositionVS},
+        {"backNormalVS", &backNormalVS},
+        {"backDepth", &backDepth},
         {"uv", &uv},
         {"temp", &temp},
     };
@@ -73,6 +76,10 @@ void GBuffers::writeAsPNG(const string &filepath,
     (this->positionVS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/out_positionVS.png"));
     (this->normalWS * normalMulValue).writeAsPNG(appendToFilepath("/out_normalWS.png"));
     (this->normalVS * normalMulValue).writeAsPNG(appendToFilepath("/out_normalVS.png"));
+
+    (this->backNormalVS * normalMulValue).writeAsPNG(appendToFilepath("/out_backNormalVS.png"));
+    (this->backPositionVS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/out_backPositionVS.png"));
+    (this->backDepth.Abs() * (1.0 / this->backDepth.GetMax().x())).writeAsPNG(appendToFilepath("/out_backDepth.png"));
 
     (this->uv).writeAsPNG(appendToFilepath("/out_uv.png"));
     (this->temp).writeAsPNG(appendToFilepath("/out_temp.png"));

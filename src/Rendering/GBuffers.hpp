@@ -36,6 +36,10 @@ public:
     RenderTarget normalWS;
     RenderTarget normalVS;
 
+    RenderTarget backPositionVS;
+    RenderTarget backNormalVS;
+    RenderTarget backDepth;
+
     RenderTarget uv;
     RenderTarget temp;
 

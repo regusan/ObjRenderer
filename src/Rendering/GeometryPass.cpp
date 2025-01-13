@@ -110,6 +110,13 @@ namespace RenderingPipeline
                             points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
                         PixcelOutputStandard out = pixcel(draw);
                         float depth = draw.positionVS.z();
+                        if (draw.normalVS.z() > 0 && depth < gb.backDepth.SampleColor(x, y).x())
+                        {
+                            gb.backDepth.PaintPixel(x, y, Vector3f(depth, depth, depth));
+                            gb.backPositionVS.PaintPixel(x, y, draw.positionVS.head<3>());
+                            gb.backNormalVS.PaintPixel(x, y, draw.normalVS.head<3>());
+                        }
+
                         if (depth > gb.depth.SampleColor(x, y).x()) // 深度チェック
                             continue;
                         gb.forward.PaintPixel(x, y, out.color);
@@ -124,8 +131,6 @@ namespace RenderingPipeline
 
                         gb.normalVS.PaintPixel(x, y, draw.normalVS.head<3>());
                         gb.normalWS.PaintPixel(x, y, draw.normalWS.head<3>());
-
-                        gb.uv.PaintPixel(x, y, Vector3f(draw.uv.x(), draw.uv.y(), 0));
                     }
                 }
             }
