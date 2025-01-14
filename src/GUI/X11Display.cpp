@@ -40,24 +40,25 @@ void X11Display::createWindow(int width, int height)
 
 void X11Display::updateWindow(RenderTarget &renderTarget)
 {
-    // Convert RenderTarget data to XImage data
+    unsigned char *buffer = new unsigned char[width * height * 4];
+#pragma omp parallel for
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
         {
+            int index = (y * width + x) * 4;
             Vector3f color = renderTarget.SampleColor(x, y);
-            unsigned char r = static_cast<unsigned char>(clamp<float>(color.x() * 255, 0, 255));
-            unsigned char g = static_cast<unsigned char>(clamp<float>(color.y() * 255, 0, 255));
-            unsigned char b = static_cast<unsigned char>(clamp<float>(color.z() * 255, 0, 255));
-
-            // Set pixel at (x, y)
-            unsigned long pixel = (r << 16) | (g << 8) | b; // RGB -> 32-bit value
-            XPutPixel(xImage, x, y, pixel);
+            buffer[index] = static_cast<unsigned char>(clamp<float>(color.z() * 255, 0, 255));     // B
+            buffer[index + 1] = static_cast<unsigned char>(clamp<float>(color.y() * 255, 0, 255)); // G
+            buffer[index + 2] = static_cast<unsigned char>(clamp<float>(color.x() * 255, 0, 255)); // R
+            buffer[index + 3] = 0;                                                                 // Alpha チャンネル
         }
     }
 
-    // Draw the image onto the window
+    memcpy(xImage->data, buffer, width * height * 4);
     XPutImage(display, window, gc, xImage, 0, 0, 0, 0, width, height);
+
+    delete[] buffer;
 }
 
 void X11Display::show(RenderTarget &renderTarget)
