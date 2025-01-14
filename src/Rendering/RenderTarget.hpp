@@ -20,6 +20,7 @@ private:
     void ReadWithStb(filesystem::path filepath);
 
 public:
+    Vector3f resetColor = Vector3f(1, 0, 1);
     class DownSampleData
     {
     public:

@@ -108,10 +108,8 @@ RenderTarget::RenderTarget(const int &width, const int &height)
     : screenSize(width, height), array(width * height) {}
 
 RenderTarget::RenderTarget(const int &width, const int &height, const Vector3f &color)
-    : RenderTarget(width, height)
-{
-    this->Fill(color);
-}
+    : screenSize(width, height), array(width * height, color), resetColor(color) {}
+
 RenderTarget::~RenderTarget() {}
 
 const Vector2i RenderTarget::getScreenSize()
