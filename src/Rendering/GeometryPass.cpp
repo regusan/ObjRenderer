@@ -67,11 +67,12 @@ namespace RenderingPipeline
                 minY = min((float)minY, point.positionSS.y());
                 maxX = max((float)maxX, point.positionSS.x());
                 maxY = max((float)maxY, point.positionSS.y());
-                minX = max(minX, 0);
-                minY = max(minY, 0);
-                maxX = min(maxX, gb.screenSize.x() - 1);
-                maxY = min(maxY, gb.screenSize.y() - 1);
             }
+            // ディスプレイにフィッティング
+            minX = max(minX, 0);
+            minY = max(minY, 0);
+            maxX = min(maxX, gb.screenSize.x() - 1);
+            maxY = min(maxY, gb.screenSize.y() - 1);
 
             for (int y = minY; y <= maxY; ++y)
             {
@@ -96,29 +97,45 @@ namespace RenderingPipeline
                 // 塗りつぶす部分を設定（交差点でペアになるx座標間を塗りつぶす）
                 for (size_t i = 0; i < intersections.size(); i += 2)
                 {
+                    // 線分間で補完するための値
+                    Vector3f startUVW = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
+                                                                      points[1].positionSS.head<2>(),
+                                                                      points[2].positionSS.head<2>(),
+                                                                      Vector2f(intersections[i], y));
+                    Vector3f endUVW = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
+                                                                    points[1].positionSS.head<2>(),
+                                                                    points[2].positionSS.head<2>(),
+                                                                    Vector2f(intersections[i + 1], y));
+                    float invScanXLength = 1.0f / (intersections[i + 1] - intersections[i]);
                     for (int x = intersections[i]; x < intersections[i + 1]; ++x)
                     {
                         if (points.size() <= 2)
                             continue;
+
                         // 現在のピクセルの重心座標を計算
-                        Vector3f uvw = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
-                                                                     points[1].positionSS.head<2>(),
-                                                                     points[2].positionSS.head<2>(),
-                                                                     Vector2f(x, y));
-                        // 重心座標を元にピクセルの情報を補間
+                        float interpRatio = (float)(x - intersections[i]) * invScanXLength;
+                        Vector3f uvw = startUVW * (1.0f - interpRatio) + endUVW * interpRatio;
+
+                        // 早期シェーダー用の補完値を計算
+                        float depth = points[0].positionVS.z() * uvw.x() + points[1].positionVS.z() * uvw.y() + points[2].positionVS.z() * uvw.z();
+                        Vector4f normalVS = points[0].normalVS * uvw.x() + points[1].normalVS * uvw.y() + points[2].normalVS * uvw.z();
+
+                        if (normalVS.z() > 0 && depth < gb.backPositionVS.SampleColor(x, y).z())
+                        {
+                            // gb.backDepth.PaintPixel(x, y, Vector3f(depth, depth, depth));
+                            gb.backPositionVS.PaintPixel(x, y, normalVS.head<3>());
+                            // gb.backNormalVS.PaintPixel(x, y, draw.normalVS.head<3>());
+                        }
+
+                        // 深度チェック
+                        if (depth > gb.depth.SampleColor(x, y).x())
+                            continue;
+
+                        //  重心座標を元にピクセルの情報を補間
                         PixcelInputStandard draw = PixcelInputStandard::barycentricLerp(
                             points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
                         PixcelOutputStandard out = pixcel(draw);
-                        float depth = draw.positionVS.z();
-                        if (draw.normalVS.z() > 0 && depth < gb.backDepth.SampleColor(x, y).x())
-                        {
-                            gb.backDepth.PaintPixel(x, y, Vector3f(depth, depth, depth));
-                            gb.backPositionVS.PaintPixel(x, y, draw.positionVS.head<3>());
-                            gb.backNormalVS.PaintPixel(x, y, draw.normalVS.head<3>());
-                        }
 
-                        if (depth > gb.depth.SampleColor(x, y).x()) // 深度チェック
-                            continue;
                         gb.forward.PaintPixel(x, y, out.color);
                         gb.depth.PaintPixel(x, y, Vector3f(depth, depth, depth));
 
