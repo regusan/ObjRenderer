@@ -59,14 +59,14 @@ int main(int argc, char const *argv[])
                                 {
                                     fpsCamera.OnUpdateInput(event); // メンバ関数を呼び出す
                                 });
+    GBuffers gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
     while (true)
     {
         // 時間の計測
         auto start = std::chrono::high_resolution_clock::now();
 
-        // GBufferの定義
-        GBuffers gb = GBuffers(in.environment.screenSize.x(), in.environment.screenSize.y());
-
+        // GBufferの初期化
+        gb.Reset();
         // 視点の更新
         if (in.environment.cameraMoveMode == CameraMoveMode::FPS)
         {
@@ -122,6 +122,7 @@ int main(int argc, char const *argv[])
                     case XK_Return: // コンフィグのリロード
                         config = ConfigParser("config.ini");
                         in.environment.loadFromConfig(config);
+                        gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
                         display.Resize(in.environment.screenSize);
                         break;
                     case XK_space: // スナップショットを記録
@@ -155,6 +156,7 @@ int main(int argc, char const *argv[])
 
                         in.environment.screenSize = preResolution;
                         in.environment.quality = preQuality;
+                        gb = GBuffers(preResolution.x(), preResolution.y());
                     }
                     break;
                     case XK_Escape: // 終了処理
