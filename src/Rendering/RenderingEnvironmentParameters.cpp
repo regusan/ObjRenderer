@@ -45,12 +45,9 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
 
     this->skySphereSpecular = RenderTarget(config.GetAsString("HDRI"));
     vector<RenderTarget::DownSampleData> dsd = {
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 4, 3),
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 8, 5),
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 16, 7),
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 32, 15),
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 64, 31),
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 128, 63),
+        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 4, 17),
+        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 8, 33),
+        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 16, 65),
     };
     vector<RenderTarget> downSampledBuffers = this->skySphereSpecular->GausiannBlurWithDownSample(dsd);
     RenderTarget avg = RenderTarget(this->skySphereSpecular->getScreenSize().x(), this->skySphereSpecular->getScreenSize().y());

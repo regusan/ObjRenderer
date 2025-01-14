@@ -50,6 +50,7 @@ public:
 
     optional<RenderTarget> skySphereSpecular;
     optional<RenderTarget> skySphereDiffuse;
+    Vector2f skySphereOffset = Vector2f(0, 0);
 
     /// @brief コンフィグから読み取り
     /// @param config

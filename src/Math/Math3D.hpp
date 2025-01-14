@@ -89,3 +89,11 @@ namespace GeometryMath
     }
 
 }
+
+namespace TextureMath
+{
+    inline Vector2f UVMod1(const Vector2f &uv)
+    {
+        return Vector2f(fmod(uv.x(), 1.0f), fmod(uv.y(), 1.0f));
+    }
+}
