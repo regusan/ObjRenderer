@@ -118,7 +118,7 @@ const Vector2i RenderTarget::getScreenSize()
 }
 void RenderTarget::Fill(const Vector3f &color)
 {
-    this->array = vector(this->screenSize.x() * this->screenSize.y(), color);
+    fill(this->array.begin(), this->array.end(), color);
 }
 
 void RenderTarget::DrawLine(const Vector2f &start, const Vector2f &end, const Vector3f &color)
