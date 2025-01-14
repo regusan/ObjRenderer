@@ -51,6 +51,22 @@ GBuffers::~GBuffers()
 {
 }
 
+void GBuffers::Reset()
+{
+    vector<RenderTarget *> iterators;
+    for (const auto &[name, target] : this->str2rt)
+    {
+        iterators.push_back(target);
+    }
+    // あまり早くならないので非並列化
+    //  #pragma omp parallel for
+    for (int i = 0; i < iterators.size(); ++i)
+    {
+        if (iterators.at(i))
+            iterators.at(i)->Fill(iterators.at(i)->resetColor);
+    }
+}
+
 void GBuffers::writeAsPNG(const string &filepath,
                           const float positionModValue,
                           const float normalMulValue)

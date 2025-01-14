@@ -12,7 +12,26 @@ class GBuffers
 {
 private:
     /// @brief RenderTargetの名前とオブジェクトのマップ
-    map<string, RenderTarget *> str2rt;
+    map<string, RenderTarget *> str2rt = {
+        {"forward", &forward},
+        {"beauty", &beauty},
+        {"diffuse", &diffuse},
+        {"specular", &specular},
+        {"emission", &emission},
+        {"depth", &depth},
+        {"AO", &AO},
+        {"reflection", &reflection},
+        {"SSShadow", &SSShadow},
+        {"positionWS", &positionWS},
+        {"positionVS", &positionVS},
+        {"normalWS", &normalWS},
+        {"normalVS", &normalVS},
+        {"backPositionVS", &backPositionVS},
+        {"backNormalVS", &backNormalVS},
+        {"backDepth", &backDepth},
+        {"uv", &uv},
+        {"temp", &temp},
+    };
 
 public:
     Vector2i screenSize;
@@ -57,4 +76,6 @@ public:
     /// @param rtname
     /// @return RenderTarget
     RenderTarget &getRTFromString(string rtname);
+
+    void Reset();
 };
