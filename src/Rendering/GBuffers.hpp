@@ -5,6 +5,7 @@
 #include "RenderTarget.hpp"
 #include <limits>
 #include <map>
+#include <functional>
 using namespace std;
 
 /// @brief DefferedRenderingのためのRenderTargetを格納したGBuffer
@@ -12,26 +13,7 @@ class GBuffers
 {
 private:
     /// @brief RenderTargetの名前とオブジェクトのマップ
-    map<string, RenderTarget *> str2rt = {
-        {"forward", &forward},
-        {"beauty", &beauty},
-        {"diffuse", &diffuse},
-        {"specular", &specular},
-        {"emission", &emission},
-        {"depth", &depth},
-        {"AO", &AO},
-        {"reflection", &reflection},
-        {"SSShadow", &SSShadow},
-        {"positionWS", &positionWS},
-        {"positionVS", &positionVS},
-        {"normalWS", &normalWS},
-        {"normalVS", &normalVS},
-        {"backPositionVS", &backPositionVS},
-        {"backNormalVS", &backNormalVS},
-        {"backDepth", &backDepth},
-        {"uv", &uv},
-        {"temp", &temp},
-    };
+    map<string, RenderTarget *> str2rt;
 
 public:
     Vector2i screenSize;
@@ -77,5 +59,5 @@ public:
     /// @return RenderTarget
     RenderTarget &getRTFromString(string rtname);
 
-    void Reset();
+    void Clear();
 };

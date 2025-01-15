@@ -66,7 +66,7 @@ int main(int argc, char const *argv[])
         auto start = std::chrono::high_resolution_clock::now();
 
         // GBufferの初期化
-        gb.Reset();
+        gb.Clear();
         // 視点の更新
         if (in.environment.cameraMoveMode == CameraMoveMode::FPS)
         {
@@ -80,7 +80,6 @@ int main(int argc, char const *argv[])
         }
         in.environment.viewMat = in.viewMat;
         in.environment.setCurrentTIme();
-
         // 各レンダリングパスを実行
         RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
         // Low未満ではそもそもパスを実行しない
@@ -122,8 +121,8 @@ int main(int argc, char const *argv[])
                     case XK_Return: // コンフィグのリロード
                         config = ConfigParser("config.ini");
                         in.environment.loadFromConfig(config);
-                        gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
-                        display.Resize(in.environment.screenSize);
+                        // gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
+                        // display.Resize(environment.screenSize);
                         break;
                     case XK_space: // スナップショットを記録
                     {              // 括弧で囲わないとローカル変数定義できない
@@ -134,14 +133,14 @@ int main(int argc, char const *argv[])
                         in.environment.screenSize = Vector2i(2048, 2048);
                         in.environment.quality = RenderingQuality::Cinema;
 
-                        gb = GBuffers(in.environment.screenSize.x(), in.environment.screenSize.y());
-                        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
-                        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
-                        PostProcessShader::ScreenSpaceShadow(gb, in.environment);
-                        RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
-                        PostProcessShader::ScreenSpaceReflection(gb, in.environment);
-                        RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
-                        PostProcessShader::BloomWithDownSampling(gb, in.environment);
+                        GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
+                        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, higb, VertStandard, PixcelStandard);
+                        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(higb, environment);
+                        PostProcessShader::ScreenSpaceShadow(higb, environment);
+                        RenderingPass::ExecLightingPass(higb, DefferedLightingPassShader, environment);
+                        PostProcessShader::ScreenSpaceReflection(higb, environment);
+                        RenderingPass::ExecLightingPass(higb, FinalLightingPassShader, environment);
+                        PostProcessShader::BloomWithDownSampling(higb, environment);
                         cout << "レンダリング終了" << endl;
 
                         auto now = std::chrono::system_clock::now();
@@ -151,12 +150,11 @@ int main(int argc, char const *argv[])
                         std::tm local_tm = *std::localtime(&now_time_t);
                         ostringstream outputPath;
                         outputPath << "outputs/out_" << std::put_time(&local_tm, "%Y-%m-%d-%H-%M-%S");
-                        gb.writeAsPNG(outputPath.str(), 1); // 書き出し
+                        higb.writeAsPNG(outputPath.str(), 1); // 書き出し
                         cout << outputPath.str() << "にキャプチャ完了" << endl;
 
                         in.environment.screenSize = preResolution;
                         in.environment.quality = preQuality;
-                        gb = GBuffers(preResolution.x(), preResolution.y());
                     }
                     break;
                     case XK_Escape: // 終了処理

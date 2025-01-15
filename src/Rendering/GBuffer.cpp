@@ -3,7 +3,26 @@
 GBuffers::GBuffers(const int &width, const int &height)
 {
     float floatMax = numeric_limits<float>::max();
-
+    str2rt = {
+        {"forward", &forward},
+        {"beauty", &beauty},
+        {"diffuse", &diffuse},
+        {"specular", &specular},
+        {"emission", &emission},
+        {"depth", &depth},
+        {"AO", &AO},
+        {"reflection", &reflection},
+        {"SSShadow", &SSShadow},
+        {"positionWS", &positionWS},
+        {"positionVS", &positionVS},
+        {"normalWS", &normalWS},
+        {"normalVS", &normalVS},
+        {"backPositionVS", &backPositionVS},
+        {"backNormalVS", &backNormalVS},
+        {"backDepth", &backDepth},
+        {"uv", &uv},
+        {"temp", &temp},
+    };
     this->screenSize = Vector2i(width, height);
     this->normalWS = this->normalVS = this->positionWS = this->positionVS = this->backNormalVS = this->backPositionVS = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
@@ -24,46 +43,17 @@ GBuffers::GBuffers(const int &width, const int &height)
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->temp = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
-
-    this->str2rt = {
-        {"forward", &forward},
-        {"beauty", &beauty},
-        {"diffuse", &diffuse},
-        {"specular", &specular},
-        {"emission", &emission},
-        {"depth", &depth},
-        {"AO", &AO},
-        {"reflection", &reflection},
-        {"SSShadow", &SSShadow},
-        {"positionWS", &positionWS},
-        {"positionVS", &positionVS},
-        {"normalWS", &normalWS},
-        {"normalVS", &normalVS},
-        {"backPositionVS", &backPositionVS},
-        {"backNormalVS", &backNormalVS},
-        {"backDepth", &backDepth},
-        {"uv", &uv},
-        {"temp", &temp},
-    };
 }
 
 GBuffers::~GBuffers()
 {
 }
 
-void GBuffers::Reset()
+void GBuffers::Clear()
 {
-    vector<RenderTarget *> iterators;
     for (const auto &[name, target] : this->str2rt)
     {
-        iterators.push_back(target);
-    }
-    // あまり早くならないので非並列化
-    //  #pragma omp parallel for
-    for (int i = 0; i < iterators.size(); ++i)
-    {
-        if (iterators.at(i))
-            iterators.at(i)->Fill(iterators.at(i)->resetColor);
+        target->Fill(target->resetColor);
     }
 }
 
@@ -76,7 +66,6 @@ void GBuffers::writeAsPNG(const string &filepath,
     {
         return filepath + suffix;
     };
-    this->beauty.writeAsPNG(appendToFilepath("/out_beauty.png"));
     this->beauty.writeAsPNG(appendToFilepath("/out_beauty.png"));
     this->forward.writeAsPNG(appendToFilepath("/out_forward.png"));
     this->diffuse.writeAsPNG(appendToFilepath("/out_diffuse.png"));
@@ -103,5 +92,19 @@ void GBuffers::writeAsPNG(const string &filepath,
 
 RenderTarget &GBuffers::getRTFromString(string rtname)
 {
-    return *(this->str2rt[rtname]);
+    auto it = this->str2rt.find(rtname);
+    if (it != this->str2rt.end())
+    {
+        if (this->str2rt[rtname] == NULL)
+        {
+            cerr << "\"RenderTarget:" << rtname << "\"は存在しないキー。";
+            exit(1);
+        }
+        return *this->str2rt[rtname];
+    }
+    else
+    {
+        cerr << "\"RenderTarget:" << rtname << "\"は存在しないキー。";
+        exit(1);
+    }
 }
