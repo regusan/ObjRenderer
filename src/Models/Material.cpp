@@ -75,31 +75,31 @@ map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
         {
             string texturePath;
             iss >> texturePath;
-            currentMaterial.diffuseMap = RenderTarget(dir / texturePath);
+            currentMaterial.diffuseMap = make_shared<RenderTarget>(dir / texturePath);
         }
         else if (key == "map_Ka")
         {
             string texturePath;
             iss >> texturePath;
-            currentMaterial.ambientMap = RenderTarget(dir / texturePath);
+            currentMaterial.ambientMap = make_shared<RenderTarget>(dir / texturePath);
         }
         else if (key == "map_d")
         {
             string texturePath;
             iss >> texturePath;
-            currentMaterial.alphaMap = RenderTarget(dir / texturePath);
+            currentMaterial.alphaMap = make_shared<RenderTarget>(dir / texturePath);
         }
         else if (key == "bump" || key == "map_Bump")
         {
             string texturePath;
             iss >> texturePath;
-            currentMaterial.bumpMap = RenderTarget(dir / texturePath);
+            currentMaterial.bumpMap = make_shared<RenderTarget>(dir / texturePath);
         }
         else if (key == "norm")
         {
             string texturePath;
             iss >> texturePath;
-            currentMaterial.normalMap = RenderTarget(dir / texturePath);
+            currentMaterial.normalMap = make_shared<RenderTarget>(dir / texturePath);
         }
     }
 

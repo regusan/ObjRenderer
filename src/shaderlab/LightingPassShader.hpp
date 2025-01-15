@@ -134,7 +134,7 @@ inline const Vector3f FinalLightingPassShader(GBuffers &gbuffers, RenderingEnvir
 
         // TODO:強度のみの簡易版
         Vector3f spec = gbuffers.specular.SampleColor(x, y);
-        // finalColor = gbuffers.reflection.SampleColor(x, y).array() * spec.array() + finalColor.array() * (Vector3f(1, 1, 1) - spec).array();
+        finalColor = gbuffers.reflection.SampleColor(x, y).array() * spec.array() + finalColor.array() * (Vector3f(1, 1, 1) - spec).array();
 
         float depthFogRatio = clamp<float>((depthSampled - environment.fogNearFar.x()) / (environment.fogNearFar.y() - environment.fogNearFar.x()), 0, 1);
         finalColor = finalColor * (1 - depthFogRatio) + fogColor * depthFogRatio;

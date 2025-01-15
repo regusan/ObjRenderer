@@ -21,11 +21,11 @@ public:
     float alpha = 1;
     int illuminationModel = 2;
     /*各種テクスチャ*/
-    optional<RenderTarget> diffuseMap;
-    optional<RenderTarget> ambientMap;
-    optional<RenderTarget> alphaMap;
-    optional<RenderTarget> bumpMap;
-    optional<RenderTarget> normalMap;
+    shared_ptr<RenderTarget> diffuseMap;
+    shared_ptr<RenderTarget> ambientMap;
+    shared_ptr<RenderTarget> alphaMap;
+    shared_ptr<RenderTarget> bumpMap;
+    shared_ptr<RenderTarget> normalMap;
 
     /// @brief マテリアルをMap<名前、オブジェクト>で読み取り
     /// @param path
