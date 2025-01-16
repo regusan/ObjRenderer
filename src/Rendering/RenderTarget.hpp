@@ -7,14 +7,15 @@
 #include "../header/EigenHeader.hpp"
 #include "../lib/stb/stb_image.h"
 #include "../lib/stb/stb_image_write.h"
+#include "../lib/ReguLib/RAsset.hpp"
 
 using namespace std;
 
 /// @brief 書き込み先の画像
-class RenderTarget
+class RenderTarget : public RAsset
 {
 private:
-    Vector2i screenSize = Vector2i(100, 100);
+    Vector2i screenSize = Vector2i(0, 0);
     vector<Vector3f> array; // 3次元ベクトルで色を保持
     void ReadFromPPM(filesystem::path filepath);
     void ReadWithStb(filesystem::path filepath);
@@ -37,6 +38,8 @@ public:
     RenderTarget(const int &width, const int &height);
     RenderTarget(const int &width, const int &height, const Vector3f &color);
     ~RenderTarget();
+
+    bool LoadFromFile(const filesystem::path &filepath) override;
 
     const Vector2i getScreenSize();
     void Fill(const Vector3f &color);

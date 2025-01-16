@@ -7,6 +7,7 @@
 #include <optional>
 #include "../header/EigenHeader.hpp"
 #include "../Rendering/RenderTarget.hpp"
+#include "../Engine/AssetSubSystem.hpp"
 using namespace std;
 class Material
 {

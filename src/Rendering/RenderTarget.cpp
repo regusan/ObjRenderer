@@ -2,22 +2,28 @@
 
 RenderTarget::RenderTarget()
 {
-    RenderTarget(0, 0, Vector3f(1, 0, 1));
 }
 RenderTarget::RenderTarget(filesystem::path filepath)
+{
+    this->LoadFromFile(filepath);
+}
+
+bool RenderTarget::LoadFromFile(const filesystem::path &filepath)
 {
     if (!std::filesystem::exists(filepath))
     {
         cerr << "RenderTarget::テクスチャ\"" << filepath.root_path().string() << "\"の読み込みに失敗しました。" << endl;
-        return;
+        return false;
     }
     if (filepath.extension() == ".ppm")
     {
         this->ReadFromPPM(filepath);
-        return;
+        return true;
     }
     this->ReadWithStb(filepath);
+    return true;
 }
+
 void RenderTarget::ReadWithStb(filesystem::path filepath)
 {
     int channel;
