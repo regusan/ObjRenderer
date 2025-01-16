@@ -8,7 +8,7 @@ GBuffers::GBuffers(const int &width, const int &height)
         {"beauty", &beauty},
         {"diffuse", &diffuse},
         {"specular", &specular},
-        {"emission", &emission},
+        {"irradiance", &irradiance},
         {"depth", &depth},
         {"AO", &AO},
         {"reflection", &reflection},
@@ -28,7 +28,7 @@ GBuffers::GBuffers(const int &width, const int &height)
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->beauty = this->diffuse = this->forward = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
-    this->diffuse = this->specular = this->emission = RenderTarget(
+    this->diffuse = this->specular = this->irradiance = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
     this->depth = this->backDepth = RenderTarget(
         this->screenSize.x(), this->screenSize.y(), Vector3f(floatMax, floatMax, floatMax));
@@ -70,7 +70,7 @@ void GBuffers::writeAsPNG(const string &filepath,
     this->forward.writeAsPNG(appendToFilepath("/out_forward.png"));
     this->diffuse.writeAsPNG(appendToFilepath("/out_diffuse.png"));
     this->specular.writeAsPNG(appendToFilepath("/out_specular.png"));
-    this->emission.writeAsPNG(appendToFilepath("/out_emission.png"));
+    this->irradiance.writeAsPNG(appendToFilepath("/out_irradiance.png"));
 
     (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPNG(appendToFilepath("/out_depth.png"));
     (this->AO).writeAsPNG(appendToFilepath("/out_AO.png"));

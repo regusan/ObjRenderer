@@ -163,7 +163,7 @@ namespace PostProcessShader
                 }
                 float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2); // 可視サンプル数から比率を計算
                 bouncedColor = bouncedColor / visibleCount;
-                gbuffers.AO.PaintPixel(x, y, bouncedColor);
+                gbuffers.irradiance.PaintPixel(x, y, bouncedColor);
             }
         }
         if (environment.quality == RenderingQuality::Cinema)

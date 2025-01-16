@@ -24,7 +24,7 @@ public:
 
     RenderTarget diffuse;
     RenderTarget specular;
-    RenderTarget emission;
+    RenderTarget irradiance;
 
     RenderTarget depth;
     RenderTarget AO;
