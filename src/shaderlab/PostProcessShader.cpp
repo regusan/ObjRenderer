@@ -152,7 +152,7 @@ namespace PostProcessShader
                     const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     const float actualBackDepth = gbuffers.backPositionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
-                    if (rayPosVS.z() > actualDepth && rayPosVS.z() < actualBackDepth) // rayPosVS.z() - actualDepth < maxThickness)
+                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth || rayPosVS.z() - actualDepth < maxThickness))
                     {
                         gbuffers.reflection.PaintPixel(x, y, gbuffers.beauty.SampleColor01(rayPosSS.x(), rayPosSS.y()));
                         break;

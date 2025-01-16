@@ -117,17 +117,18 @@ namespace RenderingPipeline
                         Vector3f uvw = startUVW * (1.0f - interpRatio) + endUVW * interpRatio;
 
                         // 早期シェーダー用の補完値を計算
-                        float depth = points[0].positionVS.z() * uvw.x() + points[1].positionVS.z() * uvw.y() + points[2].positionVS.z() * uvw.z();
+                        Vector4f positionVS = points[0].positionVS * uvw.x() + points[1].positionVS * uvw.y() + points[2].positionVS * uvw.z();
+                        float depth = positionVS.z();
                         Vector4f normalVS = points[0].normalVS * uvw.x() + points[1].normalVS * uvw.y() + points[2].normalVS * uvw.z();
 
-                        if (normalVS.z() > 0 && depth < gb.backPositionVS.SampleColor(x, y).z())
+                        if (normalVS.z() > 0 && depth < gb.backDepth.SampleColor(x, y).z())
                         {
-                            // gb.backDepth.PaintPixel(x, y, Vector3f(depth, depth, depth));
-                            gb.backPositionVS.PaintPixel(x, y, normalVS.head<3>());
-                            // gb.backNormalVS.PaintPixel(x, y, draw.normalVS.head<3>());
+                            gb.backDepth.PaintPixel(x, y, Vector3f(depth, depth, depth));
+                            gb.backPositionVS.PaintPixel(x, y, positionVS.head<3>());
+                            gb.backNormalVS.PaintPixel(x, y, normalVS.head<3>());
                         }
 
-                        // 深度チェック
+                        // 早期シェーダーのための深度チェックに引っかかったら終了
                         if (depth > gb.depth.SampleColor(x, y).x())
                             continue;
 
