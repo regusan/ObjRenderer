@@ -80,24 +80,33 @@ int main(int argc, char const *argv[])
         }
         in.environment.viewMat = in.viewMat;
         in.environment.setCurrentTIme();
+
         // 各レンダリングパスを実行
-        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
-        // Low未満ではそもそもパスを実行しない
-        if (in.environment.quality > RenderingQuality::Low)
+        if (in.environment.quality >= RenderingQuality::Low)
         {
-            PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
-            PostProcessShader::ScreenSpaceShadow(gb, in.environment);
+            RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
+            // Low未満ではそもそもパスを実行しない
+            if (in.environment.quality > RenderingQuality::Low)
+            {
+                PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
+                PostProcessShader::ScreenSpaceShadow(gb, in.environment);
+            }
+            RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
+            if (in.environment.quality > RenderingQuality::Low)
+            {
+                PostProcessShader::ScreenSpaceReflection(gb, in.environment);
+            }
+            RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
+            if (in.environment.quality > RenderingQuality::Low)
+            {
+                PostProcessShader::BloomWithDownSampling(gb, in.environment);
+            }
         }
-        RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
-        if (in.environment.quality > RenderingQuality::Low)
+        else
         {
-            PostProcessShader::ScreenSpaceReflection(gb, in.environment);
+            RenderingPipeline::Forward::ExecWireFramePass(primaryModel, in, gb, VertStandard);
         }
-        RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
-        if (in.environment.quality > RenderingQuality::Low)
-        {
-            PostProcessShader::BloomWithDownSampling(gb, in.environment);
-        }
+
         //   GBufferからデバイスコンテキストにコピー
         RenderTarget &rt = gb.getRTFromString(config.GetAsString("Buffer2Display"));
         display.show(rt);
@@ -160,6 +169,18 @@ int main(int argc, char const *argv[])
                     case XK_Escape: // 終了処理
                         display.~X11Display();
                         exit(0);
+                    case XK_1:
+                        environment.quality = RenderingQuality::Wire;
+                        break;
+                    case XK_2:
+                        environment.quality = RenderingQuality::Low;
+                        break;
+                    case XK_3:
+                        environment.quality = RenderingQuality::Mid;
+                        break;
+                    case XK_4:
+                        environment.quality = RenderingQuality::Cinema;
+                        break;
                     }
                 }
                 auto end = std::chrono::high_resolution_clock::now();
