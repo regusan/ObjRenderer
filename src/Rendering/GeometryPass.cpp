@@ -5,10 +5,6 @@ namespace RenderingPipeline
 
     namespace Deffered
     {
-        /// @brief 3Dモデルをレンダーターゲットに描画する
-        /// @param model 描画する3Dモデル
-        /// @param in カメラやモデル座標情報
-        /// @param rt 描画出力先
         void ExecGeometryPass(
             Model &model,
             const VertInputStandard &in,
@@ -53,6 +49,7 @@ namespace RenderingPipeline
                 }
             }
         }
+
         void SimpleDefferedFillPolygon(
             const vector<PixcelInputStandard> &points,
             GBuffers &gb,
@@ -149,6 +146,55 @@ namespace RenderingPipeline
 
                         gb.normalVS.PaintPixel(x, y, draw.normalVS.head<3>());
                         gb.normalWS.PaintPixel(x, y, draw.normalWS.head<3>());
+                    }
+                }
+            }
+        }
+    }
+    namespace Forward
+    {
+        void ExecWireFramePass(
+            Model &model,
+            const VertInputStandard &in,
+            GBuffers &gb,
+            const VertOutputStandard (*vert)(const VertInputStandard &in))
+        {
+            VertInputStandard nonparallel_vin = in;
+            nonparallel_vin.environment.screenSize = gb.beauty.getScreenSize();
+
+//  各面についてFor(並列処理)
+#ifdef PARALLEL_FOR_TRANSFORM
+#pragma omp parallel for
+#endif
+            for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
+            {
+                VertInputStandard vin = nonparallel_vin;
+                const vector<int> face = model.facesID[faceIndex];
+                const vector<int> facenorm = model.normalID[faceIndex];
+                const vector<int> faceuv = model.uvID[faceIndex];
+                vin.material = &model.materials[model.materialNames[model.materialID[faceIndex]]];
+
+                // 面を構成する各頂点IDについてFor
+                vector<VertOutputStandard> outs;
+                for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
+                {
+                    vin.position = model.verts[face[vertIndex]];
+                    vin.normal = model.vertNormals[facenorm[vertIndex]];
+                    vin.uv = model.uv[faceuv[vertIndex]];
+                    VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
+                    outs.push_back(out);                // 描画待ち配列に追加
+                }
+                if (outs.size() >= 3)
+                {
+                    Vector3f norm = GeometryMath::ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
+                    bool backfacecull = in.environment.backFaceCullingDirection * norm.z() >= 0 || !in.environment.backfaceCulling;
+
+                    if (backfacecull && isInFrustum(outs))
+                    {
+                        for (size_t i = 0; i < outs.size() + 1; i++)
+                        {
+                            gb.beauty.DrawLine(outs[i % outs.size()].positionSS.head<2>(), outs[(i + 1) % outs.size()].positionSS.head<2>(), outs[0].material->diffuse);
+                        }
                     }
                 }
             }

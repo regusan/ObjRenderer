@@ -29,6 +29,10 @@ namespace RenderingPipeline
             GBuffers &gb,
             const VertOutputStandard (*vert)(const VertInputStandard &in),
             const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in));
+        /// @brief 3Dモデルをワイヤフレームでレンダーターゲットに描画する
+        /// @param model 描画する3Dモデル
+        /// @param in カメラやモデル座標情報
+        /// @param gb 描画出力先
 
         /// @brief DefferedRenderingで指定したポリゴンをFillして描画
         /// @param points ポリゴンを構成する点群
@@ -38,5 +42,13 @@ namespace RenderingPipeline
             const vector<PixcelInputStandard> &points,
             GBuffers &gb,
             const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
+    }
+    namespace Forward
+    {
+        void ExecWireFramePass(
+            Model &model,
+            const VertInputStandard &in,
+            GBuffers &gb,
+            const VertOutputStandard (*vert)(const VertInputStandard &in));
     }
 }
