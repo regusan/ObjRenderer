@@ -36,7 +36,6 @@ int main(int argc, char const *argv[])
     // 初期化処理
     cout << "起動" << endl;
     cout << config << endl;
-
     in.environment.loadFromConfig(config);
 
     if (argc >= 2)
@@ -62,7 +61,8 @@ int main(int argc, char const *argv[])
     GBuffers gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
     while (true)
     {
-        // 時間の計測
+
+        //  時間の計測
         auto start = std::chrono::high_resolution_clock::now();
 
         // GBufferの初期化
@@ -165,6 +165,7 @@ int main(int argc, char const *argv[])
                 auto end = std::chrono::high_resolution_clock::now();
                 auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
                 cout << "FPS::" << 1000 / elapsed.count() << endl;
+                cout << "テクスチャアセット管理状況:" << AssetSubSystem::getInstance().textureManager << endl;
             }
         }
     }
