@@ -13,6 +13,7 @@ namespace PostProcessShader
     Vector3f SimpleBloom(GBuffers &gbuffers, RenderingEnvironmentParameters &environment, int x, int y);
     void BloomWithDownSampling(GBuffers &gbuffers, RenderingEnvironmentParameters &environment);
     void ScreenSpaceAmbientOcculusionCryTek(GBuffers &gbuffers, RenderingEnvironmentParameters &environment);
+    void SSAOPlusSSGI(GBuffers &gbuffers, RenderingEnvironmentParameters &environment);
     void ScreenSpaceReflection(GBuffers &gbuffers, RenderingEnvironmentParameters &environment);
     void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment);
 }

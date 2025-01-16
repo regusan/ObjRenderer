@@ -88,7 +88,7 @@ int main(int argc, char const *argv[])
             // Low未満ではそもそもパスを実行しない
             if (in.environment.quality > RenderingQuality::Low)
             {
-                PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, in.environment);
+                PostProcessShader::SSAOPlusSSGI(gb, in.environment);
                 PostProcessShader::ScreenSpaceShadow(gb, in.environment);
             }
             RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
@@ -144,7 +144,7 @@ int main(int argc, char const *argv[])
 
                         GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
                         RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, higb, VertStandard, PixcelStandard);
-                        PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(higb, environment);
+                        PostProcessShader::SSAOPlusSSGI(higb, environment);
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
                         RenderingPass::ExecLightingPass(higb, DefferedLightingPassShader, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);

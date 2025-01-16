@@ -66,7 +66,7 @@ namespace PostProcessShader
     {
         int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 200 : 10;
         int NoiseCount = maxSampleNum * 10;
-        int skipSize = 1;
+        int skipSize = 1;                                     // 何ピクセルおきに計算するか
         float sphereRadius = 0.001 * gbuffers.screenSize.x(); // 解像度1000で半径1
         // ノイズを事前計算
         vector<Vector3f> noises;
@@ -89,7 +89,7 @@ namespace PostProcessShader
                     gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
                     continue;
                 }
-                int visibleCount = 0;
+                int visibleCount = 0; // 可視サンプルのカウンタ
                 Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
                 Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
                 for (int i = 0; i < maxSampleNum; i++)
@@ -98,10 +98,72 @@ namespace PostProcessShader
                     seed = GeometryMath::xorshift(seed);
                     const Vector3f randomSS = (randomVS / randomVS.z() + Vector3f(1, 1, 1)) * 0.5;
                     float factDepth = gbuffers.positionVS.SampleColor01(randomSS.x(), randomSS.y()).z();
-                    visibleCount += factDepth > randomVS.z();
+                    visibleCount += factDepth > randomVS.z(); // サンプル点が実際の深度より手前だったらカウント
                 }
-                float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2);
+                float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2); // 可視サンプル数から比率を計算
                 gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
+            }
+        }
+        if (environment.quality == RenderingQuality::Cinema)
+            gbuffers.AO = gbuffers.AO.GausiannBlur(3);
+    }
+    void SSAOPlusSSGI(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
+    {
+        int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 200 : 10;
+        int NoiseCount = maxSampleNum * 10;
+        int skipSize = 1;                                     // 何ピクセルおきに計算するか
+        float sphereRadius = 0.001 * gbuffers.screenSize.x(); // 解像度1000で半径1
+        Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
+                                       environment.directionalLights[0].direction.y(),
+                                       environment.directionalLights[0].direction.z(), 1);
+        Vector3f lightDirVS = (environment.viewMat * lightDirWS).head<3>();
+        // ノイズを事前計算
+        vector<Vector3f> noises;
+        uint precomputeSeed = 1;
+        for (int i = 0; i < NoiseCount; i++)
+        {
+            noises.push_back(GeometryMath::MakeRandomPointInSphereByUVSeed(Vector3f(0, 0, 0), sphereRadius, precomputeSeed));
+            precomputeSeed = GeometryMath::xorshift(precomputeSeed);
+        }
+
+#pragma omp parallel for
+        for (int y = 0; y < gbuffers.depth.getScreenSize().y(); y += skipSize)
+        {
+            uint seed = y + environment.time + 1;
+            for (int x = 0; x < gbuffers.depth.getScreenSize().x(); x += skipSize)
+            {
+                // 深度が無限遠だったら処理しない
+                if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
+                {
+                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
+                    continue;
+                }
+                int visibleCount = 0; // 可視サンプルのカウンタ
+                Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
+                Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
+                Vector3f bouncedColor = Vector3f(0, 0, 0);
+                for (int i = 0; i < maxSampleNum; i++)
+                {
+                    Vector3f randomVS = positionVS + noises[seed % NoiseCount];
+                    seed = GeometryMath::xorshift(seed);
+                    const Vector3f randomSS = (randomVS / randomVS.z() + Vector3f(1, 1, 1)) * 0.5;
+                    float factDepth = gbuffers.positionVS.SampleColor01(randomSS.x(), randomSS.y()).z();
+
+                    if (factDepth > randomVS.z()) // サンプル点が実際の深度より手前=可視だったら
+                    {
+                        visibleCount++;
+                        Vector3f factPosVS = Vector3f(randomVS.x(), randomVS.y(), factDepth);
+                        Vector3f factNormalVS = gbuffers.normalVS.SampleColor01(randomSS.x(), randomSS.y());
+                        Vector3f reflectVS = MathPhysics::Reflect(factPosVS, factNormalVS).normalized();
+                        Vector3f random2sampleDirVS = (factPosVS - positionVS).normalized();
+                        float strength = reflectVS.dot(random2sampleDirVS);
+                        bouncedColor = bouncedColor +
+                                       (gbuffers.diffuse.SampleColor01(randomSS.x(), randomSS.y()) + gbuffers.emission.SampleColor01(randomSS.x(), randomSS.y())) * strength;
+                    }
+                }
+                float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2); // 可視サンプル数から比率を計算
+                bouncedColor = bouncedColor / visibleCount;
+                gbuffers.AO.PaintPixel(x, y, bouncedColor);
             }
         }
         if (environment.quality == RenderingQuality::Cinema)

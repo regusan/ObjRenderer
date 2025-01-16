@@ -77,13 +77,14 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
 
     // スペキュラの計算
     // スペキュラマップがあったら
+    float roughness = clamp<float>(1.0f - specularSampled.norm() * 0.57735026919, 0, 1); // 1/sqrt(3)=0.57735026919
     if (environment.skySphereSpecular.has_value())
     {
         Vector3f viewRefNorm = MathPhysics::Reflect(view, normalWSSampled);
         Vector2f specSkyUV = TextureMath::UVMod1(GeometryMath::DirVec2SphereUV(viewRefNorm) + environment.skySphereOffset);
         Vector3f envSpecular = environment.skySphereSpecular->SampleColor01(specSkyUV.x(), specSkyUV.y());
         specularBRDF = envSpecular.array() * (environment.ambientLight + Vector3f(directIntencity, directIntencity, directIntencity) * aoSampled * shadowSampled).array();
-        gbuffers.reflection.PaintPixel(x, y, specularBRDF);
+        gbuffers.reflection.PaintPixel(x, y, envSpecular);
     }
     else
     {
@@ -92,7 +93,6 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
         specularScalar = powf(specularScalar, 10.0f / specularSampled.norm());
         specularBRDF = specularSampled.normalized() * specularScalar;
     }
-    float roughness = clamp<float>(1.0f - specularSampled.norm() * 0.57735026919, 0, 1); // 1/sqrt(3)=0.57735026919
     // ライト結果の合成
     Vector3f finalColor = DiffuseBRDF * roughness + specularBRDF * (1 - roughness) + ambient + emissionSampled;
 
