@@ -25,7 +25,9 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
     this->fogNearFar = Vector2f(config.GetAsNumeric("FogNear"), config.GetAsNumeric("FogFar"));
 
     string qualityStr = config.GetAsString("Quality");
-    if (qualityStr == "Low")
+    if (qualityStr == "Wire")
+        this->quality = RenderingQuality::Wire;
+    else if (qualityStr == "Low")
         this->quality = RenderingQuality::Low;
     else if (qualityStr == "Mid")
         this->quality = RenderingQuality::Mid;

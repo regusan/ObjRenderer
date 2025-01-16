@@ -16,6 +16,7 @@
 
 enum class RenderingQuality
 {
+    Wire,
     Low,
     Mid,
     Cinema,
@@ -54,8 +55,7 @@ public:
 
     /// @brief コンフィグから読み取り
     /// @param config
-    void
-    loadFromConfig(ConfigParser config);
+    void loadFromConfig(ConfigParser config);
     void setCurrentTIme();
     RenderingEnvironmentParameters(/* args */) {}
     ~RenderingEnvironmentParameters() {}
