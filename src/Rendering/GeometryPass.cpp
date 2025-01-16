@@ -41,7 +41,9 @@ namespace RenderingPipeline
                 {
                     Vector3f norm = GeometryMath::ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
                     bool backfacecull = in.environment.backFaceCullingDirection * norm.z() >= 0 || !in.environment.backfaceCulling;
-                    if (backfacecull && isInFrustum(outs))
+                    bool isFront = outs[0].positionVS.z() > 0 && outs[1].positionVS.z() > 0 && outs[2].positionVS.z() > 0;
+
+                    if (backfacecull && isInFrustum(outs) && isFront)
                     {
                         // 面を一つ描画
                         SimpleDefferedFillPolygon(RenderingPipeline::VertOuts2PixcelIns(outs), gb, *pixcel);
@@ -187,8 +189,9 @@ namespace RenderingPipeline
                 {
                     Vector3f norm = GeometryMath::ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
                     bool backfacecull = in.environment.backFaceCullingDirection * norm.z() >= 0 || !in.environment.backfaceCulling;
+                    bool isFront = outs[0].positionVS.z() > 0 && outs[1].positionVS.z() > 0 && outs[2].positionVS.z() > 0;
 
-                    if (backfacecull && isInFrustum(outs))
+                    if (backfacecull && isInFrustum(outs) && isFront)
                     {
                         for (size_t i = 0; i < outs.size() + 1; i++)
                         {
