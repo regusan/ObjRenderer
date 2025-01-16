@@ -30,7 +30,6 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
     Vector3f specularSampled = gbuffers.specular.SampleColor(x, y);
     Vector3f diffuseSampled = gbuffers.diffuse.SampleColor(x, y);
     Vector3f normalWSSampled = gbuffers.normalWS.SampleColor(x, y);
-    Vector3f emissionSampled = gbuffers.emission.SampleColor(x, y);
     float aoSampled = gbuffers.AO.SampleColor(x, y).x();
     float shadowSampled = gbuffers.SSShadow.SampleColor(x, y).x();
     Vector3f skyDiffSampled = Vector3f(0, 0, 0);
@@ -94,7 +93,7 @@ inline const Vector3f DefferedLightingPassShader(GBuffers &gbuffers, RenderingEn
         specularBRDF = specularSampled.normalized() * specularScalar;
     }
     // ライト結果の合成
-    Vector3f finalColor = DiffuseBRDF * roughness + specularBRDF * (1 - roughness) + ambient + emissionSampled;
+    Vector3f finalColor = DiffuseBRDF * roughness + specularBRDF * (1 - roughness) + ambient;
 
     return finalColor;
 }

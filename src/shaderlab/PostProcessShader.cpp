@@ -12,7 +12,8 @@ namespace PostProcessShader
         {
             for (int ly = -kernelSize / 2; ly < kernelSize / 2; ly++)
             {
-                sum += gbuffers.emission.SampleColor(x + lx * kernelScale, y + ly * kernelScale);
+                Vector3f dif = gbuffers.diffuse.SampleColor(x + lx * kernelScale, y + ly * kernelScale);
+                sum += Vector3f(clamp<float>(dif.x(), 0, 1), clamp<float>(dif.y(), 0, 1), clamp<float>(dif.z(), 0, 1));
             }
         }
 
@@ -48,7 +49,7 @@ namespace PostProcessShader
             {
                 Vector3f beauty = gbuffers.beauty.SampleColor(x, y);
                 Vector3f overflow = Vector3f(fmax(0, beauty.x() - 1), fmax(0, beauty.y() - 1), fmax(0, beauty.z() - 1));
-                bloomSource.PaintPixel(x, y, gbuffers.emission.SampleColor(x, y) + overflow);
+                bloomSource.PaintPixel(x, y, overflow);
             }
 
         vector<RenderTarget> downSampledBuffers = bloomSource.GausiannBlurWithDownSample(dsd);
@@ -157,8 +158,7 @@ namespace PostProcessShader
                         Vector3f reflectVS = MathPhysics::Reflect(factPosVS, factNormalVS).normalized();
                         Vector3f random2sampleDirVS = (factPosVS - positionVS).normalized();
                         float strength = reflectVS.dot(random2sampleDirVS);
-                        bouncedColor = bouncedColor +
-                                       (gbuffers.diffuse.SampleColor01(randomSS.x(), randomSS.y()) + gbuffers.emission.SampleColor01(randomSS.x(), randomSS.y())) * strength;
+                        bouncedColor = bouncedColor + gbuffers.diffuse.SampleColor01(randomSS.x(), randomSS.y()) * strength;
                     }
                 }
                 float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2); // 可視サンプル数から比率を計算
