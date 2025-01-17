@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <filesystem>
+#include <sstream>
 #include "shaderlab/StandardShader.hpp"
 #include "shaderlab/LightingPassShader.hpp"
 #include "shaderlab/PostProcessShader.hpp"
@@ -91,12 +92,12 @@ int main(int argc, char const *argv[])
                 PostProcessShader::SSAOPlusSSGI(gb, in.environment);
                 PostProcessShader::ScreenSpaceShadow(gb, in.environment);
             }
-            RenderingPass::ExecLightingPass(gb, DefferedLightingPassShader, in.environment);
+            RenderingPass::ExecLightingPass(gb, LighingShader::PBRLighingShader, in.environment);
             if (in.environment.quality > RenderingQuality::Low)
             {
                 PostProcessShader::ScreenSpaceReflection(gb, in.environment);
             }
-            RenderingPass::ExecLightingPass(gb, FinalLightingPassShader, in.environment);
+            RenderingPass::ExecLightingPass(gb, LighingShader::FinalLightingPassShader, in.environment);
             if (in.environment.quality > RenderingQuality::Low)
             {
                 PostProcessShader::BloomWithDownSampling(gb, in.environment);
@@ -146,9 +147,9 @@ int main(int argc, char const *argv[])
                         RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, higb, VertStandard, PixcelStandard);
                         PostProcessShader::SSAOPlusSSGI(higb, environment);
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, DefferedLightingPassShader, environment);
+                        RenderingPass::ExecLightingPass(higb, LighingShader::PBRLighingShader, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, FinalLightingPassShader, environment);
+                        RenderingPass::ExecLightingPass(higb, LighingShader::FinalLightingPassShader, environment);
                         PostProcessShader::BloomWithDownSampling(higb, environment);
                         cout << "レンダリング終了" << endl;
 
