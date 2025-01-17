@@ -44,6 +44,8 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 {
     PixcelOutputStandard out;
+    constexpr float InvSqrt3 = 0.57735026919f; // 1/sqrt(3)
+    constexpr float InvMaxShinness = 1.0f / 1000.0f;
 
     out.specular = in.material->specular; // * in.material->specularShapness;
 
@@ -63,5 +65,9 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
 
     out.emission = in.material->emission;
     out.color = out.diffuse;
+    if (in.material->shaderModel == Material::ShaderModel::Phoneg)
+        out.ORM = Vector3f(1, in.material->specularShapness * InvMaxShinness, in.material->specular.norm() * InvSqrt3);
+    else if (in.material->shaderModel == Material::ShaderModel::PBR)
+        out.ORM = Vector3f(1, in.material->pbrRoughness, in.material->pbrMetalic);
     return out;
 }

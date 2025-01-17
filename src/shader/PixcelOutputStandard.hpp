@@ -15,4 +15,5 @@ public:
     Vector3f normal;
     Vector3f specular;
     Vector3f emission;
+    Vector3f ORM;
 };
