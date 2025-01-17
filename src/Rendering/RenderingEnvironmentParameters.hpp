@@ -49,8 +49,8 @@ public:
     RenderingQuality quality = RenderingQuality::Mid;
     CameraMoveMode cameraMoveMode = CameraMoveMode::FPS;
 
-    optional<RenderTarget> skySphereSpecular;
-    optional<RenderTarget> skySphereDiffuse;
+    optional<RenderTarget> skySphere;
+    vector<RenderTarget> skyMipmap;
     Vector2f skySphereOffset = Vector2f(0, 0);
 
     /// @brief コンフィグから読み取り

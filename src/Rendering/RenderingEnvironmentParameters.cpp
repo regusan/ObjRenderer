@@ -45,24 +45,8 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
     if (cameraMoveModeStr == "TurnTable")
         this->cameraMoveMode = CameraMoveMode::TurnTable;
 
-    this->skySphereSpecular = RenderTarget(config.GetAsString("HDRI"));
-    vector<RenderTarget::DownSampleData> dsd = {
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 4, 17),
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 8, 33),
-        RenderTarget::DownSampleData(this->skySphereSpecular->getScreenSize() / 16, 65),
-    };
-    vector<RenderTarget> downSampledBuffers = this->skySphereSpecular->GausiannBlurWithDownSample(dsd);
-    RenderTarget avg = RenderTarget(this->skySphereSpecular->getScreenSize().x(), this->skySphereSpecular->getScreenSize().y());
-    for (int y = 0; y < avg.getScreenSize().y(); y++)
-        for (int x = 0; x < avg.getScreenSize().x(); x++)
-        {
-            // ダウンサンプリングしたバッファを合成
-            Vector3f sum = Vector3f(0, 0, 0);
-            for (size_t i = 0; i < downSampledBuffers.size(); i++)
-                sum += downSampledBuffers[i].SampleColor(x, y);
-            avg.PaintPixel(x, y, sum / downSampledBuffers.size());
-        }
-    this->skySphereDiffuse = avg;
+    this->skySphere = RenderTarget(config.GetAsString("HDRI"));
+    this->skyMipmap = this->skySphere.value().MakeMipMap(16);
 }
 
 void RenderingEnvironmentParameters::setCurrentTIme()
