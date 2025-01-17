@@ -71,6 +71,18 @@ map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
         {
             iss >> currentMaterial.illuminationModel;
         }
+        // PBR系
+        else if (key == "Pr")
+        {
+            currentMaterial.shaderModel = ShaderModel::PBR;
+            iss >> currentMaterial.pbrRoughness;
+        }
+        else if (key == "Pm")
+        {
+            currentMaterial.shaderModel = ShaderModel::PBR;
+            iss >> currentMaterial.pbrMetalic;
+        }
+        // テクスチャ
         else if (key == "map_Kd")
         {
             string texturePath;
@@ -117,6 +129,7 @@ std::ostream &operator<<(std::ostream &os, const Material &mt)
 {
     os << "Material Information:" << std::endl;
 
+    os << "Shader Model: " << ((mt.shaderModel == Material::ShaderModel::Phoneg) ? "Phoneg" : "PBR") << std::endl;
     os << "Ambient Reflection: " << mt.ambientReflection.x() << ", "
        << mt.ambientReflection.y() << ", " << mt.ambientReflection.z() << std::endl;
 
@@ -127,8 +140,31 @@ std::ostream &operator<<(std::ostream &os, const Material &mt)
        << mt.specular.y() << ", " << mt.specular.z() << std::endl;
 
     os << "Specular Shininess: " << mt.specularShapness << std::endl;
+
+    os << "Emission: " << mt.emission.x() << ", "
+       << mt.emission.y() << ", " << mt.emission.z() << std::endl;
+
     os << "Alpha: " << mt.alpha << std::endl;
+
     os << "Illumination Model: " << mt.illuminationModel << std::endl;
+
+    os << "PBR Roughness: " << mt.pbrRoughness << std::endl;
+    os << "PBR Metalness: " << mt.pbrMetalic << std::endl;
+
+    if (mt.diffuseMap)
+        os << "Diffuse Map: " << mt.diffuseMap << std::endl;
+
+    if (mt.ambientMap)
+        os << "Ambient Map: " << mt.ambientMap << std::endl;
+
+    if (mt.alphaMap)
+        os << "Alpha Map: " << mt.alphaMap << std::endl;
+
+    if (mt.bumpMap)
+        os << "Bump Map: " << mt.bumpMap << std::endl;
+
+    if (mt.normalMap)
+        os << "Normal Map: " << mt.normalMap << std::endl;
 
     return os;
 }

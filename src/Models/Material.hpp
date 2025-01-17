@@ -14,13 +14,28 @@ class Material
 private:
     /* data */
 public:
-    Vector3f ambientReflection = Vector3f(1, 0, 1);
+    enum class ShaderModel
+    {
+        Phoneg,
+        PBR
+    };
+
+    // 共用パラメータ
     Vector3f diffuse = Vector3f(.8, .8, .8);
-    Vector3f specular = Vector3f(.3, .3, .3);
     Vector3f emission = Vector3f(0, 0, 0);
-    float specularShapness = 30;
     float alpha = 1;
     int illuminationModel = 2;
+    ShaderModel shaderModel = ShaderModel::Phoneg;
+
+    // 古典パラメータ
+    float specularShapness = 30;
+    Vector3f ambientReflection = Vector3f(1, 0, 1);
+    Vector3f specular = Vector3f(.3, .3, .3);
+
+    // PBRパラメータ
+    float pbrRoughness = 0;
+    float pbrMetalic = 0;
+
     /*各種テクスチャ*/
     shared_ptr<RenderTarget> diffuseMap;
     shared_ptr<RenderTarget> ambientMap;

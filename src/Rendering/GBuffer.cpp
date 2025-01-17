@@ -6,43 +6,60 @@ GBuffers::GBuffers(const int &width, const int &height)
     str2rt = {
         {"forward", &forward},
         {"beauty", &beauty},
+
         {"diffuse", &diffuse},
         {"specular", &specular},
-        {"irradiance", &irradiance},
+        {"ORM", &ORM},
+
         {"depth", &depth},
+
         {"AO", &AO},
         {"reflection", &reflection},
         {"SSShadow", &SSShadow},
+        {"irradiance", &irradiance},
+
         {"positionWS", &positionWS},
         {"positionVS", &positionVS},
+
         {"normalWS", &normalWS},
         {"normalVS", &normalVS},
+
         {"backPositionVS", &backPositionVS},
         {"backNormalVS", &backNormalVS},
         {"backDepth", &backDepth},
+
         {"uv", &uv},
         {"temp", &temp},
     };
+
     this->screenSize = Vector2i(width, height);
-    this->normalWS = this->normalVS = this->positionWS = this->positionVS = this->backNormalVS = this->backPositionVS = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+    Vector2i ss = this->screenSize;
+
+    this->normalWS = this->normalVS = this->positionWS = this->positionVS =
+        this->backNormalVS = this->backPositionVS = RenderTarget(
+            ss.x(), ss.y(), Vector3f(0, 0, 0));
+
     this->beauty = this->diffuse = this->forward = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+        ss.x(), ss.y(), Vector3f(0, 0, 0));
     this->diffuse = this->specular = this->irradiance = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+        ss.x(), ss.y(), Vector3f(0, 0, 0));
+
+    this->ORM = RenderTarget(ss.x(), ss.y(), Vector3f(1, 0, 0));
+
     this->depth = this->backDepth = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(floatMax, floatMax, floatMax));
+        ss.x(), ss.y(), Vector3f(floatMax, floatMax, floatMax));
+
     this->AO = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(1, 1, 1));
+        ss.x(), ss.y(), Vector3f(1, 1, 1));
     this->reflection = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+        ss.x(), ss.y(), Vector3f(0, 0, 0));
     this->SSShadow = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(1, 1, 1));
+        ss.x(), ss.y(), Vector3f(1, 1, 1));
 
     this->uv = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+        ss.x(), ss.y(), Vector3f(0, 0, 0));
     this->temp = RenderTarget(
-        this->screenSize.x(), this->screenSize.y(), Vector3f(0, 0, 0));
+        ss.x(), ss.y(), Vector3f(0, 0, 0));
 }
 
 GBuffers::~GBuffers()
@@ -66,28 +83,32 @@ void GBuffers::writeAsPNG(const string &filepath,
     {
         return filepath + suffix;
     };
-    this->beauty.writeAsPNG(appendToFilepath("/out_beauty.png"));
-    this->forward.writeAsPNG(appendToFilepath("/out_forward.png"));
-    this->diffuse.writeAsPNG(appendToFilepath("/out_diffuse.png"));
-    this->specular.writeAsPNG(appendToFilepath("/out_specular.png"));
-    this->irradiance.writeAsPNG(appendToFilepath("/out_irradiance.png"));
+    this->forward.writeAsPNG(appendToFilepath("/forward.png"));
+    this->beauty.writeAsPNG(appendToFilepath("/beauty.png"));
 
-    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPNG(appendToFilepath("/out_depth.png"));
-    (this->AO).writeAsPNG(appendToFilepath("/out_AO.png"));
-    (this->reflection).writeAsPNG(appendToFilepath("/out_reflection.png"));
-    (this->SSShadow).writeAsPNG(appendToFilepath("/out_SSShadow.png"));
+    this->diffuse.writeAsPNG(appendToFilepath("/diffuse.png"));
+    this->specular.writeAsPNG(appendToFilepath("/specular.png"));
+    this->ORM.writeAsPNG(appendToFilepath("/ORM.png"));
 
-    (this->positionWS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/out_positionWS.png"));
-    (this->positionVS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/out_positionVS.png"));
-    (this->normalWS * normalMulValue).writeAsPNG(appendToFilepath("/out_normalWS.png"));
-    (this->normalVS * normalMulValue).writeAsPNG(appendToFilepath("/out_normalVS.png"));
+    (this->AO).writeAsPNG(appendToFilepath("/AO.png"));
+    (this->reflection).writeAsPNG(appendToFilepath("/reflection.png"));
+    (this->SSShadow).writeAsPNG(appendToFilepath("/SSShadow.png"));
+    this->irradiance.writeAsPNG(appendToFilepath("/irradiance.png"));
 
-    (this->backNormalVS * normalMulValue).writeAsPNG(appendToFilepath("/out_backNormalVS.png"));
-    (this->backPositionVS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/out_backPositionVS.png"));
-    (this->backDepth.Abs() * (1.0 / this->backDepth.GetMax().x())).writeAsPNG(appendToFilepath("/out_backDepth.png"));
+    (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPNG(appendToFilepath("/depth.png"));
 
-    (this->uv).writeAsPNG(appendToFilepath("/out_uv.png"));
-    (this->temp).writeAsPNG(appendToFilepath("/out_temp.png"));
+    (this->positionWS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/positionWS.png"));
+    (this->positionVS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/positionVS.png"));
+
+    (this->normalWS * normalMulValue).writeAsPNG(appendToFilepath("/normalWS.png"));
+    (this->normalVS * normalMulValue).writeAsPNG(appendToFilepath("/normalVS.png"));
+
+    (this->backNormalVS * normalMulValue).writeAsPNG(appendToFilepath("/backNormalVS.png"));
+    (this->backPositionVS.Abs() % positionModValue).writeAsPNG(appendToFilepath("/backPositionVS.png"));
+    (this->backDepth.Abs() * (1.0 / this->backDepth.GetMax().x())).writeAsPNG(appendToFilepath("/backDepth.png"));
+
+    (this->uv).writeAsPNG(appendToFilepath("/uv.png"));
+    (this->temp).writeAsPNG(appendToFilepath("/temp.png"));
 }
 
 RenderTarget &GBuffers::getRTFromString(string rtname)

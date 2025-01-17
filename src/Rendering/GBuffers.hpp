@@ -24,12 +24,14 @@ public:
 
     RenderTarget diffuse;
     RenderTarget specular;
-    RenderTarget irradiance;
+    RenderTarget ORM;
 
     RenderTarget depth;
+
     RenderTarget AO;
     RenderTarget reflection;
     RenderTarget SSShadow;
+    RenderTarget irradiance;
 
     RenderTarget positionWS;
     RenderTarget positionVS;
