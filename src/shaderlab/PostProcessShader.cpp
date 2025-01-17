@@ -112,12 +112,12 @@ namespace PostProcessShader
     {
         int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 200 : 10;
         int NoiseCount = maxSampleNum * 10;
-        int skipSize = 1;                                     // 何ピクセルおきに計算するか
-        float sphereRadius = 0.001 * gbuffers.screenSize.x(); // 解像度1000で半径1
+        int skipSize = 1;                                    // 何ピクセルおきに計算するか
+        float sphereRadius = 0.01 * gbuffers.screenSize.x(); // 解像度1000で半径1
         Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
                                        environment.directionalLights[0].direction.y(),
                                        environment.directionalLights[0].direction.z(), 1);
-        Vector3f lightDirVS = (environment.viewMat * lightDirWS).head<3>();
+        Vector3f lightDirVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * lightDirWS).head<3>();
         // ノイズを事前計算
         vector<Vector3f> noises;
         uint precomputeSeed = 1;
@@ -155,19 +155,24 @@ namespace PostProcessShader
                         visibleCount++;
                         Vector3f factPosVS = Vector3f(randomVS.x(), randomVS.y(), factDepth);
                         Vector3f factNormalVS = gbuffers.normalVS.SampleColor01(randomSS.x(), randomSS.y());
-                        Vector3f reflectVS = MathPhysics::Reflect(factPosVS, factNormalVS).normalized();
-                        Vector3f random2sampleDirVS = (factPosVS - positionVS).normalized();
-                        float strength = reflectVS.dot(random2sampleDirVS);
+                        Vector3f reflectVS = MathPhysics::Reflect(lightDirVS, factNormalVS).normalized();
+                        Vector3f random2sampleVS = (factPosVS - positionVS);
+                        float strength = reflectVS.dot(random2sampleVS.normalized());
+                        strength = clamp<float>((1 - factNormalVS.dot(normalVS)) / 2, 0, 1);
                         bouncedColor = bouncedColor + gbuffers.diffuse.SampleColor01(randomSS.x(), randomSS.y()) * strength;
                     }
                 }
                 float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2); // 可視サンプル数から比率を計算
                 bouncedColor = bouncedColor / visibleCount;
-                gbuffers.irradiance.PaintPixel(x, y, bouncedColor);
+                gbuffers.irradiance.PaintPixel(x, y, Vector3f(fmax(bouncedColor.x(), 0), fmax(bouncedColor.y(), 0), fmax(bouncedColor.z(), 0)));
+                gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
             }
         }
         if (environment.quality == RenderingQuality::Cinema)
-            gbuffers.AO = gbuffers.AO.GausiannBlur(3);
+        {
+            gbuffers.AO = gbuffers.AO.GausiannBlur(5);
+            gbuffers.irradiance = gbuffers.irradiance.GausiannBlur(5);
+        }
     }
     void ScreenSpaceReflection(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
