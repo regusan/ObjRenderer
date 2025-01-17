@@ -88,6 +88,11 @@ public:
         }
         return Vector3f(1, 0, 1);
     }
+
+    /// @brief 色をサンプリング。ニアレストネイバー。
+    /// @param x 0~1
+    /// @param y 0~1
+    /// @return
     inline const Vector3f SampleColor01(const float x, const float y)
     {
         int x01 = x * screenSize.x();
@@ -98,6 +103,30 @@ public:
             return array[index]; // ピクセルに色を設定
         }
         return Vector3f(1, 0, 1);
+    }
+
+    /// @brief 色をサンプル。bilinear。
+    /// @param x 0~1
+    /// @param y 0~1
+    /// @return
+    inline const Vector3f SampleColor01BiLinear(const float x, const float y)
+    {
+        float ss_x = x * screenSize.x();
+        float ss_y = y * screenSize.y();
+        int o_x = (int)ss_x % this->screenSize.x();
+        int o_y = (int)ss_y % this->screenSize.y();
+        int o_x_plus = (o_x + 1) % this->screenSize.x();
+        int o_y_plus = (o_y + 1) % this->screenSize.y();
+        float ratio_x = fmod(ss_x, 1.0f);
+        float ratio_y = fmod(ss_y, 1.0f);
+        Vector3f leftUp = this->SampleColor(o_x, o_y);
+        Vector3f rightUp = this->SampleColor(o_x_plus, o_y);
+        Vector3f leftDown = this->SampleColor(o_x, o_y_plus);
+        Vector3f rightDown = this->SampleColor(o_x_plus, o_y_plus);
+
+        Vector3f lerpedUp = rightUp * ratio_x + leftUp * (1 - ratio_x);
+        Vector3f lerpedDown = rightDown * ratio_x + leftDown * (1 - ratio_x);
+        return lerpedDown * ratio_y + lerpedUp * (1 - ratio_y);
     }
     /// @brief RenderTargetの各ピクセルにabs()を適用
     /// @return
@@ -125,9 +154,11 @@ public:
     /// @return
     RenderTarget GausiannBlur(const int kernelSize, const int kernelScale = 1);
     vector<RenderTarget> GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData);
+    vector<RenderTarget> MakeMipMap(int num);
 
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend RenderTarget operator%(const RenderTarget &rt, const float &mul);
     friend std::ostream &operator<<(std::ostream &os, const RenderTarget &rt);
 };
+typedef RenderTarget Texture2D;

@@ -408,6 +408,20 @@ vector<RenderTarget> RenderTarget::GausiannBlurWithDownSample(const vector<DownS
     return downSampledBuffers;
 }
 
+vector<RenderTarget> RenderTarget::MakeMipMap(int num)
+{
+    vector<RenderTarget> retval;
+    int scale = 1;
+    for (size_t i = 0; i < num; i++)
+    {
+        Vector2i resizedSize = this->screenSize / scale;
+        if (resizedSize.x() <= 8 || resizedSize.y() <= 1)
+            break;
+        retval.push_back(this->DownSample(resizedSize));
+        scale *= 2;
+    }
+    return retval;
+}
 RenderTarget operator*(const RenderTarget &rt, const float &mul)
 {
     RenderTarget retval = RenderTarget(rt);
