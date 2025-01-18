@@ -113,6 +113,18 @@ map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
             iss >> texturePath;
             currentMaterial.normalMap = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / texturePath);
         }
+        else if (key == "map_Pm")
+        {
+            string texturePath;
+            iss >> texturePath;
+            currentMaterial.metalicMap = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / texturePath);
+        }
+        else if (key == "map_Pr")
+        {
+            string texturePath;
+            iss >> texturePath;
+            currentMaterial.roughnessMap = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / texturePath);
+        }
     }
 
     // 最後のマテリアルを保存

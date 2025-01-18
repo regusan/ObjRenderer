@@ -42,6 +42,8 @@ public:
     shared_ptr<RenderTarget> alphaMap;
     shared_ptr<RenderTarget> bumpMap;
     shared_ptr<RenderTarget> normalMap;
+    shared_ptr<RenderTarget> roughnessMap;
+    shared_ptr<RenderTarget> metalicMap;
 
     /// @brief マテリアルをMap<名前、オブジェクト>で読み取り
     /// @param path
