@@ -32,7 +32,12 @@ void RenderTarget::ReadWithStb(filesystem::path filepath)
     for (int i = 0; i < this->screenSize.x() * this->screenSize.y(); i++)
     {
         int pixIndex = channel * i;
-        this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex + 1] / 255.0f, pixels[pixIndex + 2] / 255.0f);
+        if (channel >= 3)
+            this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex + 1] / 255.0f, pixels[pixIndex + 2] / 255.0f);
+        if (channel == 2)
+            this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex + 1] / 255.0f, 1);
+        if (channel == 1)
+            this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex] / 255.0f, pixels[pixIndex] / 255.0f);
     }
     stbi_image_free(pixels);
 }
@@ -129,32 +134,15 @@ void RenderTarget::Fill(const Vector3f &color)
 
 void RenderTarget::DrawLine(const Vector2f &start, const Vector2f &end, const Vector3f &color)
 {
-    Vector2i startI = start.cast<int>();
-    Vector2i endI = end.cast<int>();
-    Vector2i d = (endI - startI).cwiseAbs();
-    Vector2i s = Vector2i((startI.x() < endI.x()) ? 1 : -1, (startI.y() < endI.y()) ? 1 : -1);
-    int err = d.x() - d.y();
-
-    while (true)
+    constexpr int skip = 1;
+    Vector2f delta = end - start;
+    float steps = fmax(delta.x(), delta.y());
+    Vector2f inc = delta / steps * skip;
+    Vector2f current = start;
+    for (int i = 0; i < steps; i += skip)
     {
-        this->PaintPixel(startI.x(), startI.y(), color); // 現在の位置にピクセルを描画
-
-        if (startI.x() == endI.x() && startI.y() == endI.y())
-            break;
-
-        int e2 = err * 2;
-
-        if (e2 > -d.y())
-        {
-            err -= d.y();
-            startI.x() += s.x();
-        }
-
-        if (e2 < d.x())
-        {
-            err += d.x();
-            startI.y() += s.y();
-        }
+        this->PaintPixel(current.x(), current.y(), color);
+        current += inc;
     }
 }
 
