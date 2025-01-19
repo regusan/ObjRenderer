@@ -27,17 +27,17 @@ bool RenderTarget::LoadFromFile(const filesystem::path &filepath)
 void RenderTarget::ReadWithStb(filesystem::path filepath)
 {
     int channel;
-    unsigned char *pixels = stbi_load(filepath.string().c_str(), &this->screenSize.x(), &this->screenSize.y(), &channel, 0);
+    float *pixels = stbi_loadf(filepath.string().c_str(), &this->screenSize.x(), &this->screenSize.y(), &channel, 0);
     this->array.resize(this->screenSize.x() * this->screenSize.y());
     for (int i = 0; i < this->screenSize.x() * this->screenSize.y(); i++)
     {
         int pixIndex = channel * i;
         if (channel >= 3)
-            this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex + 1] / 255.0f, pixels[pixIndex + 2] / 255.0f);
+            this->array[i] = Vector3f(pixels[pixIndex], pixels[pixIndex + 1], pixels[pixIndex + 2]);
         if (channel == 2)
-            this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex + 1] / 255.0f, 1);
+            this->array[i] = Vector3f(pixels[pixIndex], pixels[pixIndex + 1], 1);
         if (channel == 1)
-            this->array[i] = Vector3f(pixels[pixIndex] / 255.0f, pixels[pixIndex] / 255.0f, pixels[pixIndex] / 255.0f);
+            this->array[i] = Vector3f(pixels[pixIndex], pixels[pixIndex], pixels[pixIndex]);
     }
     stbi_image_free(pixels);
 }
@@ -325,14 +325,16 @@ RenderTarget RenderTarget::BoxBlur(const int kernelSize, const int kernelScale)
     }
     return retval;
 }
-RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const int kernelScale)
+RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const bool isLoopingX, const bool isLoopingY, const int kernelScale)
 {
     RenderTarget retval = RenderTarget((*this));
-    int actualKernelSize = kernelSize / 2 * 2 + 1; // サイズを奇数に変換
+    RenderTarget intermediate = RenderTarget((*this));
+
+    int actualKernelSize = clamp<int>(kernelSize / 2 * 2 + 1, 3, min(this->screenSize.x() / 2, this->screenSize.y() / 2));
     vector<float> kernel(actualKernelSize, 0.0f);
 
     // ガウスカーネルの生成
-    float sigma = static_cast<float>(kernelSize) / 2.0f;
+    float sigma = static_cast<float>(kernelSize) * 0.5f;
     float gaussSum = 0.0f;
     for (int i = 0; i < actualKernelSize; i++)
     {
@@ -354,12 +356,14 @@ RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const int kernelSc
             Vector3f sum = Vector3f(0, 0, 0);
             for (int lx = -actualKernelSize / 2; lx <= actualKernelSize / 2; lx++)
             {
-                int sampleX = max(min(x + lx * kernelScale, this->screenSize.x() - 1), 0);
-                if (sampleX < 0 || sampleX >= this->screenSize.x())
-                    continue;
+                int sampleX;
+                if (isLoopingX)
+                    sampleX = (x + lx) % this->screenSize.x();
+                else
+                    sampleX = clamp<int>(x + lx, 0, this->screenSize.x() - 1);
                 sum += this->SampleColor(sampleX, y) * kernel[lx + actualKernelSize / 2];
             }
-            retval.PaintPixel(x, y, sum);
+            intermediate.PaintPixel(x, y, sum);
         }
     }
 
@@ -371,10 +375,12 @@ RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const int kernelSc
             Vector3f sum = Vector3f(0, 0, 0);
             for (int ly = -actualKernelSize / 2; ly <= actualKernelSize / 2; ly++)
             {
-                int sampleY = y + ly * kernelScale;
-                if (sampleY < 0 || sampleY >= this->screenSize.y())
-                    continue;
-                sum += retval.SampleColor(x, sampleY) * kernel[ly + actualKernelSize / 2];
+                int sampleY;
+                if (isLoopingY)
+                    sampleY = (y + ly) % this->screenSize.y();
+                else
+                    sampleY = clamp<int>(y + ly, 0, this->screenSize.y() - 1);
+                sum += intermediate.SampleColor(x, sampleY) * kernel[ly + actualKernelSize / 2];
             }
             retval.PaintPixel(x, y, sum);
         }
@@ -400,12 +406,27 @@ vector<RenderTarget> RenderTarget::MakeMipMap(int num)
 {
     vector<RenderTarget> retval;
     int scale = 1;
-    for (size_t i = 0; i < num; i++)
+    for (int i = 0; i < num; i++)
     {
         Vector2i resizedSize = this->screenSize / scale;
-        if (resizedSize.x() <= 8 || resizedSize.y() <= 1)
+        if (resizedSize.x() <= 8 || resizedSize.y() <= 8)
             break;
         retval.push_back(this->DownSample(resizedSize));
+        scale *= 2;
+    }
+    return retval;
+}
+vector<RenderTarget> RenderTarget::MakeMipMapBluered(int num, int kernelSize)
+{
+    vector<RenderTarget> retval;
+    int scale = 1;
+    retval.push_back(*this);
+    for (int i = 1; i < num; i++)
+    {
+        Vector2i resizedSize = this->screenSize / scale;
+        if (resizedSize.x() <= 8 || resizedSize.y() <= 8)
+            break;
+        retval.push_back(retval[i - 1].GausiannBlur(kernelSize, true).DownSample(resizedSize));
         scale *= 2;
     }
     return retval;

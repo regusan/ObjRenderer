@@ -152,9 +152,10 @@ public:
     /// @param kernelSize
     /// @param kernelScale
     /// @return
-    RenderTarget GausiannBlur(const int kernelSize, const int kernelScale = 1);
+    RenderTarget GausiannBlur(const int kernelSize, const bool isLoopingX = false, const bool isLoopingY = false, const int kernelScale = 1);
     vector<RenderTarget> GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData);
     vector<RenderTarget> MakeMipMap(int num);
+    vector<RenderTarget> MakeMipMapBluered(int num, int kernelSize);
 
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
