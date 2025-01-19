@@ -46,7 +46,9 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
         this->cameraMoveMode = CameraMoveMode::TurnTable;
 
     this->skySphere = RenderTarget(config.GetAsString("HDRI"));
-    this->skyMipmap = this->skySphere.value().MakeMipMap(16);
+    cout << "天球ミップマップの生成中..." << endl;
+    this->skyMipmap = this->skySphere.value().MakeMipMapBluered(16, 32);
+    cout << "天球ミップマップの生成完了" << endl;
 }
 
 void RenderingEnvironmentParameters::setCurrentTIme()
