@@ -60,7 +60,33 @@ namespace PostProcessShader
                 Vector3f sum = Vector3f(0, 0, 0);
                 for (size_t i = 0; i < downSampledBuffers.size(); i++)
                     sum += downSampledBuffers[i].SampleColor(x, y);
-                gbuffers.beauty.PaintPixel(x, y, sum + gbuffers.beauty.SampleColor(x, y));
+                gbuffers.beauty.PaintPixel(x, y, sum / dsd.size() + gbuffers.beauty.SampleColor(x, y));
+            }
+    }
+    void BloomWithMultipleConv(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
+    {
+        // ダウンサンプリングしたバッファを用意
+        int num = 5;
+        int kernelSize = 32;
+        RenderTarget current(gbuffers.screenSize.x(), gbuffers.screenSize.y());
+#pragma omp parallel for
+        for (int y = 0; y < current.getScreenSize().y(); y++)
+            for (int x = 0; x < current.getScreenSize().x(); x++)
+            {
+                Vector3f beauty = gbuffers.beauty.SampleColor(x, y);
+                Vector3f overflow = Vector3f(fmax(0, beauty.x() - 1), fmax(0, beauty.y() - 1), fmax(0, beauty.z() - 1));
+                current.PaintPixel(x, y, overflow);
+            }
+
+        for (int i = 1; i < num; i++)
+        {
+            current = current.GausiannBlur(kernelSize, true);
+        }
+#pragma omp parallel for
+        for (int y = 0; y < current.getScreenSize().y(); y++)
+            for (int x = 0; x < current.getScreenSize().x(); x++)
+            {
+                gbuffers.beauty.PaintPixel(x, y, current.SampleColor(x, y) + gbuffers.beauty.SampleColor(x, y));
             }
     }
     void ScreenSpaceAmbientOcculusionCryTek(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
@@ -110,10 +136,11 @@ namespace PostProcessShader
     }
     void SSAOPlusSSGI(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
-        int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 200 : 10;
+        constexpr int intencity = 1.0f;
+        int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 500 : 10;
         int NoiseCount = maxSampleNum * 10;
-        int skipSize = 1;                                    // 何ピクセルおきに計算するか
-        float sphereRadius = 0.01 * gbuffers.screenSize.x(); // 解像度1000で半径1
+        int skipSize = 1;                                           // 何ピクセルおきに計算するか
+        const float sphereRadius = 0.005 * gbuffers.screenSize.x(); // 解像度1000で半径1
         Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
                                        environment.directionalLights[0].direction.y(),
                                        environment.directionalLights[0].direction.z(), 1);
@@ -143,13 +170,19 @@ namespace PostProcessShader
                 Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
                 Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
                 Vector3f bouncedColor = Vector3f(0, 0, 0);
+                float sumOfStrength = 0.0f;
                 for (int i = 0; i < maxSampleNum; i++)
                 {
                     Vector3f randomVS = positionVS + noises[seed % NoiseCount];
                     seed = GeometryMath::xorshift(seed);
                     const Vector3f randomSS = (randomVS / randomVS.z() + Vector3f(1, 1, 1)) * 0.5;
                     float factDepth = gbuffers.positionVS.SampleColor01(randomSS.x(), randomSS.y()).z();
-
+                    // レイが画面外に行ったら強制終了
+                    if (randomSS.x() < 0 || randomSS.x() >= 1 || randomSS.y() < 0 || randomSS.y() >= 1)
+                    {
+                        visibleCount++;
+                        continue;
+                    }
                     if (factDepth > randomVS.z()) // サンプル点が実際の深度より手前=可視だったら
                     {
                         visibleCount++;
@@ -157,13 +190,14 @@ namespace PostProcessShader
                         Vector3f factNormalVS = gbuffers.normalVS.SampleColor01(randomSS.x(), randomSS.y());
                         Vector3f reflectVS = MathPhysics::Reflect(lightDirVS, factNormalVS).normalized();
                         Vector3f random2sampleVS = (factPosVS - positionVS);
-                        float strength = reflectVS.dot(random2sampleVS.normalized());
-                        strength = clamp<float>((1 - factNormalVS.dot(normalVS)) / 2, 0, 1);
+                        float affectRateByDistance = 1 - (factPosVS - positionVS).norm() / sphereRadius;    // 近いほど大きくなる影響度合い
+                        float affectRateByAngle = clamp<float>((1 - factNormalVS.dot(normalVS)) / 2, 0, 1); // 正面になるほど大きくなる影響度合い
+                        float strength = affectRateByAngle * affectRateByDistance;
                         bouncedColor = bouncedColor + gbuffers.diffuse.SampleColor01(randomSS.x(), randomSS.y()) * strength;
                     }
                 }
-                float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2); // 可視サンプル数から比率を計算
-                bouncedColor = bouncedColor / visibleCount;
+                float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum); // 可視サンプル数から比率を計算
+                bouncedColor = bouncedColor / visibleCount * intencity;
                 gbuffers.irradiance.PaintPixel(x, y, Vector3f(fmax(bouncedColor.x(), 0), fmax(bouncedColor.y(), 0), fmax(bouncedColor.z(), 0)));
                 gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
             }
@@ -171,7 +205,7 @@ namespace PostProcessShader
         if (environment.quality == RenderingQuality::Cinema)
         {
             gbuffers.AO = gbuffers.AO.GausiannBlur(5);
-            gbuffers.irradiance = gbuffers.irradiance.GausiannBlur(5);
+            gbuffers.irradiance = gbuffers.irradiance.GausiannBlur(15);
         }
     }
     void ScreenSpaceReflection(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
@@ -227,8 +261,8 @@ namespace PostProcessShader
                 }
             }
         }
-        if (environment.quality == RenderingQuality::Cinema)
-            gbuffers.reflection = gbuffers.reflection.GausiannBlur(11);
+        // if (environment.quality == RenderingQuality::Cinema)
+        //   gbuffers.reflection = gbuffers.reflection.GausiannBlur(3);
     }
     void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
@@ -238,10 +272,12 @@ namespace PostProcessShader
         const float maxRayLength = (environment.quality == RenderingQuality::Cinema) ? 30 : 10;
         const float rayLength = maxRayLength / maxRayNum;
         // 自分自身に反射するのを防ぐための最小距離
-        const float minimumLength = rayLength * 5;
+        const float minimumLength = rayLength * 0;
 
         float maxThickness = 30.0f / maxRayNum;
         maxThickness = 1;
+        Vector3f lightWS = environment.directionalLights.at(0).direction;
+        Vector3f normalVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * Vector4f(lightWS.x(), lightWS.y(), lightWS.z(), 1)).head<3>().normalized();
 
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y++)
@@ -256,8 +292,6 @@ namespace PostProcessShader
                 }
 
                 const Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
-                Vector3f lightWS = environment.directionalLights.at(0).direction;
-                Vector3f normalVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * Vector4f(lightWS.x(), lightWS.y(), lightWS.z(), 1)).head<3>().normalized();
                 // normalVS = Vector3f(1, 1, -1).normalized();
                 //  TODO:二分探索にして高速化する
                 for (int i = 1; i <= maxRayNum; i++)
