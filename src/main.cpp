@@ -62,7 +62,6 @@ int main(int argc, char const *argv[])
     GBuffers gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
     while (true)
     {
-
         //  時間の計測
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -81,7 +80,6 @@ int main(int argc, char const *argv[])
         }
         in.environment.viewMat = in.viewMat;
         in.environment.setCurrentTIme();
-
         // 各レンダリングパスを実行
         if (in.environment.quality >= RenderingQuality::Low)
         {
@@ -92,16 +90,18 @@ int main(int argc, char const *argv[])
                 PostProcessShader::SSAOPlusSSGI(gb, in.environment);
                 PostProcessShader::ScreenSpaceShadow(gb, in.environment);
             }
-            RenderingPass::ExecLightingPass(gb, LighingShader::PBRLighingShader, in.environment);
+            RenderingPass::ExecLightingPass(gb, LighingShader::IBLShader, in.environment);
             if (in.environment.quality > RenderingQuality::Low)
             {
                 PostProcessShader::ScreenSpaceReflection(gb, in.environment);
+                RenderingPass::ExecLightingPass(gb, LighingShader::FinalLightingPassShader, in.environment);
             }
-            RenderingPass::ExecLightingPass(gb, LighingShader::FinalLightingPassShader, in.environment);
+
             if (in.environment.quality > RenderingQuality::Low)
             {
-                PostProcessShader::BloomWithDownSampling(gb, in.environment);
+                //  PostProcessShader::BloomWithDownSampling(gb, in.environment);
             }
+            RenderingPass::ExecLightingPass(gb, LighingShader::BackGroundLighingShader, in.environment);
         }
         else
         {
@@ -147,10 +147,10 @@ int main(int argc, char const *argv[])
                         RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, higb, VertStandard, PixcelStandard);
                         PostProcessShader::SSAOPlusSSGI(higb, environment);
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, LighingShader::PBRLighingShader, environment);
+                        RenderingPass::ExecLightingPass(higb, LighingShader::IBLShader, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, LighingShader::FinalLightingPassShader, environment);
                         PostProcessShader::BloomWithDownSampling(higb, environment);
+                        RenderingPass::ExecLightingPass(higb, LighingShader::BackGroundLighingShader, environment);
                         cout << "レンダリング終了" << endl;
 
                         auto now = std::chrono::system_clock::now();
