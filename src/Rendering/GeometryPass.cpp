@@ -146,8 +146,8 @@ namespace RenderingPipeline
                         gb.positionWS.PaintPixel(x, y, draw.positionWS.head<3>());
                         gb.positionVS.PaintPixel(x, y, draw.positionVS.head<3>());
 
-                        gb.normalVS.PaintPixel(x, y, draw.normalVS.head<3>());
-                        gb.normalWS.PaintPixel(x, y, draw.normalWS.head<3>());
+                        gb.normalVS.PaintPixel(x, y, out.normalVS);
+                        gb.normalWS.PaintPixel(x, y, out.normalWS);
                     }
                 }
             }

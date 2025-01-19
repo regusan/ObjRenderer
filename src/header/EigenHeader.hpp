@@ -4,6 +4,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
+using Eigen::Matrix3f;
 using Eigen::Matrix4f;
 using Eigen::MatrixXd;
 

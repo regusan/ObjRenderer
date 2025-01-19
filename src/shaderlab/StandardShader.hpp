@@ -37,7 +37,23 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
     out.material = in.material;
     return out;
 }
+Matrix3f CalculateTBN(const Vector3f &normalWS)
+{
+    // 適切な基準ベクトルを選択
+    Vector3f reference = (std::abs(normalWS.z()) < 0.9f) ? Vector3f(0, 0, 1) : Vector3f(0, 1, 0);
 
+    // Tangent（接線ベクトル）を計算
+    Vector3f tangentWS = reference.cross(normalWS).normalized();
+
+    // Bitangent（従法線ベクトル）を計算
+    Vector3f bitangentWS = normalWS.cross(tangentWS).normalized();
+
+    Matrix3f TBN;
+    TBN.col(0) = tangentWS.normalized();   // Tangent
+    TBN.col(1) = bitangentWS.normalized(); // Bitangent
+    TBN.col(2) = normalWS.normalized();    // Normal (from GBuffer or vertex)
+    return TBN;
+}
 /// @brief ピクセルシェーダーの例
 /// @param in 入力データ格納構造体
 /// @return 出力データ格納構造体
@@ -63,15 +79,22 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     if (in.material->diffuseMap)
         out.diffuse = out.diffuse.array() * in.material->diffuseMap->SampleColor01(fmod(in.uv.x(), 1), fmod(in.uv.y(), 1)).array();
 
-    /*
-    if (optional<RenderTarget> &map = in.material->normalMap) // NormalMapが存在するなら、サンプル
+    out.normalWS = in.normalWS.head<3>();
+    out.normalVS = in.normalVS.head<3>();
+    if (in.material->normalMap) // NormalMapが存在するなら、サンプル
     {
-        Vector3f sampledNormal = map->SampleColor01(in.uv.x(), in.uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f); // タンジェント空間へ
-        out.normal = in.normalWS.head<3>().array() * sampledNormal.array();
-        out.normal.normalize();
-        out.normal = sampledNormal;
+        // 法線マップをサンプリング
+        Vector3f sampledNormal = in.material->normalMap->SampleColor01(in.uv.x(), in.uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f);
+
+        // TBN行列を構築
+
+        Matrix3f TBN = CalculateTBN(in.normalWS.head<3>());
+        out.normalWS = (TBN * sampledNormal).normalized();
+
+        TBN = CalculateTBN(in.normalVS.head<3>());
+        out.normalVS = (TBN * sampledNormal).normalized();
+        out.normalVS = sampledNormal;
     }
-    */
 
     out.emission = in.material->emission;
     out.color = out.diffuse;
