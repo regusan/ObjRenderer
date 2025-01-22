@@ -2,16 +2,11 @@
 
 # DEMOs
 
-
-
 |  |  |
 | ---- | ---- |
-| ![image](https://github.com/user-attachments/assets/794d9e64-7604-422e-9b6f-572ae8c7bcfc) | ![out_beauty](https://github.com/user-attachments/assets/c47dedca-a889-4085-80e2-755ae3c0e3a7) |
-| aaaa |aaaaa |
+|![beauty](https://github.com/user-attachments/assets/6f26296d-c238-4026-96bf-2f69830eabf3) | ![beauty](https://github.com/user-attachments/assets/32dc5594-6cc9-43ea-b99e-b416e7fb00bd) |
+| ![out_beauty](https://github.com/user-attachments/assets/c47dedca-a889-4085-80e2-755ae3c0e3a7) | ![image](https://github.com/user-attachments/assets/a864da4c-88d4-4c93-a60d-61d4efd1d30b)|
 
-| Demo  | Demo2 |
-| ---- | ---- |
-| ![image](https://github.com/user-attachments/assets/794d9e64-7604-422e-9b6f-572ae8c7bcfc) | ![out_beauty](https://github.com/user-attachments/assets/c47dedca-a889-4085-80e2-755ae3c0e3a7) |
 # Features
 ### Rendering Features
 - Smooth Shading
@@ -25,22 +20,16 @@
 - Screen Space Global Illumination
 - Screen Space Reflection
 - Screen Space Contact Shadow
-- Bloom
-
-### PostProcesses
-- Screen Space Ambient Occlusion
-- Screen Space Reflection
-- Screen Space Contact Shadow
+- Screen Space Global Illumination 
 - Bloom
 
 | Effect  | Result | Buffer |
 | ---- | ---- | ---- |
-| Screen Space Ambient Occlusion  | Demo2 | Buffer |
-| Screen Space Reflection         | Demo2 | Buffer |
-| Screen Space Contact Shadow             | Demo2 | Buffer |
-| Bloom                           | Demo2 | Buffer |
-| Demo  | Demo2 | Buffer |
-| Demo  | Demo2 | Buffer |
+| Screen Space Ambient Occlusion  | img | ![AO](https://github.com/user-attachments/assets/c1b9463d-1793-42e9-9691-89106b48d657)
+| Screen Space Reflection         | ![スクリーンショット 2025-01-22 124342](https://github.com/user-attachments/assets/ebb1f1ec-7b0c-411b-b3bc-0888e83e471c) | ![reflection](https://github.com/user-attachments/assets/26cb10dd-f7ed-4ba0-b498-c4f4457e0b8c) |
+| Screen Space Contact Shadow             | ![beauty](https://github.com/user-attachments/assets/2c9786ed-b7f5-46c1-8056-788732a411c9) | ![SSShadow](https://github.com/user-attachments/assets/a16677d1-63d0-43e6-be37-dcb87a87f164) |
+| Screen Space Global Illumination        | ![スクリーンショット 2025-01-22 123844](https://github.com/user-attachments/assets/ddad8ff0-f54e-4405-bc49-04733673e677)| ![スクリーンショット 2025-01-22 123911](https://github.com/user-attachments/assets/f052b131-f61a-4cfe-9cdf-e0f30f0fbab3) |
+| Demo  | img | Buffer |
 
 ### IO
 - Obj File Reading
@@ -146,6 +135,12 @@ inline const Vector3f YourOwnLightPassShader(GBuffers &gbuffers, RenderingEnviro
 ```cpp
 RenderingPass::ExecLightingPass(gb, YourOwnLightPassShader, in.environment);
 ```
+
+# Preparing 3D model
+Blender Export settings
+![スクリーンショット 2025-01-20 003911](https://github.com/user-attachments/assets/eb90be6e-fdf7-4d98-a31c-71a9fdf7e3df)
+
+
 # Credit
 [Sean Barrett stb_image.h,stb_image_write.h](https://github.com/nothings/stb)
 
