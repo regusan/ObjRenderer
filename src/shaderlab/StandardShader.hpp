@@ -84,7 +84,7 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     if (in.material->normalMap) // NormalMapが存在するなら、サンプル
     {
         // 法線マップをサンプリング
-        Vector3f sampledNormal = in.material->normalMap->SampleColor01(in.uv.x(), in.uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f);
+        Vector3f sampledNormal = in.material->normalMap->SampleColor01BiLinear(in.uv.x(), in.uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f);
 
         // TBN行列を構築
 

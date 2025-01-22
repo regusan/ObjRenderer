@@ -7,6 +7,7 @@
 #include "../Light/DirectionalLight.hpp"
 #include "../Rendering/RenderTarget.hpp"
 
+#include "../Math/Math3D.hpp"
 // class ILight;
 // class RadialPointLight;
 #include <vector>
@@ -51,7 +52,7 @@ public:
 
     optional<RenderTarget> skySphere;
     vector<RenderTarget> skyMipmap;
-    Vector2f skySphereOffset = Vector2f(0, 0);
+    Vector2f skySphereOffset = Vector2f(.5, 0);
 
     /// @brief コンフィグから読み取り
     /// @param config

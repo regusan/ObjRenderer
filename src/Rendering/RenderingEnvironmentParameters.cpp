@@ -44,11 +44,30 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
         this->cameraMoveMode = CameraMoveMode::FPS;
     if (cameraMoveModeStr == "TurnTable")
         this->cameraMoveMode = CameraMoveMode::TurnTable;
+    static string pastHDRIPath = "";
+    // HDRIが存在したらが
+    if (std::filesystem::exists(config.GetAsString("HDRI")) && pastHDRIPath != config.GetAsString("HDRI"))
+    {
+        pastHDRIPath = config.GetAsString("HDRI");
+        this->skySphere = RenderTarget(config.GetAsString("HDRI"));
+        cout << "天球ミップマップの生成中..." << endl;
+        this->skyMipmap = this->skySphere.value().MakeMipMapBluered(16, 32);
+        cout << "天球ミップマップの生成完了" << endl;
+        this->skySphereOffset.x() = config.GetAsNumeric("SkyUVOffsetX");
 
-    this->skySphere = RenderTarget(config.GetAsString("HDRI"));
-    cout << "天球ミップマップの生成中..." << endl;
-    this->skyMipmap = this->skySphere.value().MakeMipMapBluered(16, 32);
-    cout << "天球ミップマップの生成完了" << endl;
+        // ライト向きをHDRIと同期する
+        RenderTarget &sampler = this->skyMipmap[this->skyMipmap.size() - 2];
+        auto compare = [](const Vector3f &a, const Vector3f &b)
+        { return a.norm() < b.norm(); };
+        auto maxIter = std::max_element(sampler.GetArray().begin(), sampler.GetArray().end(), compare);
+        int index = std::distance(sampler.GetArray().begin(), maxIter);
+        Vector2f maxUV = Vector2f(
+                             (float)(index % sampler.getScreenSize().x()) / sampler.getScreenSize().x(),
+                             (float)(index / sampler.getScreenSize().x()) / sampler.getScreenSize().y()) -
+                         this->skySphereOffset;
+        // TODO::正しく方向を取得できない！
+        //  this->directionalLights[0].direction = TextureMath::PolarUVToRectangular(1, maxUV);
+    }
 }
 
 void RenderingEnvironmentParameters::setCurrentTIme()

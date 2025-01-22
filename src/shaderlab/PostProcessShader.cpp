@@ -21,7 +21,7 @@ namespace PostProcessShader
         return sum + gbuffers.beauty.SampleColor(x, y);
     }
 
-    void BloomWithDownSampling(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
+    void BloomWithDownSampling(GBuffers &gbuffers, RenderingEnvironmentParameters &environment, float bloomThreshold, float intencity)
     {
         // ダウンサンプリングしたバッファを用意
 
@@ -48,7 +48,7 @@ namespace PostProcessShader
             for (int x = 0; x < bloomSource.getScreenSize().x(); x++)
             {
                 Vector3f beauty = gbuffers.beauty.SampleColor(x, y);
-                Vector3f overflow = Vector3f(fmax(0, beauty.x() - 1), fmax(0, beauty.y() - 1), fmax(0, beauty.z() - 1));
+                Vector3f overflow = Vector3f(fmax(0, beauty.x() - bloomThreshold), fmax(0, beauty.y() - bloomThreshold), fmax(0, beauty.z() - bloomThreshold));
                 bloomSource.PaintPixel(x, y, overflow);
             }
 
@@ -60,7 +60,7 @@ namespace PostProcessShader
                 Vector3f sum = Vector3f(0, 0, 0);
                 for (size_t i = 0; i < downSampledBuffers.size(); i++)
                     sum += downSampledBuffers[i].SampleColor(x, y);
-                gbuffers.beauty.PaintPixel(x, y, sum / dsd.size() + gbuffers.beauty.SampleColor(x, y));
+                gbuffers.beauty.PaintPixel(x, y, sum / dsd.size() * intencity + gbuffers.beauty.SampleColor(x, y));
             }
     }
     void BloomWithMultipleConv(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
@@ -136,11 +136,10 @@ namespace PostProcessShader
     }
     void SSAOPlusSSGI(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
-        constexpr int intencity = 1.0f;
         int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 500 : 10;
         int NoiseCount = maxSampleNum * 10;
         int skipSize = 1;                                           // 何ピクセルおきに計算するか
-        const float sphereRadius = 0.005 * gbuffers.screenSize.x(); // 解像度1000で半径1
+        const float sphereRadius = 0.001 * gbuffers.screenSize.x(); // 解像度1000で半径1
         Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
                                        environment.directionalLights[0].direction.y(),
                                        environment.directionalLights[0].direction.z(), 1);
@@ -193,11 +192,11 @@ namespace PostProcessShader
                         float affectRateByDistance = 1 - (factPosVS - positionVS).norm() / sphereRadius;    // 近いほど大きくなる影響度合い
                         float affectRateByAngle = clamp<float>((1 - factNormalVS.dot(normalVS)) / 2, 0, 1); // 正面になるほど大きくなる影響度合い
                         float strength = affectRateByAngle * affectRateByDistance;
-                        bouncedColor = bouncedColor + gbuffers.diffuse.SampleColor01(randomSS.x(), randomSS.y()) * strength;
+                        bouncedColor = bouncedColor + gbuffers.beauty.SampleColor01(randomSS.x(), randomSS.y()) * strength;
                     }
                 }
                 float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum); // 可視サンプル数から比率を計算
-                bouncedColor = bouncedColor / visibleCount * intencity;
+                bouncedColor = bouncedColor / visibleCount;
                 gbuffers.irradiance.PaintPixel(x, y, Vector3f(fmax(bouncedColor.x(), 0), fmax(bouncedColor.y(), 0), fmax(bouncedColor.z(), 0)));
                 gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
             }
@@ -213,7 +212,7 @@ namespace PostProcessShader
         // 光線を飛ばす回数
         const int maxRayNum = (environment.quality == RenderingQuality::Cinema) ? 200 : 30;
         // レイの最大距離
-        const float maxRayLength = 3;
+        const float maxRayLength = (environment.quality == RenderingQuality::Cinema) ? 10 : 3;
         const float rayLength = maxRayLength / maxRayNum;
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = rayLength * 0;
@@ -269,10 +268,10 @@ namespace PostProcessShader
         // 光線を飛ばす回数
         const int maxRayNum = (environment.quality == RenderingQuality::Cinema) ? 1000 : 30;
         // レイの最大距離
-        const float maxRayLength = (environment.quality == RenderingQuality::Cinema) ? 30 : 10;
+        const float maxRayLength = (environment.quality == RenderingQuality::Cinema) ? 10 : 10;
         const float rayLength = maxRayLength / maxRayNum;
         // 自分自身に反射するのを防ぐための最小距離
-        const float minimumLength = rayLength * 0;
+        const float minimumLength = maxRayLength * 0.01;
 
         float maxThickness = 30.0f / maxRayNum;
         maxThickness = 1;
@@ -321,5 +320,47 @@ namespace PostProcessShader
         }
         if (environment.quality == RenderingQuality::Cinema)
             gbuffers.SSShadow = gbuffers.SSShadow.GausiannBlur(11);
+    }
+
+    void AutoExposure(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
+    {
+        constexpr float middleGrey = 0.18f;
+        float avarageBrightness = 0;
+        float sampleRate = 0.01;
+        int steps = static_cast<int>(1.0f / sampleRate);
+        int skip = 10;
+        int count = 0;
+        Vector3f sum = Vector3f::Zero();
+        /*
+        // #pragma omp parallel for
+        for (int y = 0; y < gbuffers.screenSize.y(); y += skip)
+        {
+            for (int x = 0; x < gbuffers.screenSize.x(); x += skip)
+            {
+                count++;
+                sum += gbuffers.beauty.SampleColor(x, y);
+                avarageBrightness += clamp<float>(gbuffers.beauty.SampleColor(x, y).norm(), 0, 100);
+            }
+        }
+        avarageBrightness /= count;
+        avarageBrightness = 1 - avarageBrightness;
+        cout << avarageBrightness << endl;
+
+*/
+
+#pragma omp parallel for
+        for (int y = 0; y < gbuffers.screenSize.y(); y++)
+        {
+            for (int x = 0; x < gbuffers.screenSize.x(); x++)
+            {
+                const Vector3f sampled = gbuffers.beauty.SampleColor(x, y);
+                float brightness = sampled.norm();
+
+                float exporedBrightness = brightness * (middleGrey / avarageBrightness);
+                float rate = exporedBrightness / (exporedBrightness + 1); // tonemap
+                rate = brightness / (brightness + 1);
+                gbuffers.beauty.PaintPixel(x, y, sampled.normalized() * rate);
+            }
+        }
     }
 }

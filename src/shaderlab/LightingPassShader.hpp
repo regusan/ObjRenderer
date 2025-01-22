@@ -8,6 +8,29 @@ using namespace Transform;
 
 namespace LighingShader
 {
+    struct BRDFResult
+    {
+        float diffuse = 0;
+        float specular = 0;
+    };
+
+    BRDFResult ReguBRDF(const Vector3f &L, const Vector3f &V, const Vector3f &N)
+    {
+        BRDFResult retval;
+        retval.diffuse = M_1_PI; // 半球状に均等に分布
+        retval.specular;
+        return retval;
+    }
+
+    inline float Fresnel(const float _F0, const float VDotN)
+    {
+        return clamp<float>(_F0 + (1.0f - _F0) * pow(1.0f - VDotN, 5), 0, 1);
+    }
+    inline Vector3f Fresnel(const Vector3f _F0, const float VDotN)
+    {
+        Vector3f f = _F0 + (Vector3f::Ones() - _F0) * pow(1.0f - VDotN, 5);
+        return StandardMath::clampv(f, .0f, 1.0f);
+    }
     inline Vector3f SampleFromMipMap(vector<RenderTarget> &mipmap, const float level, const Vector2f uv)
     {
         int index = clamp<float>(level * mipmap.size(), 0, mipmap.size() - 1);
@@ -45,8 +68,8 @@ namespace LighingShader
         // float VDotN = view.dot(normalWSSampled);
 
         // スカイスフィアからスペキュラをサンプル
-        Vector2f skyUV = TextureMath::UVMod1(GeometryMath::DirVec2SphereUV(normalWSSampled) + environment.skySphereOffset);
-        Vector2f skyUVRef = TextureMath::UVMod1(GeometryMath::DirVec2SphereUV(reflectEyeN) + environment.skySphereOffset);
+        Vector2f skyUV = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(normalWSSampled) + environment.skySphereOffset);
+        Vector2f skyUVRef = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(reflectEyeN) + environment.skySphereOffset);
         Vector3f skySpecSampled = Vector3f::Ones();
         if (environment.skySphere)
             skySpecSampled = SampleFromMipMap(environment.skyMipmap, roughnessSampled, skyUVRef);
@@ -97,17 +120,19 @@ namespace LighingShader
         // Vector2f sampledUV = gbuffers.uv.SampleColor(x, y).head<2>();
         float _F0 = clamp<float>(metalicSampled, 0.03, 1);
 
+        Vector3f emission = Vector3f(fmax(diffuseSampled.x() - 1, 0), fmax(diffuseSampled.y() - 1, 0), fmax(diffuseSampled.z() - 1, 0));
+
         // 各種ベクトル
         Vector3f cameraPosWS = environment.viewMat.inverse().col(3).head<3>();
         Vector3f view = (positionWSSampled - cameraPosWS).normalized();
         Vector3f reflectEyeN = MathPhysics::Reflect(view, normalWSSampled);
-        float VDotN = view.dot(normalWSSampled);
+        float VDotN = -view.dot(normalWSSampled);
 
-        float fresnel = clamp<float>(_F0 + (1.0f - _F0) * pow(1.0f + VDotN, 5), 0, 1);
+        float fresnel = Fresnel(_F0, VDotN);
 
         // スカイスフィアからスペキュラをサンプル
-        Vector2f skyUV = TextureMath::UVMod1(GeometryMath::DirVec2SphereUV(normalWSSampled) + environment.skySphereOffset);
-        Vector2f skyUVRef = TextureMath::UVMod1(GeometryMath::DirVec2SphereUV(reflectEyeN) + environment.skySphereOffset);
+        Vector2f skyUV = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(normalWSSampled) + environment.skySphereOffset);
+        Vector2f skyUVRef = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(reflectEyeN) + environment.skySphereOffset);
         Vector3f skySpecSampled, skyDiffSampled, skyAmbient;
         if (environment.skySphere)
         {
@@ -124,21 +149,25 @@ namespace LighingShader
         // DirectionalLight関連の情報を取得
         DirectionalLight light0 = environment.directionalLights.at(0);
         // Vector3f lightRefDir = MathPhysics::Reflect(light0.direction, normalWSSampled);
-        float directIntencity = max<float>(normalWSSampled.dot(light0.direction), 0);
-        float Li = aoSampled * bakedOcclusionSampled * shadowSampled * directIntencity;
+        // float directIntencity = max<float>(normalWSSampled.dot(light0.direction), 0);
+        float Li = aoSampled * bakedOcclusionSampled * shadowSampled; //* directIntencity;
 
         // 直接光によるライティング計算
         // Vector3f DiffuseBRDF = diffuseSampled.array() * light0.color.array() * Li;
         //        DiffuseBRDF = DiffuseBRDF + skySpecSampled * (1 - roughnessSampled);
-        Vector3f DiffuseBRDF = diffuseSampled.array() * skyAmbient.array() + skySpecSampled.array() * fresnel;
+        Vector3f DiffuseBRDF = diffuseSampled.array() * skyAmbient.array() * light0.color.array() * Li +
+                               skySpecSampled.array() * fresnel * Li +
+                               emission.array();
 
         // return Vector3f(fresnel, fresnel, fresnel);
         // スペキュラ計算
-        Vector3f specularBRDF = diffuseSampled.array() * skySpecSampled.array() * fresnel;
+        Vector3f specularBRDF = skySpecSampled.array() * StandardMath::lerp<Vector3f>(metalicSampled, Vector3f::Ones(), diffuseSampled).array() * Li;
 
         // 環境光によるライティング計算
         Vector3f ambient = diffuseSampled.array() * skyAmbient.array() * environment.ambientLight.array();
-        return DiffuseBRDF * roughnessSampled + specularBRDF * (1.0f - roughnessSampled) + ambient + irradianceSampled;
+        Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + ambient;
+        // gbuffers.reflection.PaintPixel(x, y, final);
+        return final;
     }
 
     /// @brief フォンシェーダーのライトパスシェーダー
@@ -159,8 +188,11 @@ namespace LighingShader
         }
         else
         {
-            Vector3f fogColor = environment.fogColor;
-            Vector3f finalColor = gbuffers.beauty.SampleColor(x, y);
+            float indirectIntencity = 6.0f;
+            Vector3f finalColor = gbuffers.beauty.SampleColor(x, y).array() * (gbuffers.AO.SampleColor(x, y) + environment.ambientLight).array();
+
+            finalColor = finalColor + gbuffers.irradiance.SampleColor(x, y) * indirectIntencity;
+
             Vector3f reflection = gbuffers.reflection.SampleColor(x, y);
             if (reflection != Vector3f(0, 0, 0))
             {
@@ -168,6 +200,7 @@ namespace LighingShader
                 finalColor = finalColor * roughness + gbuffers.reflection.SampleColor(x, y) * (1 - roughness);
             }
 
+            Vector3f fogColor = environment.fogColor;
             float depthFogRatio = clamp<float>((depthSampled - environment.fogNearFar.x()) / (environment.fogNearFar.y() - environment.fogNearFar.x()), 0, 1);
             finalColor = finalColor * (1 - depthFogRatio) + fogColor * depthFogRatio;
             return finalColor;
@@ -194,12 +227,12 @@ namespace LighingShader
                 Vector2f posNormed = Vector2f((float)x / gbuffers.screenSize.x() * 2 - 1, (float)y / gbuffers.screenSize.y() * 2 - 1);
                 Matrix4f viewNormal = Transform::ResetScale(Transform::ResetPosition(environment.viewMat.inverse()));
                 Vector3f normedView = (viewNormal * Vector4f(posNormed.x(), posNormed.y(), 1, 1)).head<3>().normalized();
-                Vector2f skyUV = TextureMath::UVMod1(GeometryMath::DirVec2SphereUV(normedView) + environment.skySphereOffset);
-                return environment.skySphere->SampleColor01BiLinear(skyUV.x(), skyUV.y());
+                Vector2f skyUV = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(normedView) + environment.skySphereOffset);
+                return gbuffers.beauty.SampleColor(x, y) + environment.skySphere->SampleColor01BiLinear(skyUV.x(), skyUV.y());
             }
             else // スカイテクスチャがないのでフォグ描画
             {
-                return fogColor;
+                return gbuffers.beauty.SampleColor(x, y) + fogColor;
             }
         }
         else

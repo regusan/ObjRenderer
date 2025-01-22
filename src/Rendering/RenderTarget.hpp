@@ -128,6 +128,11 @@ public:
         Vector3f lerpedDown = rightDown * ratio_x + leftDown * (1 - ratio_x);
         return lerpedDown * ratio_y + lerpedUp * (1 - ratio_y);
     }
+
+    inline vector<Vector3f> &GetArray()
+    {
+        return this->array;
+    }
     /// @brief RenderTargetの各ピクセルにabs()を適用
     /// @return
     RenderTarget Abs();

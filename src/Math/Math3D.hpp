@@ -12,6 +12,29 @@ namespace MathPhysics
         return (in - 2.0f * in.dot(normal) * normal).normalized();
     }
 }
+namespace StandardMath
+{
+    template <typename T>
+    inline T lerp(const float ratio, const T &zero, const T &one)
+    {
+        return zero * (1 - ratio) + ratio * one;
+    }
+
+    inline float saturate(const float value)
+    {
+        return (value < 0) ? 0 : (value > 1) ? 1
+                                             : value;
+    }
+
+    inline Vector3f clampv(const Vector3f &x, const float min, const float max)
+    {
+        return Vector3f(clamp<float>(x.x(), min, max), clamp<float>(x.y(), min, max), clamp<float>(x.z(), min, max));
+    }
+    inline Vector2f clampv(const Vector2f &x, const float min, const float max)
+    {
+        return Vector2f(clamp<float>(x.x(), min, max), clamp<float>(x.y(), min, max));
+    }
+}
 namespace GeometryMath
 {
     inline Vector3f ComputeFaceNormal(const Vector3f &v0, const Vector3f &v1, const Vector3f &v2)
@@ -78,16 +101,6 @@ namespace GeometryMath
         return rotatedA;
     }
 
-    inline Vector2f DirVec2SphereUV(const Vector3f &dirWS)
-    {
-        Vector3f normedDirWS = dirWS.normalized();
-        float th = acosf(normedDirWS.y());
-        float p = atan2(normedDirWS.z(), normedDirWS.x());
-        float phi = (p < 0) ? (p + M_PI * 2) : p;
-        return Vector2f(clamp<float>(phi * (M_1_PI * 0.5), 0.0f, 1.0f),
-                        clamp<float>(th * M_1_PI, 0.0f, 1.0f));
-    }
-
 }
 
 namespace TextureMath
@@ -95,5 +108,25 @@ namespace TextureMath
     inline Vector2f UVMod1(const Vector2f &uv)
     {
         return Vector2f(fmod(uv.x(), 1.0f), fmod(uv.y(), 1.0f));
+    }
+
+    inline Vector3f PolarUVToRectangular(const float radius, const Vector2f uvYawPitch01)
+    {
+        float pitch = ((uvYawPitch01.x() * 2) - 1) * M_PI_2; // 0~1→-pi/2~pi/2
+        float yaw = ((uvYawPitch01.y() * 1)) * M_PI;         //-pi~pi
+        // yaw: 方位角, pitch: 仰角
+        float x = radius * sinf(pitch) * cosf(yaw);
+        float y = radius * cosf(pitch);
+        float z = radius * sinf(pitch) * sinf(yaw);
+        return Vector3f(x, y, z);
+    }
+    inline Vector2f RectangularToPolarUV(const Vector3f &dirWS)
+    {
+        Vector3f normedDirWS = dirWS.normalized();
+        float th = acosf(normedDirWS.y());
+        float p = atan2(normedDirWS.z(), normedDirWS.x());
+        float phi = (p < 0) ? (p + M_PI * 2) : p;
+        return Vector2f(clamp<float>(phi * (M_1_PI * 0.5), 0.0f, 1.0f),
+                        clamp<float>(th * M_1_PI, 0.0f, 1.0f));
     }
 }
