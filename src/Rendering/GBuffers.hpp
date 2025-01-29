@@ -33,6 +33,11 @@ public:
     RenderTarget SSShadow;
     RenderTarget irradiance;
 
+    RenderTarget lightDomain;
+    RenderTarget lightDepth;
+    RenderTarget lightBackDepth;
+    RenderTarget lightPositionVS;
+
     RenderTarget positionWS;
     RenderTarget positionVS;
 

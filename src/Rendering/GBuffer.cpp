@@ -18,6 +18,11 @@ GBuffers::GBuffers(const int &width, const int &height)
         {"SSShadow", &SSShadow},
         {"irradiance", &irradiance},
 
+        {"lightDomain", &lightDomain},
+        {"lightDepth", &lightDepth},
+        {"lightBackDepth", &lightBackDepth},
+        {"lightPositionVS", &lightPositionVS},
+
         {"positionWS", &positionWS},
         {"positionVS", &positionVS},
 
@@ -36,7 +41,7 @@ GBuffers::GBuffers(const int &width, const int &height)
     Vector2i ss = this->screenSize;
 
     this->normalWS = this->normalVS = this->positionWS = this->positionVS =
-        this->backNormalVS = this->backPositionVS = RenderTarget(
+        this->backNormalVS = this->backPositionVS = this->lightPositionVS = RenderTarget(
             ss.x(), ss.y(), Vector3f(0, 0, 0));
 
     this->beauty = this->diffuse = this->forward = RenderTarget(
@@ -46,7 +51,7 @@ GBuffers::GBuffers(const int &width, const int &height)
 
     this->ORM = RenderTarget(ss.x(), ss.y(), Vector3f(1, 0, 0));
 
-    this->depth = this->backDepth = RenderTarget(
+    this->depth = this->backDepth = this->lightDepth = this->lightBackDepth = RenderTarget(
         ss.x(), ss.y(), Vector3f(floatMax, floatMax, floatMax));
 
     this->AO = RenderTarget(
@@ -55,6 +60,9 @@ GBuffers::GBuffers(const int &width, const int &height)
         ss.x(), ss.y(), Vector3f(0, 0, 0));
     this->SSShadow = RenderTarget(
         ss.x(), ss.y(), Vector3f(1, 1, 1));
+
+    this->lightDomain = RenderTarget(
+        ss.x(), ss.y(), Vector3f(0, 0, 0));
 
     this->uv = RenderTarget(
         ss.x(), ss.y(), Vector3f(0, 0, 0));
@@ -94,6 +102,11 @@ void GBuffers::writeAsPNG(const string &filepath,
     (this->reflection).writeAsPNG(appendToFilepath("/reflection.png"));
     (this->SSShadow).writeAsPNG(appendToFilepath("/SSShadow.png"));
     this->irradiance.writeAsPNG(appendToFilepath("/irradiance.png"));
+
+    this->lightDomain.writeAsPNG(appendToFilepath("/lightDomain.png"));
+    (this->lightDepth.Abs() * (1.0 / this->lightDepth.GetMax().x())).writeAsPNG(appendToFilepath("/lightDepth.png"));
+    (this->lightBackDepth.Abs() * (1.0 / this->lightBackDepth.GetMax().x())).writeAsPNG(appendToFilepath("/lightBackDepth.png"));
+    this->lightPositionVS.writeAsPNG(appendToFilepath("/lightPositionVS.png"));
 
     (this->depth.Abs() * (1.0 / this->depth.GetMax().x())).writeAsPNG(appendToFilepath("/depth.png"));
 
