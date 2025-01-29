@@ -90,15 +90,12 @@ int main(int argc, char const *argv[])
             if (in.environment.quality > RenderingQuality::Low)
             {
                 PostProcessShader::ScreenSpaceShadow(gb, in.environment);
+                PostProcessShader::ScreenSpaceReflection(gb, in.environment);
             }
             RenderingPass::ExecLightingPass(gb, LighingShader::IBLShader, in.environment);
             if (in.environment.quality > RenderingQuality::Low)
             {
-                PostProcessShader::ScreenSpaceReflection(gb, in.environment);
-
                 PostProcessShader::SSAOPlusSSGI(gb, in.environment);
-                // PostProcessShader::ScreenSpaceAmbientOcculusionCryTek(gb, environment);
-                RenderingPass::ExecLightingPass(gb, LighingShader::FinalLightingPassShader, in.environment);
             }
             PostProcessShader::AutoExposure(gb, environment);
             if (in.environment.quality > RenderingQuality::Low)
@@ -147,14 +144,19 @@ int main(int argc, char const *argv[])
                         in.environment.screenSize = Vector2i(2048, 2048);
                         in.environment.quality = RenderingQuality::Cinema;
 
+                        GBuffers prehigb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
+                        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, prehigb, VertStandard, PixcelStandard);
+                        PostProcessShader::ScreenSpaceShadow(prehigb, environment);
+                        PostProcessShader::ScreenSpaceReflection(prehigb, environment);
+                        RenderingPass::ExecLightingPass(prehigb, LighingShader::IBLShader, environment);
+
                         GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
+                        higb.preBeauty = prehigb.beauty;
                         RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, higb, VertStandard, PixcelStandard);
-                        // RenderingPipeline::Lighting::ExecLightGeometryPass(primaryModel, in, higb, VertStandard, PixcelStandard);
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, LighingShader::IBLShader, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);
+                        RenderingPass::ExecLightingPass(higb, LighingShader::IBLShader, environment);
                         PostProcessShader::SSAOPlusSSGI(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, LighingShader::FinalLightingPassShader, environment);
                         PostProcessShader::AutoExposure(gb, environment);
                         PostProcessShader::BloomWithDownSampling(higb, environment);
                         RenderingPass::ExecLightingPass(higb, LighingShader::BackGroundLighingShader, environment);

@@ -164,7 +164,6 @@ namespace PostProcessShader
                 // 深度が無限遠だったら処理しない
                 if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
                 {
-                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
                     continue;
                 }
                 int visibleCount = 0; // 可視サンプルのカウンタ
@@ -258,7 +257,7 @@ namespace PostProcessShader
                     // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
                     if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth || rayPosVS.z() - actualDepth < maxThickness))
                     {
-                        gbuffers.reflection.PaintPixel(x, y, gbuffers.beauty.SampleColor01(rayPosSS.x(), rayPosSS.y()));
+                        gbuffers.reflection.PaintPixel(x, y, gbuffers.preBeauty.SampleColor01(rayPosSS.x(), rayPosSS.y()));
                         break;
                     }
                 }

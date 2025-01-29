@@ -135,17 +135,23 @@ namespace LighingShader
         // スカイスフィアからスペキュラをサンプル
         Vector2f skyUV = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(normalWSSampled) + environment.skySphereOffset);
         Vector2f skyUVRef = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(reflectEyeN) + environment.skySphereOffset);
-        Vector3f skySpecSampled, skyDiffSampled, skyAmbient;
+        Vector3f specularSampled, skyDiffSampled, skyAmbient;
         if (environment.skySphere)
         {
 
-            skySpecSampled = SampleFromMipMap(environment.skyMipmap, roughnessSampled, skyUVRef);
+            specularSampled = SampleFromMipMap(environment.skyMipmap, roughnessSampled, skyUVRef);
             skyAmbient = environment.skyMipmap[environment.skyMipmap.size() - 1].SampleColor01BiLinear(skyUV.x(), skyUV.y());
             skyDiffSampled = SampleFromMipMap(environment.skyMipmap, roughnessSampled, skyUV);
         }
         else
         {
-            skySpecSampled = skyDiffSampled = skyAmbient = Vector3f::Ones();
+            specularSampled = skyDiffSampled = skyAmbient = Vector3f::Ones();
+        }
+
+        // ローカル反射の結果が存在したらそっちを使う。
+        if (gbuffers.reflection.SampleColor(x, y) != Vector3f::Zero())
+        {
+            specularSampled = gbuffers.reflection.SampleColor(x, y);
         }
 
         // DirectionalLight関連の情報を取得
@@ -157,13 +163,11 @@ namespace LighingShader
         // 直接光によるライティング計算
         // Vector3f DiffuseBRDF = diffuseSampled.array() * light0.color.array() * Li;
         //        DiffuseBRDF = DiffuseBRDF + skySpecSampled * (1 - roughnessSampled);
-        Vector3f DiffuseBRDF = diffuseSampled.array() * skyAmbient.array() * light0.color.array() * Li +
-                               skySpecSampled.array() * fresnel * Li +
-                               emission.array();
+        Vector3f DiffuseBRDF = diffuseSampled.array() * skyAmbient.array() * light0.color.array() * Li + emission.array();
 
         // return Vector3f(fresnel, fresnel, fresnel);
         // スペキュラ計算
-        Vector3f specularBRDF = skySpecSampled.array() * StandardMath::lerp<Vector3f>(metalicSampled, Vector3f::Ones(), diffuseSampled).array() * Li;
+        Vector3f specularBRDF = specularSampled.array() * StandardMath::lerp<Vector3f>(roughnessSampled, Vector3f::Ones(), diffuseSampled).array() * Li;
 
         // 環境光によるライティング計算
         Vector3f ambient = diffuseSampled.array() * skyAmbient.array() * environment.ambientLight.array();
@@ -181,7 +185,7 @@ namespace LighingShader
             radiation = gbuffers.lightDomain.SampleColor(x, y) * str;
         }
 
-        Vector3f final = DiffuseBRDF; // * (1.0f - metalicSampled) + specularBRDF + ambient + radiation;
+        Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + ambient + radiation;
         // gbuffers.reflection.PaintPixel(x, y, final);
         return final;
     }
