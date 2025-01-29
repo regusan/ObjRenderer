@@ -47,7 +47,7 @@ namespace RenderingPipeline
                 // テッセレーション処理開始
                 int tessCount = Tessellation::CalcTessLevel(outs[0].positionSS.head<2>(),
                                                             outs[1].positionSS.head<2>(),
-                                                            outs[2].positionSS.head<2>());
+                                                            outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
                 auto tessVIns = Tessellation::TessellateSpecificArea(vins, tessCount);
                 vector<vector<VertOutputStandard>> tessVOuts;
                 for (size_t tessIndex = 0; tessIndex < tessVIns.size(); tessIndex++)
@@ -456,7 +456,7 @@ namespace RenderingPipeline
                 // テッセレーション処理開始
                 int tessCount = Tessellation::CalcTessLevel(outs[0].positionSS.head<2>(),
                                                             outs[1].positionSS.head<2>(),
-                                                            outs[2].positionSS.head<2>());
+                                                            outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
                 auto tessVIns = Tessellation::TessellateSpecificArea(vins, tessCount);
                 vector<vector<VertOutputStandard>> tessVOuts;
                 for (size_t tessIndex = 0; tessIndex < tessVIns.size(); tessIndex++)

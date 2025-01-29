@@ -54,6 +54,8 @@ public:
     vector<RenderTarget> skyMipmap;
     Vector2f skySphereOffset = Vector2f(.5, 0);
 
+    int MaxTesselleateCount = 0;
+
     /// @brief コンフィグから読み取り
     /// @param config
     void loadFromConfig(ConfigParser config);
