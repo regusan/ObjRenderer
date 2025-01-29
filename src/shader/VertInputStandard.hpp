@@ -27,4 +27,23 @@ public:
     Vector4f vertColor = Vector4f(1, 0, 1, 1);
 
     Material *material = nullptr;
+
+    VertInputStandard operator+(const VertInputStandard &other) const
+    {
+        VertInputStandard result = *this;
+        result.position = this->position + other.position;
+        result.normal = this->normal + other.normal;
+        result.uv = this->uv + other.uv;
+        result.vertColor = this->vertColor + other.vertColor;
+        return result;
+    }
+    VertInputStandard operator*(const float scalar) const
+    {
+        VertInputStandard result = *this;
+        result.position = this->position * scalar;
+        result.normal = this->normal * scalar;
+        result.uv = this->uv * scalar;
+        result.vertColor = this->vertColor * scalar;
+        return result;
+    }
 };

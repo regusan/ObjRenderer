@@ -46,6 +46,18 @@ namespace GeometryMath
 
         return normal;
     }
+    /// @brief 三角形の求積
+    /// @param v0
+    /// @param v1
+    /// @param v2
+    /// @return
+    inline float ComputeTriangleArea(const Vector2f &v0, const Vector2f &v1, const Vector2f &v2)
+    {
+        Vector2f ab = v1 - v0;
+        Vector2f ac = v2 - v0;
+
+        return 0.5f * fabs((ab.x() * ac.y() - ab.y() * ac.x()));
+    }
     inline uint xorshift(uint y)
     {
         // shift して xor する

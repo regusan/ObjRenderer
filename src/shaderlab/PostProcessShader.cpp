@@ -93,8 +93,8 @@ namespace PostProcessShader
     {
         int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 200 : 10;
         int NoiseCount = maxSampleNum * 10;
-        int skipSize = 1;                                     // 何ピクセルおきに計算するか
-        float sphereRadius = 0.001 * gbuffers.screenSize.x(); // 解像度1000で半径1
+        int skipSize = 1; // 何ピクセルおきに計算するか
+        float sphereRadius = 10;
         // ノイズを事前計算
         vector<Vector3f> noises;
         uint precomputeSeed = 1;
@@ -121,13 +121,15 @@ namespace PostProcessShader
                 Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
                 for (int i = 0; i < maxSampleNum; i++)
                 {
-                    Vector3f randomVS = positionVS + noises[seed % NoiseCount]; // + GeometryMath::RotateVectorToBasis(noises[seed % NoiseCount], -normalVS);
+                    Vector3f noise = noises[seed % NoiseCount];
+                    Vector3f randomVS = positionVS;
+                    randomVS += (noise.dot(normalVS) > 0) ? noise : -noise; // 半球状に修正
                     seed = GeometryMath::xorshift(seed);
                     const Vector3f randomSS = (randomVS / randomVS.z() + Vector3f(1, 1, 1)) * 0.5;
                     float factDepth = gbuffers.positionVS.SampleColor01(randomSS.x(), randomSS.y()).z();
                     visibleCount += factDepth > randomVS.z(); // サンプル点が実際の深度より手前だったらカウント
                 }
-                float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum * 2); // 可視サンプル数から比率を計算
+                float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum); // 可視サンプル数から比率を計算
                 gbuffers.AO.PaintPixel(x, y, Vector3f(ratio, ratio, ratio));
             }
         }
@@ -138,8 +140,8 @@ namespace PostProcessShader
     {
         int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 500 : 10;
         int NoiseCount = maxSampleNum * 10;
-        int skipSize = 1;                                           // 何ピクセルおきに計算するか
-        const float sphereRadius = 0.001 * gbuffers.screenSize.x(); // 解像度1000で半径1
+        int skipSize = 1;             // 何ピクセルおきに計算するか
+        const float sphereRadius = 1; // 解像度1000で半径1
         Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
                                        environment.directionalLights[0].direction.y(),
                                        environment.directionalLights[0].direction.z(), 1);
@@ -172,7 +174,9 @@ namespace PostProcessShader
                 float sumOfStrength = 0.0f;
                 for (int i = 0; i < maxSampleNum; i++)
                 {
-                    Vector3f randomVS = positionVS + noises[seed % NoiseCount];
+                    Vector3f noise = noises[seed % NoiseCount];
+                    Vector3f randomVS = positionVS;
+                    randomVS += (noise.dot(normalVS) > 0) ? noise : -noise; // 半球状に修正
                     seed = GeometryMath::xorshift(seed);
                     const Vector3f randomSS = (randomVS / randomVS.z() + Vector3f(1, 1, 1)) * 0.5;
                     float factDepth = gbuffers.positionVS.SampleColor01(randomSS.x(), randomSS.y()).z();
