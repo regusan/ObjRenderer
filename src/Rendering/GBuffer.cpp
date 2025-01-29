@@ -6,6 +6,7 @@ GBuffers::GBuffers(const int &width, const int &height)
     str2rt = {
         {"forward", &forward},
         {"beauty", &beauty},
+        {"preBeauty", &preBeauty},
 
         {"diffuse", &diffuse},
         {"specular", &specular},
@@ -44,7 +45,7 @@ GBuffers::GBuffers(const int &width, const int &height)
         this->backNormalVS = this->backPositionVS = this->lightPositionVS = RenderTarget(
             ss.x(), ss.y(), Vector3f(0, 0, 0));
 
-    this->beauty = this->diffuse = this->forward = RenderTarget(
+    this->beauty = this->preBeauty = this->diffuse = this->forward = RenderTarget(
         ss.x(), ss.y(), Vector3f(0, 0, 0));
     this->diffuse = this->specular = this->irradiance = RenderTarget(
         ss.x(), ss.y(), Vector3f(0, 0, 0));
@@ -76,10 +77,12 @@ GBuffers::~GBuffers()
 
 void GBuffers::Clear()
 {
+    RenderTarget _beauty = this->beauty;
     for (const auto &[name, target] : this->str2rt)
     {
         target->Fill(target->resetColor);
     }
+    this->preBeauty = _beauty;
 }
 
 void GBuffers::writeAsPNG(const string &filepath,
@@ -93,6 +96,7 @@ void GBuffers::writeAsPNG(const string &filepath,
     };
     this->forward.writeAsPNG(appendToFilepath("/forward.png"));
     this->beauty.writeAsPNG(appendToFilepath("/beauty.png"));
+    this->preBeauty.writeAsPNG(appendToFilepath("/preBeauty.png"));
 
     this->diffuse.writeAsPNG(appendToFilepath("/diffuse.png"));
     this->specular.writeAsPNG(appendToFilepath("/specular.png"));

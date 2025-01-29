@@ -21,6 +21,7 @@ public:
     /*RenderTarget*/
     RenderTarget forward;
     RenderTarget beauty;
+    RenderTarget preBeauty;
 
     RenderTarget diffuse;
     RenderTarget specular;
