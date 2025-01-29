@@ -108,12 +108,14 @@ namespace LighingShader
         // バッファからのサンプル結果
         // Vector3f specularSampled = gbuffers.specular.SampleColor(x, y);
         Vector3f positionWSSampled = gbuffers.positionWS.SampleColor(x, y);
+        Vector3f positionVSSampled = gbuffers.positionVS.SampleColor(x, y);
         Vector3f diffuseSampled = gbuffers.diffuse.SampleColor(x, y);
         Vector3f ORM = gbuffers.ORM.SampleColor(x, y);
         float bakedOcclusionSampled = ORM.x();
         float roughnessSampled = ORM.y();
         float metalicSampled = ORM.z();
         Vector3f normalWSSampled = gbuffers.normalWS.SampleColor(x, y);
+        Vector3f normalVSSampled = gbuffers.normalVS.SampleColor(x, y);
         float aoSampled = gbuffers.AO.SampleColor(x, y).x();
         float shadowSampled = gbuffers.SSShadow.SampleColor(x, y).x();
         Vector3f irradianceSampled = gbuffers.irradiance.SampleColor(x, y);
@@ -165,7 +167,21 @@ namespace LighingShader
 
         // 環境光によるライティング計算
         Vector3f ambient = diffuseSampled.array() * skyAmbient.array() * environment.ambientLight.array();
-        Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + ambient;
+
+        // 照明計算
+
+        Vector3f radiation = Vector3f::Zero();
+
+        if (gbuffers.lightBackDepth.SampleColor(x, y).z() > depthSampled && depthSampled > gbuffers.lightDepth.SampleColor(x, y).z())
+        {
+            Vector3f lightPos = gbuffers.lightPositionVS.SampleColor(x, y);
+            float dist = (positionVSSampled - lightPos).norm();
+            float norm = normalVSSampled.dot((lightPos - positionVSSampled).normalized());
+            float str = clamp<float>(fabs(norm) * (1.5 - dist), 0, 1);
+            radiation = gbuffers.lightDomain.SampleColor(x, y) * str;
+        }
+
+        Vector3f final = DiffuseBRDF; // * (1.0f - metalicSampled) + specularBRDF + ambient + radiation;
         // gbuffers.reflection.PaintPixel(x, y, final);
         return final;
     }
@@ -188,7 +204,7 @@ namespace LighingShader
         }
         else
         {
-            float indirectIntencity = 6.0f;
+            float indirectIntencity = 10.0f;
             Vector3f finalColor = gbuffers.beauty.SampleColor(x, y).array() * (gbuffers.AO.SampleColor(x, y) + environment.ambientLight).array();
 
             finalColor = finalColor + gbuffers.irradiance.SampleColor(x, y) * indirectIntencity;

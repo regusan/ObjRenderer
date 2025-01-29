@@ -4,3 +4,4 @@
 #include "../shader/PixcelOutputStandard.hpp"
 #include "../shader/VertInputStandard.hpp"
 #include "../shader/VertOutputStandard.hpp"
+#include "../shader/LightOutputStandard.hpp"
