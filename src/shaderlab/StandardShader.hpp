@@ -13,11 +13,15 @@ using namespace Transform;
 inline const VertOutputStandard VertStandard(const VertInputStandard &in)
 {
     VertOutputStandard out(in.environment);
+    float bump = 0;
+    float bumpMagnitude = 1.0f;
+    if (in.material->bumpMap)
+        bump = in.material->bumpMap->SampleColor01(fmod(in.uv.x(), 1.0f), fmod(in.uv.y(), 1.0f)).x() * bumpMagnitude;
 
     // 座標変換
-    out.positionOS = in.position;                  // モデル座標
-    out.positionWS = in.modelMat * out.positionOS; // モデル座標→ワールド座標
-    out.positionVS = in.viewMat * out.positionWS;  // ワールド座標→カメラ座標
+    out.positionOS = in.position + in.normal * bump; // モデル座標
+    out.positionWS = in.modelMat * out.positionOS;   // モデル座標→ワールド座標
+    out.positionVS = in.viewMat * out.positionWS;    // ワールド座標→カメラ座標
     // カメラ座標→クリップ座標（Z割)
     out.positionCS = Vector4f(out.positionVS.x() / out.positionVS.z(),
                               out.positionVS.y() / out.positionVS.z(),
