@@ -97,6 +97,8 @@ namespace LighingShader
 
     inline const Vector3f IBLShader(GBuffers &gbuffers, RenderingEnvironmentParameters &environment, int x, int y)
     {
+        constexpr float irradianceStrength = 10;
+
         // 物体がなければ何もしない
         float depthSampled = gbuffers.depth.SampleColor(x, y).x();
 
@@ -158,7 +160,7 @@ namespace LighingShader
         DirectionalLight light0 = environment.directionalLights.at(0);
         // Vector3f lightRefDir = MathPhysics::Reflect(light0.direction, normalWSSampled);
         // float directIntencity = max<float>(normalWSSampled.dot(light0.direction), 0);
-        float Li = aoSampled * bakedOcclusionSampled * shadowSampled; //* directIntencity;
+        float Li = aoSampled * bakedOcclusionSampled * shadowSampled + environment.ambientLight.norm(); //* directIntencity;
 
         // 直接光によるライティング計算
         // Vector3f DiffuseBRDF = diffuseSampled.array() * light0.color.array() * Li;
@@ -185,7 +187,7 @@ namespace LighingShader
             radiation = gbuffers.lightDomain.SampleColor(x, y) * str;
         }
 
-        Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + ambient + radiation;
+        Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + ambient + radiation + irradianceSampled * irradianceStrength;
         // gbuffers.reflection.PaintPixel(x, y, final);
         return final;
     }

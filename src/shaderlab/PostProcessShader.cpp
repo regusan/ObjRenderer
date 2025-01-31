@@ -263,8 +263,8 @@ namespace PostProcessShader
                 }
             }
         }
-        // if (environment.quality == RenderingQuality::Cinema)
-        //   gbuffers.reflection = gbuffers.reflection.GausiannBlur(3);
+        if (environment.quality == RenderingQuality::Cinema)
+            gbuffers.reflection = gbuffers.reflection.BoxBlur(5);
     }
     void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {

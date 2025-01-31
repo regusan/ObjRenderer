@@ -151,7 +151,9 @@ public:
     /// @param kernelSize カーネルサイズ
     /// @param kernelScale カーネルのスキップ数(デフォルト1)
     /// @return
-    RenderTarget BoxBlur(const int kernelSize, const int kernelScale = 1);
+    RenderTarget BoxBlur(const int kernelSize, function<bool(Vector3f)> shouldSample = [](Vector3f col)
+                                               { return col != Vector3f::Zero(); },
+                         const bool isLoopingX = false, const bool isLoopingY = false, const int kernelScale = 1);
 
     /// @brief ガウスブラー適用
     /// @param kernelSize

@@ -305,24 +305,69 @@ RenderTarget RenderTarget::UpSample(const Vector2i size)
     return scaledXY;
 }
 
-RenderTarget RenderTarget::BoxBlur(const int kernelSize, const int kernelScale)
+RenderTarget RenderTarget::BoxBlur(const int kernelSize, function<bool(Vector3f)> shouldSample, const bool isLoopingX, const bool isLoopingY, const int kernelScale)
 {
     RenderTarget retval = RenderTarget((*this));
+    RenderTarget intermediate = RenderTarget((*this));
+
+    int actualKernelSize = clamp<int>(kernelSize / 2 * 2 + 1, 3, min(this->screenSize.x() / 2, this->screenSize.y() / 2));
+
+    // 横方向のぼかし
     for (int y = 0; y < this->screenSize.y(); y++)
     {
         for (int x = 0; x < this->screenSize.x(); x++)
         {
+            if (!shouldSample(this->SampleColor(x, y)))
+                continue;
             Vector3f sum = Vector3f(0, 0, 0);
-            for (int lx = -kernelSize / 2; lx < kernelSize / 2; lx++)
+            int sampledCount = 1;
+            for (int lx = -actualKernelSize / 2; lx <= actualKernelSize / 2; lx++)
             {
-                for (int ly = -kernelSize / 2; ly < kernelSize / 2; ly++)
+                int sampleX;
+                if (isLoopingX)
+                    sampleX = (x + lx) % this->screenSize.x();
+                else
+                    sampleX = clamp<int>(x + lx, 0, this->screenSize.x() - 1);
+                Vector3f sampled = this->SampleColor(sampleX, y);
+                if (shouldSample(sampled))
                 {
-                    sum += this->SampleColor(x + lx * kernelScale, y + ly * kernelScale); // * kernel[abs(lx)] * kernel[abs(ly)];
+                    sum += sampled;
+                    sampledCount++;
                 }
             }
-            retval.PaintPixel(x, y, sum / (kernelSize * kernelSize));
+            sum /= sampledCount;
+            intermediate.PaintPixel(x, y, sum);
         }
     }
+
+    // 縦方向のぼかし
+    for (int y = 0; y < this->screenSize.y(); y++)
+    {
+        for (int x = 0; x < this->screenSize.x(); x++)
+        {
+            if (!shouldSample(this->SampleColor(x, y)))
+                continue;
+            Vector3f sum = Vector3f(0, 0, 0);
+            int sampledCount = 0;
+            for (int ly = -actualKernelSize / 2; ly <= actualKernelSize / 2; ly++)
+            {
+                int sampleY;
+                if (isLoopingY)
+                    sampleY = (y + ly) % this->screenSize.y();
+                else
+                    sampleY = clamp<int>(y + ly, 0, this->screenSize.y() - 1);
+                Vector3f sampled = this->SampleColor(x, sampleY);
+                if (shouldSample(sampled))
+                {
+                    sum += sampled;
+                    sampledCount++;
+                }
+            }
+            sum /= sampledCount;
+            retval.PaintPixel(x, y, sum);
+        }
+    }
+
     return retval;
 }
 RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const bool isLoopingX, const bool isLoopingY, const int kernelScale)
