@@ -16,6 +16,7 @@ GBuffers::GBuffers(const int &width, const int &height)
 
         {"AO", &AO},
         {"reflection", &reflection},
+        {"reflectionLevel", &reflectionLevel},
         {"SSShadow", &SSShadow},
         {"irradiance", &irradiance},
 
@@ -57,7 +58,7 @@ GBuffers::GBuffers(const int &width, const int &height)
 
     this->AO = RenderTarget(
         ss.x(), ss.y(), Vector3f(1, 1, 1));
-    this->reflection = RenderTarget(
+    this->reflection = this->reflectionLevel = RenderTarget(
         ss.x(), ss.y(), Vector3f(0, 0, 0));
     this->SSShadow = RenderTarget(
         ss.x(), ss.y(), Vector3f(1, 1, 1));
@@ -104,6 +105,7 @@ void GBuffers::writeAsPNG(const string &filepath,
 
     (this->AO).writeAsPNG(appendToFilepath("/AO.png"));
     (this->reflection).writeAsPNG(appendToFilepath("/reflection.png"));
+    (this->reflectionLevel).writeAsPNG(appendToFilepath("/reflectionLevel.png"));
     (this->SSShadow).writeAsPNG(appendToFilepath("/SSShadow.png"));
     this->irradiance.writeAsPNG(appendToFilepath("/irradiance.png"));
 

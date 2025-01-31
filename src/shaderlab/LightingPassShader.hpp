@@ -151,9 +151,11 @@ namespace LighingShader
         }
 
         // ローカル反射の結果が存在したらそっちを使う。
-        if (gbuffers.reflection.SampleColor(x, y) != Vector3f::Zero())
+        Vector3f screenSpaceReflectionLevel = gbuffers.reflectionLevel.SampleColor(x, y);
+        if (screenSpaceReflectionLevel != Vector3f::Zero())
         {
-            specularSampled = gbuffers.reflection.SampleColor(x, y);
+            specularSampled = gbuffers.reflection.SampleColor(x, y) * screenSpaceReflectionLevel.x() +
+                              specularSampled * (1.0f - screenSpaceReflectionLevel.x());
         }
 
         // DirectionalLight関連の情報を取得

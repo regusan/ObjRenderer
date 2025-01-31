@@ -142,11 +142,12 @@ namespace PostProcessShader
         int NoiseCount = maxSampleNum * 10;
         int skipSize = 1;             // 何ピクセルおきに計算するか
         const float sphereRadius = 1; // 解像度1000で半径1
-        Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
+        /*Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
                                        environment.directionalLights[0].direction.y(),
                                        environment.directionalLights[0].direction.z(), 1);
-        Vector3f lightDirVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * lightDirWS).head<3>();
-        // ノイズを事前計算
+        */
+        // Vector3f lightDirVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * lightDirWS).head<3>();
+        //  ノイズを事前計算
         vector<Vector3f> noises;
         uint precomputeSeed = 1;
         for (int i = 0; i < NoiseCount; i++)
@@ -170,7 +171,7 @@ namespace PostProcessShader
                 Vector3f positionVS = gbuffers.positionVS.SampleColor(x, y);
                 Vector3f normalVS = gbuffers.normalVS.SampleColor(x, y);
                 Vector3f bouncedColor = Vector3f(0, 0, 0);
-                float sumOfStrength = 0.0f;
+                // float sumOfStrength = 0.0f;
                 for (int i = 0; i < maxSampleNum; i++)
                 {
                     Vector3f noise = noises[seed % NoiseCount];
@@ -190,8 +191,8 @@ namespace PostProcessShader
                         visibleCount++;
                         Vector3f factPosVS = Vector3f(randomVS.x(), randomVS.y(), factDepth);
                         Vector3f factNormalVS = gbuffers.normalVS.SampleColor01(randomSS.x(), randomSS.y());
-                        Vector3f reflectVS = MathPhysics::Reflect(lightDirVS, factNormalVS).normalized();
-                        Vector3f random2sampleVS = (factPosVS - positionVS);
+                        // Vector3f reflectVS = MathPhysics::Reflect(lightDirVS, factNormalVS).normalized();
+                        // Vector3f random2sampleVS = (factPosVS - positionVS);
                         float affectRateByDistance = 1 - (factPosVS - positionVS).norm() / sphereRadius;    // 近いほど大きくなる影響度合い
                         float affectRateByAngle = clamp<float>((1 - factNormalVS.dot(normalVS)) / 2, 0, 1); // 正面になるほど大きくなる影響度合い
                         float strength = affectRateByAngle * affectRateByDistance;
@@ -220,13 +221,13 @@ namespace PostProcessShader
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = rayLength * 0;
 
-        float maxThickness = 7.0f / maxRayNum;
+        // float maxThickness = 0.01f / maxRayNum;
 
 #pragma omp parallel for
-        for (int y = 0; y < gbuffers.screenSize.y(); y++)
+        for (int y = 0; y < gbuffers.reflection.getScreenSize().y(); y++)
         {
             uint seed = y + environment.time + 1;
-            for (int x = 0; x < gbuffers.screenSize.x(); x++)
+            for (int x = 0; x < gbuffers.reflection.getScreenSize().x(); x++)
             {
                 // 深度が無限遠だったら処理しない
                 if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
@@ -240,7 +241,6 @@ namespace PostProcessShader
                 // TODO:二分探索にして高速化する
                 for (int i = 1; i <= maxRayNum; i++)
                 {
-
                     float noise = seed % 1000 / 1000.0f;
                     const float currentRayLength = rayLength * (i + noise) + minimumLength;
                     seed = GeometryMath::xorshift(seed);
@@ -254,17 +254,23 @@ namespace PostProcessShader
                     // GBufferから取得した実際の深度
                     const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     const float actualBackDepth = gbuffers.backPositionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
-                    // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
-                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth || rayPosVS.z() - actualDepth < maxThickness))
+                    // レイが背面深度と表面深度の間にあったら
+                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth)) // || rayPosVS.z() - actualDepth > maxThickness))
                     {
+                        Vector2f screenCoord(2.0f * static_cast<float>(x) / gbuffers.reflection.getScreenSize().x() - 1.0f,
+                                             2.0f * static_cast<float>(y) / gbuffers.reflection.getScreenSize().y() - 1.0f);
+                        float farness = clamp<float>(screenCoord.norm(), 0.0f, 1.0f);
+                        float strength = 1 - farness * farness; // 1-x^2で急激なフォールオフ
+
                         gbuffers.reflection.PaintPixel(x, y, gbuffers.preBeauty.SampleColor01(rayPosSS.x(), rayPosSS.y()));
+                        gbuffers.reflectionLevel.PaintPixel(x, y, Vector3f(strength, strength, strength));
                         break;
                     }
                 }
             }
         }
         if (environment.quality == RenderingQuality::Cinema)
-            gbuffers.reflection = gbuffers.reflection.BoxBlur(5);
+            gbuffers.reflection = gbuffers.reflection.GausiannBlur(7);
     }
     void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
@@ -276,8 +282,7 @@ namespace PostProcessShader
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = maxRayLength * 0.01;
 
-        float maxThickness = 30.0f / maxRayNum;
-        maxThickness = 1;
+        // float maxThickness = 30.0f / maxRayNum;
         Vector3f lightWS = environment.directionalLights.at(0).direction;
         Vector3f normalVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * Vector4f(lightWS.x(), lightWS.y(), lightWS.z(), 1)).head<3>().normalized();
 
@@ -312,8 +317,8 @@ namespace PostProcessShader
                     // GBufferから取得した実際の深度
                     const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     const float actualBackDepth = gbuffers.backPositionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
-                    // 実際の深度よりレイが奥にあったらヒット判定、かつ厚さが一定以下だったら反射を描画
-                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth || rayPosVS.z() - actualDepth < maxThickness))
+                    // レイが背面深度と表面深度の間にあったら
+                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth)) // || rayPosVS.z() - actualDepth < maxThickness))
                     {
                         gbuffers.SSShadow.PaintPixel(x, y, Vector3f(0, 0, 0));
                         break;
@@ -329,11 +334,11 @@ namespace PostProcessShader
     {
         constexpr float middleGrey = 0.18f;
         float avarageBrightness = 0;
-        float sampleRate = 0.01;
-        int steps = static_cast<int>(1.0f / sampleRate);
-        int skip = 10;
-        int count = 0;
-        Vector3f sum = Vector3f::Zero();
+        // float sampleRate = 0.01;
+        //  int steps = static_cast<int>(1.0f / sampleRate);
+        //  int skip = 10;
+        //  int count = 0;
+        //  Vector3f sum = Vector3f::Zero();
         /*
         // #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y += skip)

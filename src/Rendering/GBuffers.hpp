@@ -31,6 +31,7 @@ public:
 
     RenderTarget AO;
     RenderTarget reflection;
+    RenderTarget reflectionLevel;
     RenderTarget SSShadow;
     RenderTarget irradiance;
 
