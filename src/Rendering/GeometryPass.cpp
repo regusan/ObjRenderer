@@ -45,9 +45,13 @@ namespace RenderingPipeline
                     continue;
 
                 // テッセレーション処理開始
-                int tessCount = Tessellation::CalcTessLevel(outs[0].positionSS.head<2>(),
-                                                            outs[1].positionSS.head<2>(),
-                                                            outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
+                int tessCount = 0;
+                // バンプマップがあるときのみ分割
+                if (vin.material->bumpMap)
+                    tessCount = Tessellation::CalcTessLevel(
+                        outs[0].positionSS.head<2>(),
+                        outs[1].positionSS.head<2>(),
+                        outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
                 auto tessVIns = Tessellation::TessellateSpecificArea(vins, tessCount);
                 vector<vector<VertOutputStandard>> tessVOuts;
                 for (size_t tessIndex = 0; tessIndex < tessVIns.size(); tessIndex++)
@@ -213,12 +217,7 @@ namespace RenderingPipeline
             auto logs = vector<vector<vector<PixcelInputStandard>>>{first};
             float area = GeometryMath::ComputeTriangleArea(points[0].positionSS.head<2>(), points[1].positionSS.head<2>(), points[2].positionSS.head<2>());
 
-            constexpr float thresholdArea = 1000;
-            float N = clamp<float>(log(thresholdArea / area) / log(1.0f / 4.0f), 0, 5); // 面積が指定サイズになるまで分割する(最大10回)
-            N = tessellateCount;
-            // N = clamp<float>(area / 100.0f - 0.1f, 0, 5);
-            //  N = 1;
-            // cout << N << endl;
+            int N = tessellateCount;
             //  N回分割開始
             for (int i = 0; i < N; i++)
             {
@@ -238,7 +237,7 @@ namespace RenderingPipeline
         {
             vector<vector<VertInputStandard>> first = vector<vector<VertInputStandard>>{points};
             auto logs = vector<vector<vector<VertInputStandard>>>{first};
-            for (int i = 0; i < static_cast<int>(tessellateCount); i++)
+            for (int i = 0; i < tessellateCount; i++)
             {
                 vector<vector<VertInputStandard>> next;
                 // もともと入っていた各頂点に対して分割
@@ -454,9 +453,13 @@ namespace RenderingPipeline
                     continue;
 
                 // テッセレーション処理開始
-                int tessCount = Tessellation::CalcTessLevel(outs[0].positionSS.head<2>(),
-                                                            outs[1].positionSS.head<2>(),
-                                                            outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
+                int tessCount = 0;
+                // バンプマップがあるときのみ分割
+                if (vin.material->bumpMap)
+                    tessCount = Tessellation::CalcTessLevel(
+                        outs[0].positionSS.head<2>(),
+                        outs[1].positionSS.head<2>(),
+                        outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
                 auto tessVIns = Tessellation::TessellateSpecificArea(vins, tessCount);
                 vector<vector<VertOutputStandard>> tessVOuts;
                 for (size_t tessIndex = 0; tessIndex < tessVIns.size(); tessIndex++)
