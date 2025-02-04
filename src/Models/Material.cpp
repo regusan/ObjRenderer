@@ -107,7 +107,7 @@ map<string, Material> Material::ReadAllMaterialsFromMTL(string pathstring)
             iss >> texturePath;
             currentMaterial.bumpMap = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / texturePath);
         }
-        else if (key == "norm", key == "norm_map", key == "map_norm")
+        else if (key == "norm" || key == "norm_map" || key == "map_norm")
         {
             string texturePath;
             iss >> texturePath;
