@@ -123,7 +123,7 @@ RenderTarget::RenderTarget(const int &width, const int &height, const Vector3f &
 
 RenderTarget::~RenderTarget() {}
 
-const Vector2i RenderTarget::getScreenSize()
+const Vector2i RenderTarget::getScreenSize() const
 {
     return this->screenSize;
 }
@@ -157,7 +157,7 @@ void RenderTarget::DrawPolygonWireframe(const vector<Vector2f> &points, const Ve
         }
     }
 }
-const Vector3f RenderTarget::GetMax()
+Vector3f RenderTarget::GetMax() const
 {
     Vector3f retval = Vector3f(0, 0, 0);
     for (Vector3f current : this->array)
@@ -172,7 +172,7 @@ const Vector3f RenderTarget::GetMax()
     }
     return retval;
 }
-const Vector3f RenderTarget::GetMin()
+Vector3f RenderTarget::GetMin() const
 {
     if (this->array.size() == 0)
         return Vector3f(0, 0, 0);
@@ -186,7 +186,7 @@ const Vector3f RenderTarget::GetMin()
     }
     return retval;
 }
-void RenderTarget::writeAsPPM(const string &filepath)
+void RenderTarget::writeAsPPM(const string &filepath) const
 {
     std::ofstream file(filepath);
     if (!file)
@@ -211,7 +211,7 @@ void RenderTarget::writeAsPPM(const string &filepath)
     }
     file.close();
 }
-void RenderTarget::writeAsPNG(const filesystem::path filepath)
+void RenderTarget::writeAsPNG(const filesystem::path filepath) const
 {
     int channel = 3;
     vector<unsigned char> pixels(channel * this->screenSize.x() * this->screenSize.y());
@@ -224,7 +224,7 @@ void RenderTarget::writeAsPNG(const filesystem::path filepath)
     }
     stbi_write_png(filepath.string().c_str(), this->screenSize.x(), this->screenSize.y(), 3, pixels.data(), this->screenSize.x() * 3);
 }
-float RenderTarget::FindMaxEuclideanDistance()
+float RenderTarget::FindMaxEuclideanDistance() const
 {
     float maxDistance = 0.0f; // 最大距離を格納する変数
 
@@ -240,7 +240,7 @@ float RenderTarget::FindMaxEuclideanDistance()
     return maxDistance;
 }
 
-RenderTarget RenderTarget::Abs()
+RenderTarget RenderTarget::Abs() const
 {
     RenderTarget retval = RenderTarget((*this));
     for (size_t i = 0; i < this->array.size(); i++)
@@ -250,7 +250,7 @@ RenderTarget RenderTarget::Abs()
     return retval;
 }
 
-RenderTarget RenderTarget::DownSample(const Vector2i size)
+RenderTarget RenderTarget::DownSample(const Vector2i size) const
 {
     RenderTarget retval = RenderTarget(size.x(), size.y());
     int ratioX = this->screenSize.x() / size.x();
@@ -274,7 +274,7 @@ RenderTarget RenderTarget::DownSample(const Vector2i size)
     return retval;
 }
 
-RenderTarget RenderTarget::UpSample(const Vector2i size)
+RenderTarget RenderTarget::UpSample(const Vector2i size) const
 {
     RenderTarget scaledX = RenderTarget(size.x(), this->screenSize.y());
     RenderTarget scaledXY = RenderTarget(size.x(), size.y());
@@ -305,7 +305,7 @@ RenderTarget RenderTarget::UpSample(const Vector2i size)
     return scaledXY;
 }
 
-RenderTarget RenderTarget::BoxBlur(const int kernelSize, function<bool(Vector3f)> shouldSample, const bool isLoopingX, const bool isLoopingY, const int kernelScale)
+RenderTarget RenderTarget::BoxBlur(const int kernelSize, function<bool(Vector3f)> shouldSample, const bool isLoopingX, const bool isLoopingY, const int kernelScale) const
 {
     RenderTarget retval = RenderTarget((*this));
     RenderTarget intermediate = RenderTarget((*this));
@@ -370,7 +370,7 @@ RenderTarget RenderTarget::BoxBlur(const int kernelSize, function<bool(Vector3f)
 
     return retval;
 }
-RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const bool isLoopingX, const bool isLoopingY, const int kernelScale)
+RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const bool isLoopingX, const bool isLoopingY, const int kernelScale) const
 {
     RenderTarget retval = RenderTarget((*this));
     RenderTarget intermediate = RenderTarget((*this));
@@ -434,7 +434,7 @@ RenderTarget RenderTarget::GausiannBlur(const int kernelSize, const bool isLoopi
     return retval;
 }
 
-vector<RenderTarget> RenderTarget::GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData)
+vector<RenderTarget> RenderTarget::GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData) const
 {
     vector<RenderTarget> downSampledBuffers(downSampleData.size());
 #pragma omp parallel for
@@ -447,7 +447,7 @@ vector<RenderTarget> RenderTarget::GausiannBlurWithDownSample(const vector<DownS
     return downSampledBuffers;
 }
 
-vector<RenderTarget> RenderTarget::MakeMipMap(int num)
+vector<RenderTarget> RenderTarget::MakeMipMap(int num) const
 {
     vector<RenderTarget> retval;
     int scale = 1;
@@ -461,7 +461,7 @@ vector<RenderTarget> RenderTarget::MakeMipMap(int num)
     }
     return retval;
 }
-vector<RenderTarget> RenderTarget::MakeMipMapBluered(int num, int kernelSize)
+vector<RenderTarget> RenderTarget::MakeMipMapBluered(int num, int kernelSize) const
 {
     vector<RenderTarget> retval;
     int scale = 1;

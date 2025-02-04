@@ -41,7 +41,7 @@ public:
 
     bool LoadFromFile(const filesystem::path &filepath) override;
 
-    const Vector2i getScreenSize();
+    const Vector2i getScreenSize() const;
     void Fill(const Vector3f &color);
 
     /// @brief 指定したピクセルに色を塗る。範囲外を指定すると何もしない
@@ -66,20 +66,20 @@ public:
 
     /// @brief 指定パスにPPMファイルとして出力
     /// @param filepath
-    void writeAsPPM(const string &filepath);
+    void writeAsPPM(const string &filepath) const;
 
-    void writeAsPNG(const filesystem::path filepath);
+    void writeAsPNG(const filesystem::path filepath) const;
 
-    float FindMaxEuclideanDistance();
+    float FindMaxEuclideanDistance() const;
 
-    const Vector3f GetMax();
-    const Vector3f GetMin();
+    Vector3f GetMax() const;
+    Vector3f GetMin() const;
 
     /// @brief 色をサンプリング。範囲外ならエラー色を返す
     /// @param x
     /// @param y
     /// @return 色
-    inline const Vector3f SampleColor(const int x, const int y)
+    inline const Vector3f SampleColor(const int x, const int y) const
     {
         size_t index = y * screenSize.x() + x;
         if (index < this->array.size())
@@ -93,7 +93,7 @@ public:
     /// @param x 0~1
     /// @param y 0~1
     /// @return
-    inline const Vector3f SampleColor01(const float x, const float y)
+    inline const Vector3f SampleColor01(const float x, const float y) const
     {
         int x01 = x * screenSize.x();
         int y01 = y * screenSize.y();
@@ -109,7 +109,7 @@ public:
     /// @param x 0~1
     /// @param y 0~1
     /// @return
-    inline const Vector3f SampleColor01BiLinear(const float x, const float y)
+    inline const Vector3f SampleColor01BiLinear(const float x, const float y) const
     {
         float ss_x = x * screenSize.x();
         float ss_y = y * screenSize.y();
@@ -135,17 +135,17 @@ public:
     }
     /// @brief RenderTargetの各ピクセルにabs()を適用
     /// @return
-    RenderTarget Abs();
+    RenderTarget Abs() const;
 
     /// @brief 指定解像度にダウンサンプル(ニアレストネイバー)
     /// @param size
     /// @return
-    RenderTarget DownSample(const Vector2i size);
+    RenderTarget DownSample(const Vector2i size) const;
 
     /// @brief 指定解像度にアップサンプル(バイリニア)
     /// @param size
     /// @return
-    RenderTarget UpSample(const Vector2i size);
+    RenderTarget UpSample(const Vector2i size) const;
 
     /// @brief ボックスブラー適用
     /// @param kernelSize カーネルサイズ
@@ -153,17 +153,16 @@ public:
     /// @return
     RenderTarget BoxBlur(const int kernelSize, function<bool(Vector3f)> shouldSample = [](Vector3f col)
                                                { return col != Vector3f::Zero(); },
-                         const bool isLoopingX = false, const bool isLoopingY = false, const int kernelScale = 1);
+                         const bool isLoopingX = false, const bool isLoopingY = false, const int kernelScale = 1) const;
 
     /// @brief ガウスブラー適用
     /// @param kernelSize
     /// @param kernelScale
     /// @return
-    RenderTarget GausiannBlur(const int kernelSize, const bool isLoopingX = false, const bool isLoopingY = false, const int kernelScale = 1);
-    vector<RenderTarget> GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData);
-    vector<RenderTarget> MakeMipMap(int num);
-    vector<RenderTarget> MakeMipMapBluered(int num, int kernelSize);
-
+    RenderTarget GausiannBlur(const int kernelSize, const bool isLoopingX = false, const bool isLoopingY = false, const int kernelScale = 1) const;
+    vector<RenderTarget> GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData) const;
+    vector<RenderTarget> MakeMipMap(int num) const;
+    vector<RenderTarget> MakeMipMapBluered(int num, int kernelSize) const;
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend RenderTarget operator%(const RenderTarget &rt, const float &mul);
