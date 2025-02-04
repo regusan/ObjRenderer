@@ -12,8 +12,9 @@ endif()
 
 # コンパイルオプション
 set(CMAKE_CXX_FLAGS "-Wall -MMD -MP")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mtune=native -march=native -mfpmath=both -DNDEBUG")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-O3 -mtune=native -march=native -mfpmath=both -DNDEBUG")
 
 # OpenMPの設定
 find_package(OpenMP REQUIRED)

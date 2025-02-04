@@ -3,7 +3,11 @@
 *.blend*
 build/*
 hidemodels/*
+src/Experimental/*
+Experimental/*
 !build/config.ini
+outputs/*
+
 # Prerequisites
 *.d
 
