@@ -163,6 +163,7 @@ public:
     vector<RenderTarget> GausiannBlurWithDownSample(const vector<DownSampleData> &downSampleData) const;
     vector<RenderTarget> MakeMipMap(int num) const;
     vector<RenderTarget> MakeMipMapBluered(int num, int kernelSize) const;
+
     // 出力オペレータのオーバーロード
     friend RenderTarget operator*(const RenderTarget &rt, const float &mul);
     friend RenderTarget operator%(const RenderTarget &rt, const float &mul);

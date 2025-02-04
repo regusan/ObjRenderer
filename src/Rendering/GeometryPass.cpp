@@ -201,7 +201,6 @@ namespace RenderingPipeline
             const vector<VertInputStandard> &points)
         {
             vector<vector<VertInputStandard>> retval;
-            constexpr float div3 = 1.0f / 3.0f;
             VertInputStandard mid0_1 = (points[0] + points[1]) * 0.5;
             VertInputStandard mid1_2 = (points[1] + points[2]) * 0.5;
             VertInputStandard mid2_0 = (points[2] + points[0]) * 0.5;
@@ -215,7 +214,6 @@ namespace RenderingPipeline
         {
             vector<vector<PixcelInputStandard>> first = vector<vector<PixcelInputStandard>>{points};
             auto logs = vector<vector<vector<PixcelInputStandard>>>{first};
-            float area = GeometryMath::ComputeTriangleArea(points[0].positionSS.head<2>(), points[1].positionSS.head<2>(), points[2].positionSS.head<2>());
 
             int N = tessellateCount;
             //  N回分割開始
@@ -223,7 +221,7 @@ namespace RenderingPipeline
             {
                 vector<vector<PixcelInputStandard>> next;
                 // もともと入っていた各頂点に対して分割
-                for (int i = 0; i < logs.back().size(); i++)
+                for (unsigned long int i = 0; i < logs.back().size(); i++)
                 {
                     vector<vector<PixcelInputStandard>> displaced = TessellateTriangle(logs.back()[i]);
                     for (auto itr : displaced)
@@ -241,7 +239,7 @@ namespace RenderingPipeline
             {
                 vector<vector<VertInputStandard>> next;
                 // もともと入っていた各頂点に対して分割
-                for (int i = 0; i < logs.back().size(); i++)
+                for (unsigned long int i = 0; i < logs.back().size(); i++)
                 {
                     vector<vector<VertInputStandard>> displaced = TessellateTriangle4(logs.back()[i]);
                     for (auto itr : displaced)
@@ -268,7 +266,7 @@ namespace RenderingPipeline
 #ifdef PARALLEL_FOR_TRANSFORM
 #pragma omp parallel for
 #endif
-            for (int faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
+            for (unsigned long int faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
             {
                 if (model.materials[model.materialNames[model.materialID[faceIndex]]].emission.norm() <= 0.0001)
                     continue;
@@ -281,7 +279,7 @@ namespace RenderingPipeline
                 // 面を構成する各頂点IDについてFor
                 vector<VertOutputStandard> outs;
                 Vector4f centorPosOS = Vector4f::Zero();
-                for (int vertIndex = 0; vertIndex < face.size(); vertIndex++)
+                for (unsigned long int vertIndex = 0; vertIndex < face.size(); vertIndex++)
                 {
                     constexpr float lightScale = 2.0f;
                     centorPosOS += model.verts[face[vertIndex]];
@@ -299,7 +297,7 @@ namespace RenderingPipeline
                 if (outs.size() >= 3 && vin.material->emission.norm() > 0)
                 {
                     VertInputStandard vinLight = nonparallel_vin;
-                    for (int vertIndex = 0; vertIndex < face.size(); vertIndex++)
+                    for (unsigned long int vertIndex = 0; vertIndex < face.size(); vertIndex++)
                     {
                         vinLight.normal = model.vertNormals[facenorm[vertIndex]];
                         vinLight.position = model.verts[face[vertIndex]];
@@ -308,7 +306,6 @@ namespace RenderingPipeline
                         outsLight.push_back(out);                // 描画待ち配列に追加
                     }
 
-                    Vector3f norm = GeometryMath::ComputeFaceNormal(outs[0].positionVS.head<3>(), outs[1].positionVS.head<3>(), outs[2].positionVS.head<3>());
                     bool isFront = outs[0].positionVS.z() > 0 && outs[1].positionVS.z() > 0 && outs[2].positionVS.z() > 0;
 
                     if (isInFrustum(outsLight) && isFront)
@@ -326,7 +323,6 @@ namespace RenderingPipeline
             GBuffers &gb,
             const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
         {
-            Vector3f centor = (points[0].positionVS + points[1].positionVS + points[2].positionVS).head<3>() / 3;
             // BBをディスプレイサイズで初期化
             int minX = gb.screenSize.x(), minY = gb.screenSize.y(), maxX = 0, maxY = 0;
             // BBを計算
@@ -346,7 +342,7 @@ namespace RenderingPipeline
             for (int y = minY; y <= maxY; ++y)
             {
                 vector<int> intersections;
-                for (int i = 0; i < points.size(); ++i)
+                for (unsigned long int i = 0; i < points.size(); ++i)
                 {
                     const auto &p1 = points[i];
                     const auto &p2 = points[(i + 1) % points.size()];
@@ -364,7 +360,7 @@ namespace RenderingPipeline
                 std::sort(intersections.begin(), intersections.end());
 
                 // 塗りつぶす部分を設定（交差点でペアになるx座標間を塗りつぶす）
-                for (int i = 0; i < intersections.size(); i += 2)
+                for (unsigned long int i = 0; i < intersections.size(); i += 2)
                 {
                     // 線分間で補完するための値
                     Vector3f startUVW = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
@@ -388,7 +384,6 @@ namespace RenderingPipeline
                         // 早期シェーダー用の補完値を計算
                         Vector4f positionVS = points[0].positionVS * uvw.x() + points[1].positionVS * uvw.y() + points[2].positionVS * uvw.z();
                         float depth = positionVS.z();
-                        Vector4f normalVS = points[0].normalVS * uvw.x() + points[1].normalVS * uvw.y() + points[2].normalVS * uvw.z();
 
                         // 早期シェーダーのための深度チェックに引っかかったら終了
                         if (depth > gb.depth.SampleColor(x, y).x())

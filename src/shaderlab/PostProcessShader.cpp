@@ -332,29 +332,28 @@ namespace PostProcessShader
 
     void AutoExposure(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {
-        constexpr float middleGrey = 0.18f;
-        float avarageBrightness = 0;
-        // float sampleRate = 0.01;
-        //  int steps = static_cast<int>(1.0f / sampleRate);
-        //  int skip = 10;
-        //  int count = 0;
-        //  Vector3f sum = Vector3f::Zero();
-        /*
+        constexpr float middleGrey = 0.50f;
+
+        constexpr float sampleRate = 0.01;
+        int steps = static_cast<int>(1.0f / sampleRate);
+        constexpr int skip = 2;
+        int count = 0;
+        constexpr float gannma = 0.45;
+        Vector3f sum = Vector3f::Zero();
+        float sum2 = 0;
+
         // #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y += skip)
         {
             for (int x = 0; x < gbuffers.screenSize.x(); x += skip)
             {
-                count++;
-                sum += gbuffers.beauty.SampleColor(x, y);
-                avarageBrightness += clamp<float>(gbuffers.beauty.SampleColor(x, y).norm(), 0, 100);
+                sum2 += gbuffers.beauty.SampleColor(x, y).norm();
             }
         }
-        avarageBrightness /= count;
-        avarageBrightness = 1 - avarageBrightness;
-        cout << avarageBrightness << endl;
-
-*/
+        sum2 /= gbuffers.screenSize.y() / skip * gbuffers.screenSize.x() / skip;
+        float avarageBrightness = sum2;
+        // avarageBrightness = gbuffers.beauty.SampleColor01BiLinear(0.5, 0.5).norm();
+        // cout << avarageBrightness << endl;
 
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.screenSize.y(); y++)
@@ -366,7 +365,7 @@ namespace PostProcessShader
 
                 float exporedBrightness = brightness * (middleGrey / avarageBrightness);
                 float rate = exporedBrightness / (exporedBrightness + 1); // tonemap
-                rate = brightness / (brightness + 1);
+                rate = powf(rate, gannma);
                 gbuffers.beauty.PaintPixel(x, y, sampled.normalized() * rate);
             }
         }
