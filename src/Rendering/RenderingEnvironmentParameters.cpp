@@ -1,30 +1,38 @@
 #include "RenderingEnvironmentParameters.hpp"
 
-void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
+void RenderingEnvironmentParameters::loadFromJson(nlohmann::json jsonObj)
 {
-    this->nearClip = config.GetAsNumeric("NearClip");
-    this->farClip = config.GetAsNumeric("FarClip");
-    this->backfaceCulling = config.GetAsBool("BackfaceCulling");
-    this->backFaceCullingDirection = config.GetAsNumeric("BackfaceCullingDirection");
-    this->screenSize.x() = config.GetAsNumeric("ResolutionX");
-    this->screenSize.y() = config.GetAsNumeric("ResolutionY");
-    this->ambientLight = Vector3f(config.GetAsNumeric("AmbientLightR"),
-                                  config.GetAsNumeric("AmbientLightG"),
-                                  config.GetAsNumeric("AmbientLightB"));
+    // RenderingSettings
+    auto renderingSettings = jsonObj["RenderingSettings"];
+    auto lightingSettings = jsonObj["LightingSettings"];
+    this->nearClip = renderingSettings["NearClip"];
+    this->farClip = renderingSettings["FarClip"];
+    this->backfaceCulling = renderingSettings["BackfaceCulling"];
+    this->backFaceCullingDirection = renderingSettings["BackfaceCullingDirection"];
+    this->screenSize = Vector2i(renderingSettings["Resolution"][0], renderingSettings["Resolution"][1]);
+    this->ambientLight = Vector3f(lightingSettings["AmbientLight"][0],
+                                  lightingSettings["AmbientLight"][1],
+                                  lightingSettings["AmbientLight"][2]);
+    this->buffer2Display = renderingSettings["Buffer2Display"];
+    // Directional Light
     this->directionalLights.clear();
+    auto light = lightingSettings["Lights"]["Light0"];
     this->directionalLights.push_back(DirectionalLight(
-        Vector3f(config.GetAsNumeric("Light0DirectionX"),
-                 config.GetAsNumeric("Light0DirectionY"),
-                 config.GetAsNumeric("Light0DirectionZ")),
-        Vector3f(config.GetAsNumeric("Light0ColorR"),
-                 config.GetAsNumeric("Light0ColorG"),
-                 config.GetAsNumeric("Light0ColorB"))));
-    this->fogColor = Vector3f(config.GetAsNumeric("FogColorR"),
-                              config.GetAsNumeric("FogColorG"),
-                              config.GetAsNumeric("FogColorB"));
-    this->fogNearFar = Vector2f(config.GetAsNumeric("FogNear"), config.GetAsNumeric("FogFar"));
+        Vector3f(light["Direction"][0], light["Direction"][1], light["Direction"][2]),
+        Vector3f(light["Color"][0], light["Color"][1], light["Color"][2])));
 
-    string qualityStr = config.GetAsString("Quality");
+    // Fog Settings
+    auto fog = lightingSettings["Fog"];
+    this->fogColor = Vector3f(
+        fog["FogColor"][0],
+        fog["FogColor"][1],
+        fog["FogColor"][2]);
+    this->fogNearFar = Vector2f(
+        fog["FogNear"],
+        fog["FogFar"]);
+
+    // Quality and CameraMoveMode
+    std::string qualityStr = renderingSettings["Quality"];
     if (qualityStr == "Wire")
         this->quality = RenderingQuality::Wire;
     else if (qualityStr == "Low")
@@ -35,45 +43,28 @@ void RenderingEnvironmentParameters::loadFromConfig(ConfigParser config)
         this->quality = RenderingQuality::Cinema;
     else
     {
-        std::cerr << "コンフィグ値エラー:\"" << "Quality" << "\":\"" << qualityStr << "\"はEnum::Qualityでない値。Low,Mid,Cinemaの中から選んでください。" << '\n';
+        std::cerr << "Error in config value: \"" << "Quality" << "\": \"" << qualityStr << "\" is not a valid value. Please choose from Wire, Low, Mid, or Cinema." << '\n';
         exit(1);
     }
-
-    string cameraMoveModeStr = config.GetAsString("CameraMoveMode");
+    std::string cameraMoveModeStr = renderingSettings["CameraMoveMode"];
     if (cameraMoveModeStr == "FPS")
         this->cameraMoveMode = CameraMoveMode::FPS;
     if (cameraMoveModeStr == "TurnTable")
         this->cameraMoveMode = CameraMoveMode::TurnTable;
-    static string pastHDRIPath = "";
-    // HDRIが存在したら
-    if (std::filesystem::exists(config.GetAsString("HDRI")) && pastHDRIPath != config.GetAsString("HDRI"))
+
+    // HDRI Setup
+    static std::string pastHDRIPath = "";
+    std::string hdripath = jsonObj["HDRISettings"]["HDRI"];
+    if (std::filesystem::exists(hdripath) && pastHDRIPath != hdripath)
     {
-        pastHDRIPath = config.GetAsString("HDRI");
-        this->skySphere = RenderTarget(config.GetAsString("HDRI"));
-        cout << "天球ミップマップの生成中..." << endl;
+        pastHDRIPath = hdripath;
+        this->skySphere = RenderTarget(hdripath);
+        std::cout << "Generating sky sphere mipmap..." << hdripath << std::endl;
         this->skyMipmap = this->skySphere.value().MakeMipMapBluered(16, 32);
-        cout << "天球ミップマップの生成完了" << endl;
-        this->skySphereOffset.x() = config.GetAsNumeric("SkyUVOffsetX");
-
-        /*
-        // ライト向きをHDRIと同期する
-        // TODO::正しく方向を取得できない！
-        RenderTarget &sampler = this->skyMipmap[this->skyMipmap.size() - 2];
-        auto compare = [](const Vector3f &a, const Vector3f &b)
-        { return a.norm() < b.norm(); };
-        auto maxIter = std::max_element(sampler.GetArray().begin(), sampler.GetArray().end(), compare);
-        int index = std::distance(sampler.GetArray().begin(), maxIter);
-
-        Vector2f maxUV = Vector2f(
-                             (float)(index % sampler.getScreenSize().x()) / sampler.getScreenSize().x(),
-                             (float)(index / sampler.getScreenSize().x()) / sampler.getScreenSize().y()) -
-                         this->skySphereOffset;
-
-        this->directionalLights[0].direction = TextureMath::PolarUVToRectangular(1, maxUV);
-        */
+        std::cout << "Sky sphere mipmap generation completed." << std::endl;
+        this->skySphereOffset.x() = jsonObj["HDRISettings"]["SkyUVOffsetX"];
     }
 }
-
 void RenderingEnvironmentParameters::setCurrentTIme()
 {
     this->time = static_cast<float>(clock()) / CLOCKS_PER_SEC * 1000;

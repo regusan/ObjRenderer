@@ -1,0 +1,94 @@
+{
+    "_comment": "Configuration settings for the rendering environment",
+    "RenderingSettings": {
+        "_comment": "Settings related to rendering configurations",
+        "BackfaceCulling": false,
+        "BackfaceCullingDirection": -1,
+        "NearClip": 1,
+        "FarClip": 1000,
+        "Resolution": [
+            896,
+            896
+        ],
+        "Buffer2Display": "beauty",
+        "Quality": "Wire",
+        "CameraMoveMode": "FPS"
+    },
+    "LightingSettings": {
+        "_comment": "Settings related to lighting configurations",
+        "Lights": {
+            "Light0": {
+                "Direction": [
+                    1.0,
+                    0.3,
+                    1.1
+                ],
+                "Color": [
+                    1.1,
+                    1.1,
+                    1.1
+                ]
+            }
+        },
+        "AmbientLight": [
+            0.1,
+            0.1,
+            0.1
+        ],
+        "Fog": {
+            "FogNear": 0,
+            "FogFar": 300,
+            "FogColor": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
+    "HDRISettings": {
+        "_comment": "Settings related to HDRI environment map",
+        "HDRI": "imgs/blue_photo_studio_2k.hdr",
+        "SkyUVOffsetX": 0.5
+    },
+    "Examples": {
+        "_comment": "Examples Of Input",
+        "_HDRIExamples": [
+            "blue_photo_studio_2k",
+            "the_sky_is_on_fire_4k",
+            "zwartkops_curve_afternoon_4k",
+            "moonless_golf_1k",
+            "cobblestone_street_night_2k",
+            "blue_photo_studio_2k"
+        ],
+        "_QualityExample": [
+            "Wire",
+            "Low",
+            "Mid",
+            "Cinema"
+        ],
+        "_AvailableBuffers": [
+            "forward",
+            "beauty",
+            "diffuse",
+            "specular",
+            "irradiance",
+            "depth",
+            "AO",
+            "reflection",
+            "SSShadow",
+            "lightDomain",
+            "lightDepth",
+            "lightDepth",
+            "positionWS",
+            "positionVS",
+            "normalWS",
+            "normalVS",
+            "uv",
+            "temp"
+        ],
+        "_CameraModeExamples": [
+            "FPS",
+            "TurnTable"
+        ]
+    }
+}
