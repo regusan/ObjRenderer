@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject.hpp"
 #include "../header/EigenHeader.hpp"
-#include "../TransformMat.hpp"
+#include "../header/MathHeader.hpp"
 using namespace Transform;
 
 /// @brief シーン上に配置されるオブジェクト

@@ -3,6 +3,7 @@
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
+#include <eigen3/unsupported/Eigen/FFT>
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;

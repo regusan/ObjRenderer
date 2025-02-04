@@ -2,8 +2,7 @@
 #include "../header/ShaderHeader.hpp"
 #include "../header/EigenHeader.hpp"
 #include "../header/RenderingHeader.hpp"
-#include "../TransformMat.hpp"
-#include "../Math/Math3D.hpp"
+#include "../header/MathHeader.hpp"
 #include "../Rendering/RenderingEnvironmentParameters.hpp"
 #include <random>
 using namespace std;

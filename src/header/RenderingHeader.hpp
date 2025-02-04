@@ -5,3 +5,4 @@
 #include "../Rendering/RenderTarget.hpp"
 #include "../Rendering/RenderingEnvironmentParameters.hpp"
 #include "../Rendering/LightingPass.hpp"
+#include "../Rendering/FFTImage.hpp"
