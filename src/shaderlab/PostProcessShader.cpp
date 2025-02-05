@@ -140,13 +140,10 @@ namespace PostProcessShader
     {
         int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 500 : 10;
         int NoiseCount = maxSampleNum * 10;
-        int skipSize = 1;             // 何ピクセルおきに計算するか
-        const float sphereRadius = 1; // 解像度1000で半径1
-        /*Vector4f lightDirWS = Vector4f(environment.directionalLights[0].direction.x(),
-                                       environment.directionalLights[0].direction.y(),
-                                       environment.directionalLights[0].direction.z(), 1);
-        */
-        // Vector3f lightDirVS = (Transform::ResetPosition(ResetScale(environment.viewMat)) * lightDirWS).head<3>();
+        int skipSize = 1;                               // 何ピクセルおきに計算するか
+        constexpr float sphereRadius = 1;               // ランダムにサンプルする球の半径1
+        constexpr float invisibleDepthThreshold = 1.0f; // この深度以上の遮蔽は可視判定にする→アウトラインの発生抑制
+
         //  ノイズを事前計算
         vector<Vector3f> noises;
         uint precomputeSeed = 1;
@@ -186,7 +183,8 @@ namespace PostProcessShader
                         visibleCount++;
                         continue;
                     }
-                    if (factDepth > randomVS.z()) // サンプル点が実際の深度より手前=可視だったら
+                    // サンプル点が実際の深度より手前、あるいは遮蔽地点との距離が離れすぎているなら可視判定
+                    if (factDepth - randomVS.z() > 0 || randomVS.z() - factDepth > invisibleDepthThreshold)
                     {
                         visibleCount++;
                         Vector3f factPosVS = Vector3f(randomVS.x(), randomVS.y(), factDepth);
