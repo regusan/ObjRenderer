@@ -11,7 +11,7 @@
             896
         ],
         "Buffer2Display": "beauty",
-        "Quality": "Wire",
+        "Quality": "Mid",
         "CameraMoveMode": "FPS"
     },
     "LightingSettings": {
@@ -20,7 +20,7 @@
             "Light0": {
                 "Direction": [
                     1.0,
-                    0.3,
+                    1,
                     1.1
                 ],
                 "Color": [

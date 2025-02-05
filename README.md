@@ -1,19 +1,21 @@
 # ObjRenderer
 
 # DEMOs
-
+![demo](/Document//Demo.gif)
 |  |  |
 | ---- | ---- |
 |![beauty](https://github.com/user-attachments/assets/6f26296d-c238-4026-96bf-2f69830eabf3) | ![beauty](https://github.com/user-attachments/assets/32dc5594-6cc9-43ea-b99e-b416e7fb00bd) |
-| ![out_beauty](https://github.com/user-attachments/assets/c47dedca-a889-4085-80e2-755ae3c0e3a7) | ![image](https://github.com/user-attachments/assets/a864da4c-88d4-4c93-a60d-61d4efd1d30b)|
+| ![out_beauty](/Document/ExampleRoom.png) | ![image](https://github.com/user-attachments/assets/a864da4c-88d4-4c93-a60d-61d4efd1d30b)|
 
 # Features
+- Software Rendering(C++)
 ### Rendering Features
 - Smooth Shading
 - Deferred Rendering
 - Image Base Lighting + HDRI BackDrop
 - Post Process
 - Texture Sample(Albedo, Roughness, Metalic, Normal)
+- Tessellation + DisplacementMap
 
 ### PostProcesses
 - Screen Space Ambient Occlusion(CryTek)
@@ -21,14 +23,15 @@
 - Screen Space Reflection
 - Screen Space Contact Shadow
 - Screen Space Global Illumination 
-- Bloom
+- Screen Space Bloom
 
 | Effect  | Result | Buffer |
 | ---- | ---- | ---- |
 | Screen Space Reflection         | ![スクリーンショット 2025-01-22 124342](https://github.com/user-attachments/assets/ebb1f1ec-7b0c-411b-b3bc-0888e83e471c) | ![reflection](https://github.com/user-attachments/assets/26cb10dd-f7ed-4ba0-b498-c4f4457e0b8c) |
 | Screen Space Contact Shadow             | ![beauty](https://github.com/user-attachments/assets/2c9786ed-b7f5-46c1-8056-788732a411c9) | ![SSShadow](https://github.com/user-attachments/assets/a16677d1-63d0-43e6-be37-dcb87a87f164) |
 | Screen Space Global Illumination        | ![スクリーンショット 2025-01-22 123844](https://github.com/user-attachments/assets/ddad8ff0-f54e-4405-bc49-04733673e677)| ![スクリーンショット 2025-01-22 123911](https://github.com/user-attachments/assets/f052b131-f61a-4cfe-9cdf-e0f30f0fbab3) |
-| Screen Space Ambient Occlusion  | img | ![AO](https://github.com/user-attachments/assets/c1b9463d-1793-42e9-9691-89106b48d657)
+| Screen Space Ambient Occlusion  | None | ![AO](Document/AO-Buffer.png)|
+| Tessllation + Displacement Map  | ![Tess+DP](/Document/TessResult.png) | ![Tess+DP](/Document/TessAnim.gif)|
 
 ### IO
 - Obj File Reading
@@ -50,10 +53,10 @@
 | ---- | ---- |
 | Apply Config Changes | Enter key |
 | SnapShot by Cinema Mode | Space Key |
-| 1 | Wire Frame Rendering Mode |
-| 2 | Low Rendering Mode |
-| 3 | Mid Rendering Mode |
-| 4 | Cinema Rendering Mode |
+| Wire Frame Rendering Mode | 1 Key |
+| Low Rendering Mode | 2 Key |
+| Mid Rendering Mode | 3 Key |
+| Cinema Rendering Mode | 4 Key |
 
 | TurnTable Camera Control | Key |
 | ---- | ---- |
@@ -66,15 +69,19 @@
 * CMake
 * g++(C++17)
 * Eigen
+* X11
+* nlohmann-json3
 
 # Installation
 ```bash
+sudo apt update
 sudo apt install make -y
 sudo apt install g++ -y
 sudo apt install cmake -y
 sudo apt install libeigen3-dev -y 
 sudo apt install x11-apps -y
 sudo apt install libx11-dev -y
+sudo apt install nlohmann-json3-dev
 
 git clone https://github.com/regusan/ObjRenderer.git
 cd ObjRenderer
@@ -85,8 +92,9 @@ cd ObjRenderer
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make
-./Regu3D ../models/room.obj
+make -j
+cd ../
+./build/Regu3D models/room.obj
 ```
 
 # Customize
@@ -109,7 +117,7 @@ inline const PixcelOutputStandard YourOwnPixcelShader(const PixcelInputStandard 
   //Write own pixcel shader
 }
 ```
-2. Set geometry pass argument
+2. Run geometry pass
 ```cpp
 RenderingPipeline::Deffered::ExecGeometryPass(model, in, gb, YourOwnVertShader, YourOwnPixcelShader);
 ```
@@ -140,7 +148,17 @@ Blender Export settings
 
 
 # Credit
-[Sean Barrett stb_image.h,stb_image_write.h](https://github.com/nothings/stb)
+External Libraries
+Using there libraries
+| Name | Usage | License |
+| ---- | ---- | ---- |
+| [stb_image.h](https://github.com/nothings/stb) | Image Loader | Public Domain |
+| [stb_image_write.h](https://github.com/nothings/stb) | Output Rendering Result | Public Domain |
+| [nlohmann-json3](https://github.com/nlohmann/json) | Json Parser |  MIT |
+| [Eigen](https://eigen.tuxfamily.org/) | Linear Algebra | MPL2.0 | 
 
 # License
+## Main License
 This is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).
+
+[self link](https://github.com/regusan/ObjRenderer.git)
