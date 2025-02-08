@@ -1,0 +1,47 @@
+{
+    "_comment": "シーンの定義ファイル",
+    "GameObjects": {
+        "Mesh1": {
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "models/teapod.obj"
+            }
+        },
+        "Mesh2": {
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    30,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "models/cube.obj"
+            }
+        }
+    }
+}

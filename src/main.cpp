@@ -10,8 +10,12 @@
 #include "header/MathHeader.hpp"
 #include "header/EigenHeader.hpp"
 #include "header/RenderingHeader.hpp"
+
 #include "GameObject/TurnTableCamera.hpp"
 #include "GameObject/FPSCamera.hpp"
+#include "GameObject/Scene.hpp"
+#include "GameObject/Mesh.hpp"
+
 #include "GUI/X11Display.hpp"
 #include "STL/EventDispatcher.hpp"
 #include "Models/Material.hpp"
@@ -27,22 +31,27 @@ using namespace Transform;
 
 /// @brief Jsonコンフィグファイルを開く処理をまとめた関数
 /// @return
-nlohmann::json ConfigOpener();
+nlohmann::json JsonOpener(string filePath);
 void UpdateInput(const XEvent &event) {}
 
 EventDispatcher<XEvent> inputDispatcher;
 
 RenderingEnvironmentParameters environment = RenderingEnvironmentParameters();
 VertInputStandard in = VertInputStandard(environment);
-Model primaryModel = Model();
+Scene scene = Scene();
+string sceneFileName = "";
 
+const string configFileName = "config.json";
 int main(int argc, char const *argv[])
 {
     // 初期化処理
     cout << "起動" << endl;
 
     if (argc >= 2)
-        primaryModel.LoadModelFromFile(argv[1]); // 引数のモデルをロード
+    {
+        sceneFileName = argv[1]; // 引数のモデルをロード
+        scene.loadFromJson(JsonOpener(sceneFileName));
+    }
     else
     {
         fprintf(stderr, "Invalid args:takes 1 arguments but %c were given.\nUsage:%s <ObjFiepath> \n", argc, argv[0]);
@@ -50,7 +59,7 @@ int main(int argc, char const *argv[])
     }
 
     // コンフィグの読み取り
-    environment.loadFromJson(ConfigOpener());
+    environment.loadFromJson(JsonOpener(configFileName));
     cout << environment << endl;
 
     // カメラ初期設定
@@ -95,7 +104,13 @@ int main(int argc, char const *argv[])
         // 各レンダリングパスを実行
         if (environment.quality >= RenderingQuality::Low)
         {
-            RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
+            auto meshes = scene.GetObjectsOfClass<MeshActor>();
+            for (auto &mesh : meshes)
+            {
+                in.modelMat = mesh->getMat();
+                RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, gb, VertStandard, PixcelStandard);
+            }
+
             // RenderingPipeline::Lighting::ExecLightGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
 
             // Low未満ではそもそもパスを実行しない
@@ -118,7 +133,12 @@ int main(int argc, char const *argv[])
         }
         else
         {
-            RenderingPipeline::Forward::ExecWireFramePass(primaryModel, in, gb, VertStandard);
+            auto meshes = scene.GetObjectsOfClass<MeshActor>();
+            for (auto &mesh : meshes)
+            {
+                in.modelMat = mesh->getMat();
+                RenderingPipeline::Forward::ExecWireFramePass(mesh->meshModel, in, gb, VertStandard);
+            }
         }
 
         //   GBufferからデバイスコンテキストにコピーし、表示
@@ -142,7 +162,9 @@ int main(int argc, char const *argv[])
                     {
 
                     case XK_Return: // コンフィグのリロード
-                        environment.loadFromJson(ConfigOpener());
+                        environment.loadFromJson(JsonOpener(configFileName));
+                        scene = Scene();
+                        scene.loadFromJson(JsonOpener(sceneFileName));
                         // gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
                         // display.Resize(environment.screenSize);
                         break;
@@ -155,16 +177,27 @@ int main(int argc, char const *argv[])
                         environment.screenSize = Vector2i(2048, 2048);
                         environment.quality = RenderingQuality::Cinema;
 
+                        auto meshes = scene.GetObjectsOfClass<MeshActor>();
+
                         // 反射キャプチャのための事前レンダリング
                         GBuffers prehigb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
-                        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, prehigb, VertStandard, PixcelStandard);
+
+                        for (auto &mesh : meshes)
+                        {
+                            in.modelMat = mesh->getMat();
+                            RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, prehigb, VertStandard, PixcelStandard);
+                        }
                         PostProcessShader::ScreenSpaceShadow(prehigb, environment);
                         PostProcessShader::ScreenSpaceReflection(prehigb, environment);
                         RenderingPass::ExecLightingPass(prehigb, LighingShader::IBLShader, environment);
 
                         GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
                         higb.preBeauty = prehigb.beauty;
-                        RenderingPipeline::Deffered::ExecGeometryPass(primaryModel, in, higb, VertStandard, PixcelStandard);
+                        for (auto &mesh : meshes)
+                        {
+                            in.modelMat = mesh->getMat();
+                            RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, prehigb, VertStandard, PixcelStandard);
+                        }
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);
                         RenderingPass::ExecLightingPass(higb, LighingShader::IBLShader, environment);
@@ -219,9 +252,8 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
-nlohmann::json ConfigOpener()
+nlohmann::json JsonOpener(const std::string filePath)
 {
-    std::string filePath = "config.json";
 
     // ファイルを開く
     std::ifstream file(filePath);
