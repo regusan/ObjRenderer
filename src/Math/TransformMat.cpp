@@ -47,6 +47,15 @@ namespace Transform
             0, 0, 0, 1;
         return retval;
     }
+    Matrix4f MakeMatScale(const Vector3f &scale)
+    {
+        Matrix4f retval = Matrix4f();
+        retval << scale.x(), 0, 0, 0,
+            0, scale.y(), 0, 0,
+            0, 0, scale.z(), 0,
+            0, 0, 0, 1;
+        return retval;
+    }
 
     Vector4f GetPositionFromMat(const Matrix4f &mat)
     {
