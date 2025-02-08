@@ -1,14 +1,11 @@
 #pragma once
 
 #include "../header/EigenHeader.hpp"
-// #include "../Light/ILight.hpp"
-// #include "../Light/RadialPointLight.hpp"
+#include "../Light/LightBaseActor.hpp"
 #include "../Light/DirectionalLight.hpp"
 #include "../Rendering/RenderTarget.hpp"
 
 #include "../Math/Math3D.hpp"
-// class ILight;
-// class RadialPointLight;
 #include <vector>
 #include <chrono>
 #include <ctime>
@@ -38,7 +35,7 @@ public:
     bool backfaceCulling = false;
     int backFaceCullingDirection = -1;
     Vector2i screenSize = Vector2i(512, 512);
-    // vector<RadialPointLight> lights;
+    vector<shared_ptr<LightBaseActor>> lights;
     vector<DirectionalLight> directionalLights = {DirectionalLight(Vector3f(1, 1, 1), Vector3f(.8, .8, .8))};
 
     Vector3f fogColor = Vector3f(0, 0, 0);

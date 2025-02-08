@@ -108,16 +108,24 @@ namespace LighingShader
         DirectionalLight light0 = environment.directionalLights.at(0);
         // Vector3f lightRefDir = MathPhysics::Reflect(light0.direction, normalWSSampled);
         // float directIntencity = max<float>(normalWSSampled.dot(light0.direction), 0);
-        float Li = aoSampled * bakedOcclusionSampled * shadowSampled + environment.ambientLight.norm(); //* directIntencity;
+        Vector3f Li = Vector3f::Ones() * aoSampled * bakedOcclusionSampled * shadowSampled; //* directIntencity;
+
+        // パンクチュアルライトの結果を入力光に加算
+        Vector3f punctualLi = Vector3f::Zero();
+        for (auto light : environment.lights)
+        {
+            punctualLi += light->lightSDF(positionWSSampled, normalWSSampled);
+        }
+        Li += punctualLi;
 
         // 直接光によるライティング計算
         // Vector3f DiffuseBRDF = diffuseSampled.array() * light0.color.array() * Li;
         //        DiffuseBRDF = DiffuseBRDF + skySpecSampled * (1 - roughnessSampled);
-        Vector3f DiffuseBRDF = diffuseSampled.array() * skyAmbient.array() * light0.color.array() * Li + emission.array();
+        Vector3f DiffuseBRDF = diffuseSampled.array() * skyAmbient.array() * light0.color.array() * Li.array() + emission.array();
 
         // return Vector3f(fresnel, fresnel, fresnel);
         // スペキュラ計算
-        Vector3f specularBRDF = specularSampled.array() * StandardMath::lerp<Vector3f>(roughnessSampled, Vector3f::Ones(), diffuseSampled).array() * Li;
+        Vector3f specularBRDF = specularSampled.array() * StandardMath::lerp<Vector3f>(roughnessSampled, Vector3f::Ones(), diffuseSampled).array() * Li.array();
 
         // 環境光によるライティング計算
         // Vector3f ambient = diffuseSampled.array() * skyAmbient.array() * environment.ambientLight.array();

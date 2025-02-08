@@ -3,10 +3,11 @@
 #include <chrono>
 #include <filesystem>
 #include <sstream>
+
 #include "shaderlab/StandardShader.hpp"
 #include "shaderlab/LightingPassShader.hpp"
 #include "shaderlab/PostProcessShader.hpp"
-#include "Rendering/PostProcessPass.hpp"
+
 #include "header/MathHeader.hpp"
 #include "header/EigenHeader.hpp"
 #include "header/RenderingHeader.hpp"
@@ -20,6 +21,7 @@
 #include "STL/EventDispatcher.hpp"
 #include "Models/Material.hpp"
 #include "Models/Model.hpp"
+#include "Rendering/PostProcessPass.hpp"
 
 #include "lib/stb/stb_image.h"
 #include "lib/stb/stb_image_write.h"
@@ -100,6 +102,7 @@ int main(int argc, char const *argv[])
         }
         environment.viewMat = in.viewMat;
         environment.setCurrentTIme();
+        environment.lights = scene.GetObjectsOfClass<LightBaseActor>();
 
         // 各レンダリングパスを実行
         if (environment.quality >= RenderingQuality::Low)
