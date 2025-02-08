@@ -9,6 +9,9 @@ GameObject::~GameObject()
 {
 }
 
+void GameObject::Tick(float deltatime) {}
+void GameObject::BeginPlay() {}
+
 string GameObject::GetObjectName()
 {
     return this->name;

@@ -58,6 +58,15 @@ public:
         return retval;
     }
 
+    void ExecTick(const float deltatime)
+    {
+        for (auto &obj : this->objects)
+        {
+            if (obj)
+                obj->Tick(deltatime);
+        }
+    }
+
     friend ostream &operator<<(ostream &os, const Scene &go)
     {
         for (const auto &obj : go.objects)

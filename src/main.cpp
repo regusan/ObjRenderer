@@ -145,6 +145,11 @@ int main(int argc, char const *argv[])
         RenderTarget &rt = gb.getRTFromString(environment.buffer2Display);
         display.show(rt);
 
+        // 経過時間の取得とTickの実行
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // ms
+        scene.ExecTick(static_cast<float>(elapsed.count()) / 1000.0f);
+
         // イベント処理
         XEvent event;
         if (XPending(display.GetDisplay()) > 0)
@@ -242,8 +247,6 @@ int main(int argc, char const *argv[])
                 }
 
                 // FPSとアセット状況を表示
-                auto end = std::chrono::high_resolution_clock::now();
-                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
                 cout << "FPS::" << 1000 / elapsed.count() << endl;
                 cout << "テクスチャアセット管理状況:" << AssetSubSystem::getInstance().textureManager << endl;
             }
