@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../header/EigenHeader.hpp"
-#include "../Light/LightBaseActor.hpp"
-#include "../Light/DirectionalLight.hpp"
+#include "../GameObject/Light/LightBaseActor.hpp"
+#include "../GameObject/Light/DirectionalLight.hpp"
 #include "../Rendering/RenderTarget.hpp"
 
 #include "../Math/Math3D.hpp"

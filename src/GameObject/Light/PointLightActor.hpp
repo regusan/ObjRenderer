@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LightBaseActor.hpp"
-#include "../header/RenderingHeader.hpp"
+#include "../../header/RenderingHeader.hpp"
 using namespace Transform;
 
 /// @brief ポイントライトのクラス

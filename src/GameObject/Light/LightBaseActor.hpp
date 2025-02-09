@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GameObject/Actor.hpp"
+#include "../Actor.hpp"
 using namespace Transform;
 
 /// @brief ライトにまつわる仮想クラス
