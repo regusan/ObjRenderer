@@ -7,7 +7,7 @@ using namespace Transform;
 /// @brief ポイントライトのクラス
 class PointLightActor : public LightBaseActor
 {
-private:
+protected:
     float radius = 3.0f;
 
 public:
