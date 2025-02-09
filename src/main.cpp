@@ -104,6 +104,7 @@ int main(int argc, char const *argv[])
         environment.viewMat = in.viewMat;
         environment.setCurrentTIme();
         environment.lights = scene.GetObjectsOfClass<LightBaseActor>();
+        fpsCamera.speed = turnTableCamera.speed = environment.cameraSpeed;
 
         // 各レンダリングパスを実行
         if (environment.quality >= RenderingQuality::Low)
@@ -206,7 +207,7 @@ int main(int argc, char const *argv[])
                         for (auto &mesh : meshes)
                         {
                             in.modelMat = mesh->getMat();
-                            RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, prehigb, VertStandard, PixcelStandard);
+                            RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, higb, VertStandard, PixcelStandard);
                         }
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);
