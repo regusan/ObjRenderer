@@ -18,8 +18,8 @@ public:
     long uuid = 0;
     GameObject(/* args */);
     virtual ~GameObject(); // Virtualにして動的型解析有効化
-    void Tick(float deltatime);
-    void BeginPlay();
+    virtual void Tick(float deltatime);
+    virtual void BeginPlay();
     string GetObjectName();
     friend ostream &operator<<(ostream &os, const GameObject &go)
     {

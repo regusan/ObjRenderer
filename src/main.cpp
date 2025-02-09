@@ -53,6 +53,7 @@ int main(int argc, char const *argv[])
     {
         sceneFileName = argv[1]; // 引数のモデルをロード
         scene.loadFromJson(JsonOpener(sceneFileName));
+        scene.ExecBeginPlay();
     }
     else
     {
@@ -173,6 +174,7 @@ int main(int argc, char const *argv[])
                         environment.loadFromJson(JsonOpener(configFileName));
                         scene = Scene();
                         scene.loadFromJson(JsonOpener(sceneFileName));
+                        scene.ExecBeginPlay();
                         // gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
                         // display.Resize(environment.screenSize);
                         break;

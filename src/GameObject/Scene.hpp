@@ -66,6 +66,14 @@ public:
                 obj->Tick(deltatime);
         }
     }
+    void ExecBeginPlay()
+    {
+        for (auto &obj : this->objects)
+        {
+            if (obj)
+                obj->BeginPlay();
+        }
+    }
 
     friend ostream &operator<<(ostream &os, const Scene &go)
     {
