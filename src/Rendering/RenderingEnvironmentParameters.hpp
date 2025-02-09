@@ -47,6 +47,7 @@ public:
     RenderingQuality quality = RenderingQuality::Mid;
     string buffer2Display = "beauty";
     CameraMoveMode cameraMoveMode = CameraMoveMode::FPS;
+    float cameraSpeed = 1.0f;
 
     optional<RenderTarget> skySphere;
     vector<RenderTarget> skyMipmap;

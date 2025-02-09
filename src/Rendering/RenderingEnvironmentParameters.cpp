@@ -51,6 +51,7 @@ void RenderingEnvironmentParameters::loadFromJson(nlohmann::json jsonObj)
         this->cameraMoveMode = CameraMoveMode::FPS;
     if (cameraMoveModeStr == "TurnTable")
         this->cameraMoveMode = CameraMoveMode::TurnTable;
+    this->cameraSpeed = renderingSettings["CameraSpeed"];
 
     // HDRI Setup
     static std::string pastHDRIPath = "";

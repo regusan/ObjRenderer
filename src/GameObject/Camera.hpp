@@ -12,6 +12,7 @@ class Camera : public Actor
 {
 private:
 public:
+    float speed = 1.0f;
     virtual ~Camera() = default; // 仮想デストラクタを定義
     virtual void OnUpdateInput(const XEvent &event) = 0;
 };
