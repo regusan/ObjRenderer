@@ -12,8 +12,8 @@
 #include "header/EigenHeader.hpp"
 #include "header/RenderingHeader.hpp"
 
-#include "GameObject/TurnTableCamera.hpp"
-#include "GameObject/FPSCamera.hpp"
+#include "GameObject/Camera/TurnTableCamera.hpp"
+#include "GameObject/Camera/FPSCamera.hpp"
 #include "GameObject/Scene.hpp"
 #include "GameObject/Mesh.hpp"
 

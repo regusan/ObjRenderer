@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../header/EigenHeader.hpp"
+#include "../../header/EigenHeader.hpp"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <iostream>
-#include "Actor.hpp"
+#include "../Actor.hpp"
 using namespace Transform;
 
 /// @brief カメラのための仮想クラス
