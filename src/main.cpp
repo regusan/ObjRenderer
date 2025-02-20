@@ -124,7 +124,7 @@ int main(int argc, char const *argv[])
                 PostProcessShader::ScreenSpaceShadow(gb, environment);
                 PostProcessShader::ScreenSpaceReflection(gb, environment);
             }
-            RenderingPass::ExecLightingPass(gb, LighingShader::IBLShader, environment);
+            RenderingPass::ExecTileBasedLightingPass(gb, LighingShader::IBLShader, environment);
             if (environment.quality > RenderingQuality::Low)
             {
                 PostProcessShader::SSAOPlusSSGI(gb, environment);
@@ -200,7 +200,7 @@ int main(int argc, char const *argv[])
                         }
                         PostProcessShader::ScreenSpaceShadow(prehigb, environment);
                         PostProcessShader::ScreenSpaceReflection(prehigb, environment);
-                        RenderingPass::ExecLightingPass(prehigb, LighingShader::IBLShader, environment);
+                        RenderingPass::ExecTileBasedLightingPass(prehigb, LighingShader::IBLShader, environment);
 
                         GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
                         higb.preBeauty = prehigb.beauty;
@@ -211,7 +211,7 @@ int main(int argc, char const *argv[])
                         }
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, LighingShader::IBLShader, environment);
+                        RenderingPass::ExecTileBasedLightingPass(higb, LighingShader::IBLShader, environment);
                         PostProcessShader::SSAOPlusSSGI(higb, environment);
                         PostProcessShader::BloomWithDownSampling(higb, environment, 5);
                         PostProcessShader::AutoExposure(higb, environment);

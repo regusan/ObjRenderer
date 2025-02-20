@@ -5,6 +5,43 @@
 
 #include "../header/EigenHeader.hpp"
 using namespace std;
+
+class BoundingBox
+{
+public:
+    int left;
+    int right;
+    int up;
+    int bottom;
+
+    // 通常のコンストラクタ
+    BoundingBox(int left, int right, int up, int bottom)
+        : left(left), right(right), up(up), bottom(bottom) {}
+
+    // 円から矩形を作るコンストラクタ
+    BoundingBox(Vector2f center, float radius)
+        : left(center.x() - radius), right(center.x() + radius),
+          up(center.y() - radius), bottom(center.y() + radius) {}
+
+    // 交差判定（オーバーロード）
+    bool operator&(const BoundingBox &other) const
+    {
+        return !(right < other.left || // 右端が相手の左端より左
+                 left > other.right || // 左端が相手の右端より右
+                 bottom < other.up ||  // 下端が相手の上端より上
+                 up > other.bottom);   // 上端が相手の下端より下
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const BoundingBox &box)
+    {
+        os << "BoundingBox(left=" << box.left
+           << ", right=" << box.right
+           << ", up=" << box.up
+           << ", bottom=" << box.bottom << ")";
+        return os;
+    }
+};
+
 namespace MathPhysics
 {
     inline Vector3f Reflect(const Vector3f &in, const Vector3f &normal)

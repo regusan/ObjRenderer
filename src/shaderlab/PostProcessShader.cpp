@@ -315,8 +315,8 @@ namespace PostProcessShader
                     // GBufferから取得した実際の深度
                     const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     const float actualBackDepth = gbuffers.backPositionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
-                    // レイが背面深度と表面深度の間にあったら
-                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth)) // || rayPosVS.z() - actualDepth < maxThickness))
+                    // レイが背面深度と表面深度の間にあるか、実際の深度とレイの深度が近いなら遮蔽判定
+                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth || rayPosVS.z() - actualDepth < .01))
                     {
                         gbuffers.SSShadow.PaintPixel(x, y, Vector3f(0, 0, 0));
                         break;
@@ -324,6 +324,7 @@ namespace PostProcessShader
                 }
             }
         }
+        gbuffers.SSShadow = gbuffers.SSShadow.GausiannBlur(5, false, false);
         if (environment.quality == RenderingQuality::Cinema)
             gbuffers.SSShadow = gbuffers.SSShadow.GausiannBlur(11);
     }

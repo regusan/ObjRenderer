@@ -19,4 +19,7 @@ namespace RenderingPass
     void ExecLightingPass(GBuffers &gbuffers,
                           const Vector3f (*postProcessPass)(GBuffers &gbuffers, RenderingEnvironmentParameters &environment, int x, int y),
                           RenderingEnvironmentParameters &environment);
+    void ExecTileBasedLightingPass(GBuffers &gbuffers,
+                                   const Vector3f (*postProcessPass)(GBuffers &gbuffers, RenderingEnvironmentParameters &environment, vector<shared_ptr<LightBaseActor>> lights, int x, int y),
+                                   RenderingEnvironmentParameters &environment);
 }

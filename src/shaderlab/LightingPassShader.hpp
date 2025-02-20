@@ -43,7 +43,8 @@ namespace LighingShader
     /// @param x
     /// @param y
     /// @return
-    inline const Vector3f IBLShader(GBuffers &gbuffers, RenderingEnvironmentParameters &environment, int x, int y)
+    inline const Vector3f IBLShader(GBuffers &gbuffers, RenderingEnvironmentParameters &environment,
+                                    vector<shared_ptr<LightBaseActor>> lights, int x, int y)
     {
         constexpr float irradianceStrength = 10;
 
@@ -112,7 +113,7 @@ namespace LighingShader
 
         // パンクチュアルライトの結果を入力光に加算
         Vector3f punctualLi = Vector3f::Zero();
-        for (auto light : environment.lights)
+        for (auto light : lights)
         {
             punctualLi += light->lightSDF(positionWSSampled, normalWSSampled);
         }
