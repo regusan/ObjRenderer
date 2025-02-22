@@ -19,25 +19,20 @@ protected:
     vector<shared_ptr<GameObject>> objects;
 
 public:
+    template <typename T, typename... Args>
+    void SpawnActorOfClass(Args &&...args)
+    {
+        // GameObject継承出ないものをスポーンしていたらあさーと
+        static_assert(is_base_of<GameObject, T>::value, "GameObject継承ではないクラスはスポーンできません。");
+
+        shared_ptr<GameObject> obj = make_shared<T>(forward<Args>(args)...);
+        obj->SetSpawnedScene(this);
+        objects.push_back(move(obj));
+    }
+
     /// @brief Jsonからシーンを構築
     /// @param sceneJson
-    void loadFromJson(json sceneJson)
-    {
-        for (auto &[actorName, actorData] : sceneJson["GameObjects"].items())
-        {
-
-            string classType = actorData["class"];
-            json args = actorData["args"];
-            // cout << actorData << endl;
-
-            // 指定型でオブジェクトを作成
-            shared_ptr<GameObject> obj = GameObjectFactory::createObject(classType, actorName, args);
-            if (obj)
-            {
-                objects.push_back(move(obj));
-            }
-        }
-    }
+    void loadFromJson(json sceneJson);
 
     /// @brief シーン上の指定クラスの全てのオブジェクトを取得
     /// @tparam T
@@ -58,22 +53,8 @@ public:
         return retval;
     }
 
-    void ExecTick(const float deltatime)
-    {
-        for (auto &obj : this->objects)
-        {
-            if (obj)
-                obj->Tick(deltatime);
-        }
-    }
-    void ExecBeginPlay()
-    {
-        for (auto &obj : this->objects)
-        {
-            if (obj)
-                obj->BeginPlay();
-        }
-    }
+    void ExecTick(const float deltatime);
+    void ExecBeginPlay();
 
     friend ostream &operator<<(ostream &os, const Scene &go)
     {
