@@ -13,6 +13,13 @@ void RandomWalkPointLightActor::Tick(float deltatime)
     this->SetPosition(this->origin + offset);
 }
 
+RandomWalkPointLightActor::RandomWalkPointLightActor(Vector3f pos, float radius, Vector3f color) : PointLightActor()
+{
+    this->color = color;
+    this->radius = radius;
+    this->SetPosition(pos);
+    this->origin = pos;
+}
 void RandomWalkPointLightActor::BeginPlay()
 {
     this->origin = this->location;

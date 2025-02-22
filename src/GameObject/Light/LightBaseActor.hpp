@@ -17,7 +17,7 @@ public:
     virtual Vector3f lightSDF(const Vector3f &positionWS, const Vector3f &normalWS) { return Vector3f::Zero(); };
 
     virtual float GetBoundingSphereRadius() { return 0.0f; }
-
+    LightBaseActor() {}
     LightBaseActor(json args) : Actor(args)
     {
         this->color.x() = args["color"][0];

@@ -14,6 +14,7 @@ public:
     virtual Vector3f lightSDF(const Vector3f &positionWS, const Vector3f &normalWS);
     virtual float GetBoundingSphereRadius();
     PointLightActor(json args);
+    PointLightActor() {}
     ~PointLightActor();
 };
 GCLASS(PointLightActor)
