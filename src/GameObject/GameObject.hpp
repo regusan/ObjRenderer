@@ -6,13 +6,19 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+
 #include "GameObjectFactory.hpp"
 using namespace std;
+
+// 前方宣言
+class Scene;
 
 /// @brief エンジン上で管理されるオブジェクト
 class GameObject
 {
-private:
+protected:
+    Scene *scene = nullptr;
+
 public:
     string name = "NULL";
     long uuid = 0;
@@ -21,6 +27,7 @@ public:
     virtual void Tick(float deltatime);
     virtual void BeginPlay();
     string GetObjectName();
+    void SetSpawnedScene(Scene *_scene);
     friend ostream &operator<<(ostream &os, const GameObject &go)
     {
         os << "GameObject:" << go.name << "(" << go.uuid << ")" << endl;

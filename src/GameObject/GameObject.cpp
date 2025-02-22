@@ -8,6 +8,10 @@ GameObject::GameObject(/* args */)
 GameObject::~GameObject()
 {
 }
+void GameObject::SetSpawnedScene(Scene *_scene)
+{
+    this->scene = _scene;
+}
 
 void GameObject::Tick(float deltatime) {}
 void GameObject::BeginPlay() {}
