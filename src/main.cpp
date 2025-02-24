@@ -124,12 +124,12 @@ int main(int argc, char const *argv[])
                 PostProcessShader::ScreenSpaceShadow(gb, environment);
                 PostProcessShader::ScreenSpaceReflection(gb, environment);
             }
-            RenderingPass::ExecTileBasedLightingPass(gb, LighingShader::IBLShader, environment);
+            RenderingPass::ExecLightingPass(gb, LighingShader::IBLShader, environment);
             if (environment.quality > RenderingQuality::Low)
             {
                 PostProcessShader::SSAOPlusSSGI(gb, environment);
             }
-            RenderingPass::ExecLightingPass(gb, LighingShader::BackGroundLighingShader, environment);
+            RenderingPass::ExecScanPass(gb, LighingShader::BackGroundLighingShader, environment);
             if (environment.quality > RenderingQuality::Low)
             {
                 PostProcessShader::BloomWithDownSampling(gb, environment, 5.0f);
@@ -215,7 +215,7 @@ int main(int argc, char const *argv[])
                         PostProcessShader::SSAOPlusSSGI(higb, environment);
                         PostProcessShader::BloomWithDownSampling(higb, environment, 5);
                         PostProcessShader::AutoExposure(higb, environment);
-                        RenderingPass::ExecLightingPass(higb, LighingShader::BackGroundLighingShader, environment);
+                        RenderingPass::ExecScanPass(higb, LighingShader::BackGroundLighingShader, environment);
 
                         cout << "レンダリング終了" << endl;
 
