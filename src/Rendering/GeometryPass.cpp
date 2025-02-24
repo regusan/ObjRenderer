@@ -476,7 +476,7 @@ namespace RenderingPipeline
 
                     if (backfacecull && isInFrustum(tessOut) && isFront)
                     {
-                        for (size_t i = 0; i < tessOut.size() + 1; i++)
+                        for (size_t i = 0; i < tessOut.size() + 1; i += 2)
                         {
                             gb.beauty.DrawLine(tessOut[i % tessOut.size()].positionSS.head<2>(), tessOut[(i + 1) % tessOut.size()].positionSS.head<2>(), tessOut[0].material->diffuse);
                         }

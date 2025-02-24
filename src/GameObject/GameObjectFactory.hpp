@@ -46,7 +46,7 @@ public:
     }
 };
 
-// 指定型クラスについて、文字列での生成に対応させるマクロ。引き数無し。
+// 指定型クラスについて、文字列での生成に対応させるマクロ。引き数Json。
 #define GCLASS(ClassType)                                                                               \
     class ClassType##Registrar                                                                          \
     {                                                                                                   \
@@ -61,7 +61,7 @@ public:
         static inline int dummy = registerClass();                                                      \
     };
 
-// 指定型クラスについて、文字列での生成に対応させるマクロ。引き数Json。
+// 指定型クラスについて、文字列での生成に対応させるマクロ。引き数無し。
 #define GCLASS_NO_ARG(ClassType)                                                                  \
     class ClassType##Registrar                                                                    \
     {                                                                                             \

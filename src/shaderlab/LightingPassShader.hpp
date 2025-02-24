@@ -70,6 +70,12 @@ namespace LighingShader
         float aoSampled = gbuffers.AO.SampleColor(x, y).x();
         float shadowSampled = gbuffers.SSShadow.SampleColor(x, y).x();
         Vector3f irradianceSampled = gbuffers.irradiance.SampleColor(x, y);
+
+        // subsurface scattering
+        float thicknessSampled = gbuffers.backDepth.SampleColor(x, y).z() - depthSampled;
+        Vector3f subsurfaceColor = Vector3f(.2, .05, .05);
+        float maxScatteringThickness = 0.1f;
+
         // Vector2f sampledUV = gbuffers.uv.SampleColor(x, y).head<2>();
         // float _F0 = clamp<float>(metalicSampled, 0.03, 1);
 
@@ -83,14 +89,16 @@ namespace LighingShader
 
         // スカイスフィアからスペキュラをサンプル
         Vector2f skyUV = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(normalWSSampled) + environment.skySphereOffset);
+        Vector2f skyUVThrow = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(view) + environment.skySphereOffset);
         Vector2f skyUVRef = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(reflectEyeN) + environment.skySphereOffset);
-        Vector3f specularSampled, skyDiffSampled, skyAmbient;
+        Vector3f specularSampled, skyDiffSampled, skyAmbient, skyThrowSampled;
         if (environment.skySphere)
         {
 
             specularSampled = SampleFromMipMap(environment.skyMipmap, roughnessSampled, skyUVRef).array() * environment.directionalLights[0].color.array();
             skyAmbient = environment.skyMipmap[environment.skyMipmap.size() - 1].SampleColor01BiLinear(skyUV.x(), skyUV.y());
             skyDiffSampled = SampleFromMipMap(environment.skyMipmap, roughnessSampled, skyUV).array() * environment.directionalLights[0].color.array();
+            skyThrowSampled = SampleFromMipMap(environment.skyMipmap, 1, skyUVThrow).array() * environment.directionalLights[0].color.array();
         }
         else
         {
@@ -143,8 +151,11 @@ namespace LighingShader
             float str = clamp<float>(fabs(norm) * (1.5 - dist), 0, 1);
             radiation = gbuffers.lightDomain.SampleColor(x, y) * str;
         }
+        // 厚みがmaxScatteringThicknessに近くなるとゼロ,薄いと1
+        Vector3f subsurfaceScattering = subsurfaceColor.array() * skyThrowSampled.array() * saturate(1.f - thicknessSampled / maxScatteringThickness);
 
-        Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + radiation + irradianceSampled * irradianceStrength;
+        // return subsurfaceScattering;
+        Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + radiation + irradianceSampled * irradianceStrength + subsurfaceScattering;
         // gbuffers.reflection.PaintPixel(x, y, final);
         return final;
     }
