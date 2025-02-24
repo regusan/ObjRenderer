@@ -18,6 +18,8 @@ public:
 
     virtual float GetBoundingSphereRadius() { return 0.0f; }
     LightBaseActor() {}
+    /// @brief Sceneファイル読み取り時にJsonとして渡される
+    /// @param args
     LightBaseActor(json args) : Actor(args)
     {
         this->color.x() = args["color"][0];
@@ -26,4 +28,6 @@ public:
     };
     ~LightBaseActor() {};
 };
-// GCLASS(LightBaseActor)
+
+// GCLASSマクロで登録
+GCLASS(LightBaseActor)

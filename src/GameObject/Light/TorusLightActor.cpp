@@ -11,10 +11,11 @@ Vector3f TorusLightActor::lightSDF(const Vector3f &positionWS, const Vector3f &n
     Vector3f circlePos = Vector3f(positionOS.x(), 0, positionOS.z()).normalized() * this->majorRadius;
     Vector3f dir2CirclePos = (circlePos - positionOS).normalized();
 
+    // 向きによる明るさ比率(HalfLambert)
+    float dirRate = saturate(dir2CirclePos.dot(normalOS) * 0.5 + 0.5);
+
     // 距離による明るさ比率
-    float dirRate = saturate(dir2CirclePos.dot(normalOS));
-    // 向きによる明るさ比率
-    float distRate = saturate(1 - (circlePos - positionOS).norm());
+    float distRate = saturate(1 - (circlePos - positionOS).norm() / this->minorRadius);
     return color * distRate * dirRate;
 }
 
