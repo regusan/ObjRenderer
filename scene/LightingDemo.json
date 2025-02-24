@@ -1,0 +1,171 @@
+{
+    "_comment": "シーンの定義ファイル",
+    "GameObjects": {
+        "Mesh1": {
+            "_comment": "メッシュの定義例",
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "models/LightingDemo.obj"
+            }
+        },
+        "Light1": {
+            "_comment": "環境マップ投影機のデモ",
+            "class": "CubeMapPointLight",
+            "args": {
+                "position": [
+                    0,
+                    1,
+                    1.6
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    180
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "color": [
+                    100,
+                    100,
+                    100
+                ],
+                "radius": 2,
+                "MapPath": "imgs/zwartkops_curve_afternoon_4k.hdr"
+            }
+        },
+        "Light2": {
+            "_comment": "ポイントライトのデモ",
+            "class": "PointLightActor",
+            "args": {
+                "position": [
+                    0,
+                    1,
+                    6
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    180
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "color": [
+                    100,
+                    100,
+                    100
+                ],
+                "radius": 2
+            }
+        },
+        "Light0": {
+            "_comment": "スポットライトの定義例",
+            "class": "SpotLightActor",
+            "args": {
+                "position": [
+                    -0,
+                    5,
+                    -4
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    -90
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "color": [
+                    3,
+                    1,
+                    1
+                ],
+                "radius": 10,
+                "angle": 30
+            }
+        },
+        "Light3": {
+            "_comment": "トーラスライトの定義例",
+            "class": "TorusLightActor",
+            "args": {
+                "position": [
+                    -0,
+                    0.1,
+                    10
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "color": [
+                    3,
+                    1,
+                    1
+                ],
+                "majorRadius": 2,
+                "minorRadius": 1
+            }
+        },
+        "Light4": {
+            "_comment": "ボックスライトの定義例",
+            "class": "AreaLightActor",
+            "args": {
+                "position": [
+                    -1,
+                    3,
+                    -8
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "color": [
+                    3,
+                    0,
+                    6
+                ],
+                "barnDoorAngle": 45,
+                "length": 5,
+                "size": [
+                    2,
+                    2
+                ],
+                "falloff": 0.5
+            }
+        }
+    }
+}

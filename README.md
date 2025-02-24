@@ -13,6 +13,7 @@
 - Smooth Shading
 - Deferred Rendering
 - Image Base Lighting + HDRI BackDrop
+- Tile Based Deffered Rendering
 - Post Process
 - Texture Sample(Albedo, Roughness, Metalic, Normal)
 - Tessellation + DisplacementMap
@@ -33,9 +34,17 @@
 | Screen Space Ambient Occlusion  | None | ![AO](Document/AO-Buffer.png)|
 | Tessllation + Displacement Map  | ![Tess+DP](/Document/TessResult.png) | ![Tess+DP](/Document/TessAnim.gif)|
 
+### Lights
+| Point Light  | Point Projector Light | Torus Light | Box Light |
+| ---- | ---- | ---- | ---- |
+| ![Tess+DP](Document/lights/LightingDemo_Point.png) | ![Tess+DP](Document/lights/LightingDemo_PointProjector.png) | ![Tess+DP](Document/lights/LightingDemo_Torus.png) | ![Tess+DP](Document/lights/LightingDemo_Area.png) |
+
+### Rendering Pipeline
+![Pass](/Document/RenderFlow.png)
+
 ### IO
 - Obj File Reading
-- PPM Image Output
+- Image Output
 - X11 Window Output
 - Customizable Vertex Shader
 - Customizable Pixel Shader
@@ -94,10 +103,131 @@ cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j
 cd ../
-./build/Regu3D models/room.obj
+./build/Regu3D scene/RoomScene.json
 ```
 
 # Customize
+## Scene Data
+Example
+```json
+{
+    "_comment": "シーンの定義ファイル",
+    "GameObjects": {
+        "Mesh1": {
+            "_comment": "メッシュの定義例",
+            "class": "MeshActor",
+            "_classExplain":"GCLASS()マクロで登録したクラス名でスポーンするクラスを指定する。",
+            "args": {
+            "_comment":"引数はargs内に記述する。args内はプログラム側から参照可能。",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "models/room.obj"
+            }
+        },
+        "Light0": {
+            "_comment": "ポイントライトの定義例",
+            "class": "SpotLightActor",
+            "args": {
+                "position": [
+                    0,
+                    10,
+                    -3
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    -120
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "color": [
+                    3,
+                    1,
+                    3
+                ],
+                "radius": 1000,
+                "angle": 10
+            }
+        },
+        "Light1": {
+            "_comment": "ランダムポイントライトの定義例",
+            "class": "RandomWalkPointLightActor",
+            "args": {
+                "position": [
+                    0,
+                    3,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "color": [
+                    1,
+                    2,
+                    1
+                ],
+                "radius": 5
+            }
+        }
+    }
+}
+```
+
+### Customize Actor Example
+```cpp
+#pragma once
+
+#include "../Actor.hpp"
+using namespace Transform;
+
+/// @brief Actorの例
+class HogeActor : public Actor
+{
+protected:
+    Vector3f color = Vector3f(1, 0, 0);
+
+public:
+    HogeActor() {}
+    /// @brief Sceneファイル読み取り時にJsonから渡される
+    /// @param args
+    HogeActor(json args) : Actor(args)
+    {
+        this->color.x() = args["color"][0];
+        this->color.y() = args["color"][1];
+        this->color.z() = args["color"][2];
+    };
+    ~HogeActor() {};
+};
+
+// GCLASSマクロでSceneファイルから生成するための登録
+GCLASS(HogeActor)
+
+```
+
+
 ## VertexShader & PixcelShader
 1.  Define your shader
 ```cpp
