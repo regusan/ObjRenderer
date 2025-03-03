@@ -8,7 +8,9 @@ class FPSCamera : public Camera
 
 public:
     FPSCamera(/* args */);
+    FPSCamera(json args);
     ~FPSCamera();
     void OnUpdateInput(const XEvent &event) override;
     void matUpdate() override;
 };
+GCLASS(FPSCamera)

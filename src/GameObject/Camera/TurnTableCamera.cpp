@@ -1,6 +1,9 @@
 #include "TurnTableCamera.hpp"
 
-TurnTableCamera::TurnTableCamera(/* args */)
+TurnTableCamera::TurnTableCamera(/* args */) : FPSCamera()
+{
+}
+TurnTableCamera::TurnTableCamera(json args) : FPSCamera(args)
 {
 }
 

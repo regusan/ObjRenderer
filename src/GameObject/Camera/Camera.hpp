@@ -10,6 +10,10 @@ using namespace Transform;
 /// @brief カメラのための仮想クラス
 class Camera : public Actor
 {
+protected:
+    Camera(json args) : Actor(args) {}
+    Camera() : Actor() {}
+
 private:
 public:
     float speed = 1.0f;

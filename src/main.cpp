@@ -66,18 +66,7 @@ int main(int argc, char const *argv[])
     cout << environment << endl;
 
     // カメラ初期設定
-    TurnTableCamera turnTableCamera;
-    FPSCamera fpsCamera;
-    turnTableCamera.SetPosition(Vector3f(0, 3, 0));
-    fpsCamera.SetPosition(Vector3f(0, 0, 10));
-    inputDispatcher.addListener([&turnTableCamera](const XEvent &event)
-                                {
-                                    turnTableCamera.OnUpdateInput(event); // メンバ関数を呼び出す
-                                });
-    inputDispatcher.addListener([&fpsCamera](const XEvent &event)
-                                {
-                                    fpsCamera.OnUpdateInput(event); // メンバ関数を呼び出す
-                                });
+    shared_ptr<Camera> primaryCamera;
 
     // 描画先初期化
     X11Display display(environment.screenSize.x(), environment.screenSize.y());
@@ -90,21 +79,26 @@ int main(int argc, char const *argv[])
 
         // GBufferのクリア
         gb.Clear();
-        // 視点の更新
-        if (environment.cameraMoveMode == CameraMoveMode::FPS)
+
+        // 初めに取得したカメラでレンダリング設定
+        if (primaryCamera)
         {
-            fpsCamera.SetRotation(Vector3f(0, display.GetMousePos().x(), display.GetMousePos().y()));
-            in.viewMat = fpsCamera.getMat();
+            primaryCamera->SetRotation(Vector3f(0, display.GetMousePos().x(), display.GetMousePos().y()));
+            environment.viewMat = in.viewMat = primaryCamera->getMat();
+            primaryCamera->speed = environment.cameraSpeed;
         }
-        else if (environment.cameraMoveMode == CameraMoveMode::TurnTable)
+        // カメラがなかったら取得を試みる
+        else if (!scene.GetObjectsOfClass<Camera>().empty())
         {
-            turnTableCamera.SetRotation(Vector3f(0, display.GetMousePos().x(), display.GetMousePos().y()));
-            in.viewMat = turnTableCamera.getMat();
+            primaryCamera = scene.GetObjectsOfClass<Camera>()[0];
+            inputDispatcher.addListener([&primaryCamera](const XEvent &event)
+                                        {
+                                            primaryCamera->OnUpdateInput(event); // メンバ関数を呼び出す
+                                        });
         }
-        environment.viewMat = in.viewMat;
+
         environment.setCurrentTIme();
         environment.lights = scene.GetObjectsOfClass<LightBaseActor>();
-        fpsCamera.speed = turnTableCamera.speed = environment.cameraSpeed;
 
         // 各レンダリングパスを実行
         if (environment.quality >= RenderingQuality::Low)

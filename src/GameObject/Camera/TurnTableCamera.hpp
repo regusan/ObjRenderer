@@ -11,9 +11,11 @@ private:
 
 public:
     TurnTableCamera(/* args */);
+    TurnTableCamera(json args);
     ~TurnTableCamera();
     /// @brief カメラブームの半径
     /// @param radius
     void SetRadius(float radius);
     void OnUpdateInput(const XEvent &event) override;
 };
+GCLASS(TurnTableCamera)

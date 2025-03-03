@@ -3,6 +3,9 @@
 FPSCamera::FPSCamera(/* args */)
 {
 }
+FPSCamera::FPSCamera(json args) : Camera(args)
+{
+}
 
 FPSCamera::~FPSCamera()
 {
