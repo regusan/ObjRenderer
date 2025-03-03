@@ -16,6 +16,8 @@ public:
     Vector3f emission;
     Vector3f ORM;
 
+    float alpha;
+
     Vector3f normalWS;
     Vector3f normalVS;
 };

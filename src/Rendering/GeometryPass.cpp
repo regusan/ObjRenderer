@@ -163,7 +163,10 @@ namespace RenderingPipeline
                         //  重心座標を元にピクセルの情報を補間
                         PixcelInputStandard draw = PixcelInputStandard::barycentricLerp(
                             points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
+
                         PixcelOutputStandard out = pixcel(draw);
+                        if (out.alpha < 0.1f)
+                            continue;
 
                         gb.forward.PaintPixel(x, y, out.color);
                         gb.depth.PaintPixel(x, y, Vector3f(depth, depth, depth));

@@ -66,29 +66,36 @@ inline const PixcelOutputStandard PixcelStandard(const PixcelInputStandard &in)
     PixcelOutputStandard out;
     constexpr float InvSqrt3 = 0.57735026919f; // 1/sqrt(3)
     constexpr float InvMaxShinness = 1.0f / 1000.0f;
-
+    const Vector2f uv = Vector2f(in.uv.x(), 1.0f - in.uv.y());
     out.specular = in.material->specular; // * in.material->specularShapness;
 
+    float randval = fmod(uv.x() * uv.y() * 100, 1);
+
+    // アルファ値を記録
+    if (in.material->alphaMap)
+        out.alpha = in.material->alphaMap->SampleColor01(uv.x(), uv.y()).x() > randval;
+    else
+        out.alpha = 1.0f;
     if (in.material->shaderModel == Material::ShaderModel::Phoneg)
         out.ORM = Vector3f(1, in.material->specularShapness * InvMaxShinness, in.material->specular.norm() * InvSqrt3);
     if (in.material->shaderModel == Material::ShaderModel::PBR)
         out.ORM = Vector3f(1, in.material->pbrRoughness, in.material->pbrMetalic);
     if (in.material->roughnessMap)
-        out.ORM.y() = in.material->roughnessMap->SampleColor01(fmod(in.uv.x(), 1), fmod(in.uv.y(), 1)).x();
+        out.ORM.y() = in.material->roughnessMap->SampleColor01(uv.x(), uv.y()).x();
     if (in.material->metalicMap)
-        out.ORM.z() = in.material->metalicMap->SampleColor01(fmod(in.uv.x(), 1), fmod(in.uv.y(), 1)).x();
+        out.ORM.z() = in.material->metalicMap->SampleColor01(uv.x(), uv.y()).x();
 
     out.diffuse = in.material->diffuse; // Diffuseをマテリアルから設定
     // DiffuseMapが存在するなら、テクスチャのディフューズを掛け合わせる
     if (in.material->diffuseMap)
-        out.diffuse = out.diffuse.array() * in.material->diffuseMap->SampleColor01(fmod(in.uv.x(), 1), fmod(in.uv.y(), 1)).array();
+        out.diffuse = out.diffuse.array() * in.material->diffuseMap->SampleColor01(uv.x(), uv.y()).array();
 
     out.normalWS = in.normalWS.head<3>();
     out.normalVS = in.normalVS.head<3>();
     if (in.material->normalMap) // NormalMapが存在するなら、サンプル
     {
         // 法線マップをサンプリング
-        Vector3f sampledNormal = in.material->normalMap->SampleColor01BiLinear(in.uv.x(), in.uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f);
+        Vector3f sampledNormal = in.material->normalMap->SampleColor01BiLinear(uv.x(), uv.y()) * 2.0f - Vector3f(1.0f, 1.0f, 1.0f);
 
         // TBN行列を構築
 
