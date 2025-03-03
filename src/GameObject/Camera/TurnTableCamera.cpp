@@ -12,7 +12,7 @@ TurnTableCamera::~TurnTableCamera()
 }
 void TurnTableCamera::matUpdate()
 {
-    mat = MakeMatOffset(this->location) * MakeMatOffset(Vector3f(0, 0, this->radius)) * MakeRotMatX(this->rotation.z()) * MakeRotMatY(this->rotation.y());
+    this->mat = MakeMatOffset(Vector3f(0, 0, this->radius)) * MakeRotMatX(this->rotation.z()) * MakeRotMatY(this->rotation.y()) * MakeMatOffset(this->location);
 }
 void TurnTableCamera::OnUpdateInput(const XEvent &event)
 {
