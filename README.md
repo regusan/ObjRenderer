@@ -1,7 +1,9 @@
 # ObjRenderer
 
 # DEMOs
-![demo](/Document//Demo.gif)
+![demo](Document//RoomWithLightDemo.mp4)
+![demo](Document//CatVatTest.mp4)
+
 |  |  |
 | ---- | ---- |
 |![beauty](https://github.com/user-attachments/assets/6f26296d-c238-4026-96bf-2f69830eabf3) | ![beauty](https://github.com/user-attachments/assets/32dc5594-6cc9-43ea-b99e-b416e7fb00bd) |
