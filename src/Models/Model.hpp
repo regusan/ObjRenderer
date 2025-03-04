@@ -44,6 +44,9 @@ public:
     /// @brief マテリアルIDに対応するマテリアル名
     vector<string> materialNames;
 
+    shared_ptr<RenderTarget> VATPos;
+    shared_ptr<RenderTarget> VATNormal;
+
     map<string, Material> materials;
     void LoadModelFromFile(const filesystem::path &filepath);
     const string toString();

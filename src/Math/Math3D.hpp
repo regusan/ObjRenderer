@@ -15,6 +15,23 @@ inline float saturate(const float x)
            : (x < 0.0f) ? 0.0f
                         : x;
 }
+inline Matrix3f CalculateTBN(const Vector3f &normal)
+{
+    // 適切な基準ベクトルを選択
+    Vector3f reference = (std::abs(normal.z()) < 0.9f) ? Vector3f(0, 0, 1) : Vector3f(0, 1, 0);
+
+    // Tangent（接線ベクトル）を計算
+    Vector3f tangent = reference.cross(normal).normalized();
+
+    // Bitangent（従法線ベクトル）を計算
+    Vector3f bitangent = normal.cross(tangent).normalized();
+
+    Matrix3f TBN;
+    TBN.col(0) = tangent.normalized();
+    TBN.col(1) = bitangent.normalized();
+    TBN.col(2) = normal.normalized();
+    return TBN;
+}
 
 class BoundingBox
 {

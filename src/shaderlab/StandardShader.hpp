@@ -41,23 +41,7 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
     out.material = in.material;
     return out;
 }
-Matrix3f CalculateTBN(const Vector3f &normalWS)
-{
-    // 適切な基準ベクトルを選択
-    Vector3f reference = (std::abs(normalWS.z()) < 0.9f) ? Vector3f(0, 0, 1) : Vector3f(0, 1, 0);
 
-    // Tangent（接線ベクトル）を計算
-    Vector3f tangentWS = reference.cross(normalWS).normalized();
-
-    // Bitangent（従法線ベクトル）を計算
-    Vector3f bitangentWS = normalWS.cross(tangentWS).normalized();
-
-    Matrix3f TBN;
-    TBN.col(0) = tangentWS.normalized();   // Tangent
-    TBN.col(1) = bitangentWS.normalized(); // Bitangent
-    TBN.col(2) = normalWS.normalized();    // Normal (from GBuffer or vertex)
-    return TBN;
-}
 /// @brief ピクセルシェーダーの例
 /// @param in 入力データ格納構造体
 /// @return 出力データ格納構造体

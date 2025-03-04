@@ -2,6 +2,20 @@
 #define PARALLEL_FOR_TRANSFORM
 namespace RenderingPipeline
 {
+    Vector3f EncordVAT(shared_ptr<Texture2D> vat, int index, float time)
+    {
+        if (vat)
+        {
+            Vector3f encorded0 = vat->SampleColor(index, fmod(time, vat->getScreenSize().y())) * 2 - Vector3f::Ones();
+            Vector3f encorded1 = vat->SampleColor(index, fmod(time + 1, vat->getScreenSize().y())) * 2 - Vector3f::Ones();
+            Vector3f lerped = StandardMath::lerp<Vector3f>(fmod(time, 1), encorded0, encorded1);
+            return Vector3f(lerped.x(), lerped.z(), lerped.y()); // z-upからy-upに変換
+        }
+        else
+        {
+            return Vector3f::Zero();
+        }
+    }
 
     namespace Deffered
     {
@@ -33,8 +47,23 @@ namespace RenderingPipeline
                 vector<VertInputStandard> vins;
                 for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
                 {
-                    vin.position = model.verts[face[vertIndex]];
-                    vin.normal = model.vertNormals[facenorm[vertIndex]];
+                    Vector4f vatPosOffset = Vector4f::Zero();
+
+                    if (model.VATPos)
+                    {
+                        Vector3f pos3f = RenderingPipeline::EncordVAT(model.VATPos, face[vertIndex], in.environment.time);
+                        vatPosOffset = Vector4f(pos3f.x(), pos3f.y(), pos3f.z(), 0);
+                    }
+                    if (model.VATNormal)
+                    {
+                        Vector3f norm3f = RenderingPipeline::EncordVAT(model.VATNormal, face[vertIndex], in.environment.time);
+                        vin.normal = Vector4f(norm3f.x(), norm3f.y(), norm3f.z(), 1); // z-upからy-upに変換
+                    }
+                    else
+                    {
+                        vin.normal = model.vertNormals[facenorm[vertIndex]];
+                    }
+                    vin.position = model.verts[face[vertIndex]] + vatPosOffset;
                     vin.uv = model.uv[faceuv[vertIndex]];
                     VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
                     outs.push_back(out);                // 描画待ち配列に追加
