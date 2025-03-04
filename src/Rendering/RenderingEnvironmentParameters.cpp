@@ -46,12 +46,10 @@ void RenderingEnvironmentParameters::loadFromJson(nlohmann::json jsonObj)
         std::cerr << "Error in config value: \"" << "Quality" << "\": \"" << qualityStr << "\" is not a valid value. Please choose from Wire, Low, Mid, or Cinema." << '\n';
         exit(1);
     }
-    std::string cameraMoveModeStr = renderingSettings["CameraMoveMode"];
-    if (cameraMoveModeStr == "FPS")
-        this->cameraMoveMode = CameraMoveMode::FPS;
-    if (cameraMoveModeStr == "TurnTable")
-        this->cameraMoveMode = CameraMoveMode::TurnTable;
+
     this->cameraSpeed = renderingSettings["CameraSpeed"];
+
+    this->timeScale = renderingSettings["timeScale"];
 
     // HDRI Setup
     static std::string pastHDRIPath = "";
@@ -68,5 +66,5 @@ void RenderingEnvironmentParameters::loadFromJson(nlohmann::json jsonObj)
 }
 void RenderingEnvironmentParameters::setCurrentTIme()
 {
-    this->time = static_cast<float>(clock()) / CLOCKS_PER_SEC * 1000;
+    this->time = static_cast<float>(clock()) / CLOCKS_PER_SEC * 0.1f * timeScale;
 }

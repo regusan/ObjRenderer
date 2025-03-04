@@ -13,7 +13,8 @@
         "Buffer2Display": "beauty",
         "Quality": "Mid",
         "CameraMoveMode": "FPS",
-        "CameraSpeed": 1
+        "CameraSpeed": 1,
+        "timeScale": 30
     },
     "LightingSettings": {
         "_comment": "Settings related to lighting configurations",

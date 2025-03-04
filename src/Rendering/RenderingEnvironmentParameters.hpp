@@ -19,11 +19,7 @@ enum class RenderingQuality
     Mid,
     Cinema,
 };
-enum class CameraMoveMode
-{
-    FPS,
-    TurnTable,
-};
+
 using namespace std;
 class RenderingEnvironmentParameters
 {
@@ -46,8 +42,9 @@ public:
     float time = 0;
     RenderingQuality quality = RenderingQuality::Mid;
     string buffer2Display = "beauty";
-    CameraMoveMode cameraMoveMode = CameraMoveMode::FPS;
     float cameraSpeed = 1.0f;
+
+    float timeScale = 1.0f;
 
     optional<RenderTarget> skySphere;
     vector<RenderTarget> skyMipmap;
@@ -88,7 +85,6 @@ public:
         os << "  Time: " << env.time << endl;
         os << "  Quality: " << (env.quality == RenderingQuality::Wire ? "Wire" : (env.quality == RenderingQuality::Low ? "Low" : (env.quality == RenderingQuality::Mid ? "Mid" : "Cinema"))) << endl;
         os << "  Buffer2Display: " << env.buffer2Display << endl;
-        os << "  CameraMoveMode: " << (env.cameraMoveMode == CameraMoveMode::FPS ? "FPS" : "TurnTable") << endl;
 
         if (env.skySphere)
         {
