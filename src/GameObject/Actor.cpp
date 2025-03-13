@@ -31,7 +31,7 @@ void Actor::SetScale(Vector3f scale)
 
 void Actor::matUpdate()
 {
-    this->mat = MakeMatScale(this->scale) * MakeMatOffset(this->location) * MakeRotMatZ(this->rotation.z()) * MakeRotMatX(this->rotation.x()) * MakeRotMatY(this->rotation.y());
+    this->mat = MakeMatOffset(this->location) * MakeMatScale(this->scale) * MakeRotMatZ(this->rotation.z()) * MakeRotMatX(this->rotation.x()) * MakeRotMatY(this->rotation.y());
 }
 Matrix4f Actor::getMat()
 {
