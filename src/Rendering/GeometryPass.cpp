@@ -47,23 +47,20 @@ namespace RenderingPipeline
                 vector<VertInputStandard> vins;
                 for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
                 {
-                    Vector4f vatPosOffset = Vector4f::Zero();
-
+                    vin.position = model.verts[face[vertIndex]];
                     if (model.VATPos)
                     {
                         Vector3f pos3f = RenderingPipeline::EncordVAT(model.VATPos, face[vertIndex], in.environment.time);
-                        vatPosOffset = Vector4f(pos3f.x(), pos3f.y(), pos3f.z(), 0);
+                        vin.position += Vector4f(pos3f.x(), pos3f.y(), pos3f.z(), 0);
                     }
+
+                    vin.normal = model.vertNormals[facenorm[vertIndex]];
                     if (model.VATNormal)
                     {
                         Vector3f norm3f = RenderingPipeline::EncordVAT(model.VATNormal, face[vertIndex], in.environment.time);
                         vin.normal = Vector4f(norm3f.x(), norm3f.y(), norm3f.z(), 1); // z-upからy-upに変換
                     }
-                    else
-                    {
-                        vin.normal = model.vertNormals[facenorm[vertIndex]];
-                    }
-                    vin.position = model.verts[face[vertIndex]] + vatPosOffset;
+
                     vin.uv = model.uv[faceuv[vertIndex]];
                     VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
                     outs.push_back(out);                // 描画待ち配列に追加
