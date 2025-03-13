@@ -10,10 +10,10 @@ class RandomWalkPointLightActor : public PointLightActor
 protected:
     float estTime = 0;
     Vector3f origin;
-    Vector3f freq = (Vector3f::Random() + Vector3f::Ones() * 0.5) * 1;
+    Vector3f freq = Vector3f::Ones();
 
 public:
-    RandomWalkPointLightActor() {}
+    RandomWalkPointLightActor();
     RandomWalkPointLightActor(json args);
     RandomWalkPointLightActor(Vector3f pos, float radius, Vector3f color);
     ~RandomWalkPointLightActor();

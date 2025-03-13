@@ -2,6 +2,11 @@
 
 RandomWalkPointLightActor::RandomWalkPointLightActor(json args) : PointLightActor(args)
 {
+    this->freq = (Vector3f::Random() + Vector3f::Ones()) * 1;
+}
+RandomWalkPointLightActor::RandomWalkPointLightActor() : PointLightActor()
+{
+    this->freq = (Vector3f::Random() + Vector3f::Ones()) * 1;
 }
 RandomWalkPointLightActor::~RandomWalkPointLightActor() {}
 
@@ -13,7 +18,7 @@ void RandomWalkPointLightActor::Tick(float deltatime)
     this->SetPosition(this->origin + offset);
 }
 
-RandomWalkPointLightActor::RandomWalkPointLightActor(Vector3f pos, float radius, Vector3f color) : PointLightActor()
+RandomWalkPointLightActor::RandomWalkPointLightActor(Vector3f pos, float radius, Vector3f color) : RandomWalkPointLightActor()
 {
     this->color = color;
     this->radius = radius;
