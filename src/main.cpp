@@ -34,6 +34,11 @@ using namespace Transform;
 /// @brief Jsonコンフィグファイルを開く処理をまとめた関数
 /// @return
 nlohmann::json JsonOpener(string filePath);
+
+/// @brief シーンのリロード処理をまとめた関数
+/// @param scenefileName
+void ReloadScene(string scenefileName);
+
 void UpdateInput(const XEvent &event) {}
 
 EventDispatcher<XEvent> inputDispatcher;
@@ -51,9 +56,7 @@ int main(int argc, char const *argv[])
 
     if (argc >= 2)
     {
-        sceneFileName = argv[1]; // 引数のモデルをロード
-        scene.loadFromJson(JsonOpener(sceneFileName));
-        scene.ExecBeginPlay();
+        ReloadScene(argv[1]);
     }
     else
     {
@@ -148,6 +151,14 @@ int main(int argc, char const *argv[])
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // ms
         scene.ExecTick(static_cast<float>(elapsed.count()) * environment.timeScale / 1000.0f);
+        /*
+                // シーンファイルの更新チェック
+                auto currentModifiedTime = std::filesystem::last_write_time(sceneFileName);
+                if (currentModifiedTime != lastModifiedTime)
+                {
+                    ReloadScene(sceneFileName);
+                }
+                */
 
         // イベント処理
         XEvent event;
@@ -167,11 +178,7 @@ int main(int argc, char const *argv[])
 
                     case XK_Return: // コンフィグのリロード
                         environment.loadFromJson(JsonOpener(configFileName));
-                        scene = Scene();
-                        scene.loadFromJson(JsonOpener(sceneFileName));
-                        scene.ExecBeginPlay();
-                        // gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
-                        // display.Resize(environment.screenSize);
+                        ReloadScene(sceneFileName);
                         break;
                     case XK_space: // スナップショットを記録
                     {              // 括弧で囲わないとローカル変数定義できない
@@ -281,4 +288,11 @@ nlohmann::json JsonOpener(const std::string filePath)
     file.close();
     auto jobj = nlohmann::json::parse(content);
     return jobj;
+}
+
+void ReloadScene(string scenefileName)
+{
+    sceneFileName = scenefileName; // 引数のモデルをロード
+    scene.loadScene(filesystem::path(sceneFileName));
+    scene.ExecBeginPlay();
 }

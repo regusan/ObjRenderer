@@ -9,6 +9,7 @@
 
 #include "GameObject.hpp"
 #include "GameObjectFactory.hpp"
+#include "../Engine/FileWatcher.hpp"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ class Scene
 {
 protected:
     vector<shared_ptr<GameObject>> objects;
+    FileWatcher fileWatcher;
 
 public:
     template <typename T, typename... Args>
@@ -32,7 +34,11 @@ public:
 
     /// @brief Jsonからシーンを構築
     /// @param sceneJson
-    void loadFromJson(json sceneJson);
+    void loadScene(json sceneJson);
+
+    void loadScene(filesystem::path scenepath);
+
+    void OnFileChanged(const filesystem::path &);
 
     /// @brief シーン上の指定クラスの全てのオブジェクトを取得
     /// @tparam T
