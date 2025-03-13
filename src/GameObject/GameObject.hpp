@@ -17,7 +17,7 @@ class Scene;
 class GameObject
 {
 protected:
-    Scene *scene = nullptr;
+    Scene *seneContext = nullptr;
 
 public:
     string name = "NULL";

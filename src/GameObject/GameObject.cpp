@@ -10,7 +10,7 @@ GameObject::~GameObject()
 }
 void GameObject::SetSpawnedScene(Scene *_scene)
 {
-    this->scene = _scene;
+    this->seneContext = _scene;
 }
 
 void GameObject::Tick(float deltatime) {}
