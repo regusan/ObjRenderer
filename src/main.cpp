@@ -107,7 +107,7 @@ int main(int argc, char const *argv[])
             for (auto &mesh : meshes)
             {
                 in.modelMat = mesh->getMat();
-                RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, gb, VertStandard, PixcelStandard);
+                RenderingPipeline::Deffered::ExecGeometryPass(*mesh->meshModel, in, gb, VertStandard, PixcelStandard);
             }
 
             // RenderingPipeline::Lighting::ExecLightGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
@@ -115,7 +115,7 @@ int main(int argc, char const *argv[])
             // Low未満ではそもそもパスを実行しない
             if (environment.quality > RenderingQuality::Low)
             {
-                PostProcessShader::ScreenSpaceShadow(gb, environment);
+                // PostProcessShader::ScreenSpaceShadow(gb, environment);
                 PostProcessShader::ScreenSpaceReflection(gb, environment);
             }
             RenderingPass::ExecLightingPass(gb, LighingShader::IBLShader, environment);
@@ -126,7 +126,7 @@ int main(int argc, char const *argv[])
             RenderingPass::ExecScanPass(gb, LighingShader::BackGroundLighingShader, environment);
             if (environment.quality > RenderingQuality::Low)
             {
-                PostProcessShader::BloomWithDownSampling(gb, environment, 5.0f);
+                PostProcessShader::BloomWithDownSampling(gb, environment, 10.0f);
             }
             PostProcessShader::AutoExposure(gb, environment);
         }
@@ -136,7 +136,7 @@ int main(int argc, char const *argv[])
             for (auto &mesh : meshes)
             {
                 in.modelMat = mesh->getMat();
-                RenderingPipeline::Forward::ExecWireFramePass(mesh->meshModel, in, gb, VertStandard);
+                RenderingPipeline::Forward::ExecWireFramePass(*mesh->meshModel, in, gb, VertStandard);
             }
         }
 
@@ -147,7 +147,7 @@ int main(int argc, char const *argv[])
         // 経過時間の取得とTickの実行
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // ms
-        scene.ExecTick(static_cast<float>(elapsed.count()) / 1000.0f);
+        scene.ExecTick(static_cast<float>(elapsed.count()) * environment.timeScale / 1000.0f);
 
         // イベント処理
         XEvent event;
@@ -190,7 +190,7 @@ int main(int argc, char const *argv[])
                         for (auto &mesh : meshes)
                         {
                             in.modelMat = mesh->getMat();
-                            RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, prehigb, VertStandard, PixcelStandard);
+                            RenderingPipeline::Deffered::ExecGeometryPass(*mesh->meshModel, in, prehigb, VertStandard, PixcelStandard);
                         }
                         PostProcessShader::ScreenSpaceShadow(prehigb, environment);
                         PostProcessShader::ScreenSpaceReflection(prehigb, environment);
@@ -201,7 +201,7 @@ int main(int argc, char const *argv[])
                         for (auto &mesh : meshes)
                         {
                             in.modelMat = mesh->getMat();
-                            RenderingPipeline::Deffered::ExecGeometryPass(mesh->meshModel, in, higb, VertStandard, PixcelStandard);
+                            RenderingPipeline::Deffered::ExecGeometryPass(*mesh->meshModel, in, higb, VertStandard, PixcelStandard);
                         }
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);

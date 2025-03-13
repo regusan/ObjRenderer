@@ -13,7 +13,7 @@
 #include "../header/ShaderHeader.hpp"
 #include "Material.hpp"
 using namespace std;
-class Model
+class Model : public RAsset
 {
 private:
     void loadObj(const filesystem::path &filepath);
@@ -48,7 +48,7 @@ public:
     shared_ptr<RenderTarget> VATNormal;
 
     map<string, Material> materials;
-    void LoadModelFromFile(const filesystem::path &filepath);
+    bool LoadFromFile(const filesystem::path &filepath) override;
     const string toString();
     friend std::ostream &operator<<(std::ostream &os, const Model &model);
 

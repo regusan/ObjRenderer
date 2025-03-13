@@ -3,11 +3,12 @@
 Model::Model() {}
 
 Model::~Model() {}
-
-void Model::LoadModelFromFile(const filesystem::path &filepath)
+bool Model::LoadFromFile(const filesystem::path &filepath)
 {
     this->loadObj(filepath);
+    return true;
 }
+
 void Model::loadObj(const filesystem::path &filepath)
 {
     ifstream file(filepath); // ファイルを開く

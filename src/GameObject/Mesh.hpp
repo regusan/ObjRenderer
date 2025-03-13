@@ -9,7 +9,7 @@ class MeshActor : public Actor
 {
 private:
 public:
-    Model meshModel;
+    shared_ptr<Model> meshModel;
     MeshActor(json args);
     ~MeshActor();
 };

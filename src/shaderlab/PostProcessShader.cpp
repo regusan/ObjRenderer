@@ -48,7 +48,7 @@ namespace PostProcessShader
             for (int x = 0; x < bloomSource.getScreenSize().x(); x++)
             {
                 Vector3f beauty = gbuffers.beauty.SampleColor(x, y);
-                Vector3f overflow = Vector3f(fmax(0, beauty.x() - bloomThreshold), fmax(0, beauty.y() - bloomThreshold), fmax(0, beauty.z() - bloomThreshold));
+                Vector3f overflow = Vector3f(fmax(0, beauty.x() / bloomThreshold - 1), fmax(0, beauty.y() / bloomThreshold - 1), fmax(0, beauty.z() / bloomThreshold - 1));
                 bloomSource.PaintPixel(x, y, overflow);
             }
 
@@ -113,7 +113,6 @@ namespace PostProcessShader
                 // 深度が無限遠だったら処理しない
                 if (gbuffers.depth.SampleColor(x, y).x() == numeric_limits<float>::max())
                 {
-                    gbuffers.reflection.PaintPixel(x, y, Vector3f(0, 0, 0));
                     continue;
                 }
                 int visibleCount = 0; // 可視サンプルのカウンタ
@@ -214,12 +213,12 @@ namespace PostProcessShader
         // 光線を飛ばす回数
         const int maxRayNum = (environment.quality == RenderingQuality::Cinema) ? 200 : 30;
         // レイの最大距離
-        const float maxRayLength = (environment.quality == RenderingQuality::Cinema) ? 10 : 3;
+        const float maxRayLength = (environment.quality == RenderingQuality::Cinema) ? 10 : 6;
         const float rayLength = maxRayLength / maxRayNum;
         // 自分自身に反射するのを防ぐための最小距離
         const float minimumLength = rayLength * 0;
 
-        // float maxThickness = 0.01f / maxRayNum;
+        float maxThickness = 1.f / maxRayNum;
 
 #pragma omp parallel for
         for (int y = 0; y < gbuffers.reflection.getScreenSize().y(); y++)
@@ -253,7 +252,7 @@ namespace PostProcessShader
                     const float actualDepth = gbuffers.positionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     const float actualBackDepth = gbuffers.backPositionVS.SampleColor01(rayPosSS.x(), rayPosSS.y()).z();
                     // レイが背面深度と表面深度の間にあったら
-                    if (rayPosVS.z() > actualDepth && (rayPosVS.z() < actualBackDepth)) // || rayPosVS.z() - actualDepth > maxThickness))
+                    if (rayPosVS.z() > actualDepth && ((rayPosVS.z() < actualBackDepth) || rayPosVS.z() - actualDepth < maxThickness))
                     {
                         Vector2f screenCoord(2.0f * static_cast<float>(x) / gbuffers.reflection.getScreenSize().x() - 1.0f,
                                              2.0f * static_cast<float>(y) / gbuffers.reflection.getScreenSize().y() - 1.0f);
@@ -268,7 +267,7 @@ namespace PostProcessShader
             }
         }
         if (environment.quality == RenderingQuality::Cinema)
-            gbuffers.reflection = gbuffers.reflection.GausiannBlur(7);
+            gbuffers.reflection = gbuffers.reflection.GausiannBlur(3);
     }
     void ScreenSpaceShadow(GBuffers &gbuffers, RenderingEnvironmentParameters &environment)
     {

@@ -3,11 +3,13 @@
 MeshActor::MeshActor(json args) : Actor(args)
 {
     string meshPath = args["MeshPath"];
-    this->meshModel.LoadModelFromFile(meshPath);
+    this->meshModel = AssetSubSystem::getInstance().meshManager.LoadAsset(meshPath);
     filesystem::path dir = filesystem::path(meshPath).parent_path();
     string VATPosPath = args.value("VATPosPath", "");
-    this->meshModel.VATPos = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / VATPosPath);
+    if (VATPosPath.length() > 0)
+        this->meshModel->VATPos = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / VATPosPath);
     string VATNormalPath = args.value("VATNormalPath", "");
-    this->meshModel.VATNormal = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / VATNormalPath);
+    if (VATNormalPath.length() > 0)
+        this->meshModel->VATNormal = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / VATNormalPath);
 }
 MeshActor::~MeshActor() {}
