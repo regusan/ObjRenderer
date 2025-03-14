@@ -72,7 +72,7 @@ int main(int argc, char const *argv[])
     shared_ptr<Camera> primaryCamera;
 
     // 描画先初期化
-    X11Display display(environment.screenSize.x(), environment.screenSize.y());
+    X11Display display(environment.screenSize.x() * environment.upscaleRate, environment.screenSize.y() * environment.upscaleRate);
     GBuffers gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
 
     while (true)
@@ -145,8 +145,7 @@ int main(int argc, char const *argv[])
 
         //   GBufferからデバイスコンテキストにコピーし、表示
         RenderTarget &rt = gb.getRTFromString(environment.buffer2Display);
-        display.show(rt);
-
+        display.show(rt.UpSample(environment.screenSize.array() * environment.upscaleRate));
         // 経過時間の取得とTickの実行
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // ms

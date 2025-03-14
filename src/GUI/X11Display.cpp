@@ -66,6 +66,11 @@ void X11Display::show(RenderTarget &renderTarget)
     updateWindow(renderTarget);
     XFlush(display); // Ensure the X11 commands are processed immediately
 }
+void X11Display::show(RenderTarget &&renderTarget)
+{
+    updateWindow(renderTarget);
+    XFlush(display); // Ensure the X11 commands are processed immediately
+}
 
 void X11Display::waitUntilWindowBreak()
 {

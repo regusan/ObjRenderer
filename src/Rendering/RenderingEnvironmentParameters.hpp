@@ -31,6 +31,7 @@ public:
     bool backfaceCulling = false;
     int backFaceCullingDirection = -1;
     Vector2i screenSize = Vector2i(512, 512);
+    int upscaleRate = 1;
     vector<shared_ptr<LightBaseActor>> lights;
     vector<DirectionalLight> directionalLights = {DirectionalLight(Vector3f(1, 1, 1), Vector3f(.8, .8, .8))};
 

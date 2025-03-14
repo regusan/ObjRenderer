@@ -10,6 +10,7 @@ void RenderingEnvironmentParameters::loadFromJson(nlohmann::json jsonObj)
     this->backfaceCulling = renderingSettings["BackfaceCulling"];
     this->backFaceCullingDirection = renderingSettings["BackfaceCullingDirection"];
     this->screenSize = Vector2i(renderingSettings["Resolution"][0], renderingSettings["Resolution"][1]);
+    this->upscaleRate = renderingSettings["UpScaleRate"];
     this->ambientLight = Vector3f(lightingSettings["AmbientLight"][0],
                                   lightingSettings["AmbientLight"][1],
                                   lightingSettings["AmbientLight"][2]);

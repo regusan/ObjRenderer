@@ -35,6 +35,7 @@ public:
     /// @brief RenderTargetを表示
     /// @param renderTarget
     void show(RenderTarget &renderTarget);
+    void show(RenderTarget &&renderTarget);
     /// @brief Windowが破棄されるまで待機
     void waitUntilWindowBreak();
     XEvent GetEvent();

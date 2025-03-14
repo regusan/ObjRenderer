@@ -7,14 +7,15 @@
         "NearClip": 1,
         "FarClip": 1000,
         "Resolution": [
-            896,
-            896
+            450,
+            450
         ],
+        "UpScaleRate": 2,
         "Buffer2Display": "beauty",
         "Quality": "Mid",
         "CameraMoveMode": "FPS",
         "CameraSpeed": 1,
-        "timeScale": 30
+        "timeScale": 3
     },
     "LightingSettings": {
         "_comment": "Settings related to lighting configurations",
