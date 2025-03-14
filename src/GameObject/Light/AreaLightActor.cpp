@@ -11,7 +11,7 @@ Vector3f AreaLightActor::lightSDF(const Vector3f &positionWS, const Vector3f &no
     float offset = fminf(-positionOS.y() * tan(this->barnDoorAngle / 180.0f * M_PI), this->length); // アングルに基づき拡張
     float falloffRate = saturate(1 - fabs(positionOS.x() / (this->size.x() / 2 + offset))) *
                         saturate(1 - fabs(positionOS.z() / (this->size.y() / 2 + offset)));
-    float distRate = saturate(1.0f - -positionOS.y() / this->length) * (positionOS.y() <= 0);
+    float distRate = powf(saturate(1.0f - -positionOS.y() / this->length) * (positionOS.y() <= 0), 2);
     float normRate = saturate(normalOS.dot(Vector3f(0, 1, 0)) * 0.5 + 0.5); // half-lambert
     return color * distRate * normRate * pow(falloffRate, this->falloff);
 }

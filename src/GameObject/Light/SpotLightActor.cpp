@@ -7,9 +7,9 @@ Vector3f SpotLightActor::lightSDF(const Vector3f &positionWS, const Vector3f &no
 
     Vector3f light2PosDir = (this->location - positionWS).normalized();
     float angleRate = this->angle / 180;
-    float angleIntencity = clamp<float>((light2PosDir.dot(normal) - (1 - angleRate)) / angleRate, 0, 1);
-    float distant = clamp<float>(this->length - (positionWS - this->location).norm(), 0, 1);
-    float directant = clamp<float>(normalWS.dot(light2PosDir), 0, 1);
+    float angleIntencity = saturate((light2PosDir.dot(normal) - (1 - angleRate)) / angleRate);
+    float distant = powf(saturate(this->length - (positionWS - this->location).norm()), 2);
+    float directant = saturate(normalWS.dot(light2PosDir));
     return color * angleIntencity * distant * directant;
 }
 float SpotLightActor::GetBoundingSphereRadius()

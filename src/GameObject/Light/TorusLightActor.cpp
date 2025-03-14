@@ -15,7 +15,7 @@ Vector3f TorusLightActor::lightSDF(const Vector3f &positionWS, const Vector3f &n
     float dirRate = saturate(dir2CirclePos.dot(normalOS) * 0.5 + 0.5);
 
     // 距離による明るさ比率
-    float distRate = saturate(1 - (circlePos - positionOS).norm() / this->minorRadius);
+    float distRate = powf(saturate(1 - (circlePos - positionOS).norm() / this->minorRadius), 2);
     return color * distRate * dirRate;
 }
 
