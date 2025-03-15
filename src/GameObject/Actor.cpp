@@ -34,10 +34,15 @@ void Actor::matUpdate()
     this->mat = MakeMatOffset(this->location) * MakeMatScale(this->scale) * MakeRotMatZ(this->rotation.z()) * MakeRotMatX(this->rotation.x()) * MakeRotMatY(this->rotation.y());
     if (auto locked = parent.lock())
         this->mat = locked->mat * this->mat;
+    for (auto child : this->children)
+    {
+        if (auto locked = child.lock())
+            locked->matUpdate();
+    }
 }
 void Actor::SetParent(weak_ptr<Actor> parent)
 {
-    this->parent.reset();
+    this->parent = parent;
     this->matUpdate();
 }
 void Actor::DettachParent()

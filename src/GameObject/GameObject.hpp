@@ -17,16 +17,15 @@ class Scene;
 class GameObject : public std::enable_shared_from_this<GameObject>
 {
 protected:
-    Scene *seneContext = nullptr;
-    weak_ptr<GameObject> wpthis;
-
 public:
+    Scene *sceneContext = nullptr;
     string name = "NULL";
     long uuid = 0;
     GameObject(/* args */);
     virtual ~GameObject(); // Virtualにして動的型解析有効化
     virtual void Tick(float deltatime);
     virtual void BeginPlay();
+    virtual void OnDestroyed();
     string GetObjectName();
     void SetSpawnedScene(Scene *_scene);
     friend ostream &operator<<(ostream &os, const GameObject &go)

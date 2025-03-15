@@ -1,5 +1,18 @@
 #include "Scene.hpp"
-
+#include "Actor.hpp"
+void Scene::DestroyActor(weak_ptr<GameObject> obj)
+{
+    for (auto it = this->objects.begin(); it != this->objects.end(); ++it)
+    {
+        if (auto spobj = obj.lock(); *it == spobj)
+        {
+            (*it)->OnDestroyed();
+            this->objects.erase(it);
+            break;
+        }
+    }
+    cerr << "不明なオブジェクトの削除を試行しました。" << endl;
+}
 void Scene::loadScene(json sceneJson)
 {
     this->objects.clear();
@@ -63,4 +76,30 @@ void Scene::ExecBeginPlay()
         if (obj)
             obj->BeginPlay();
     }
+}
+
+stringstream actorHieralcyToString(weak_ptr<Actor> actor)
+{
+    stringstream ss;
+    if (actor.lock() == nullptr)
+        return ss;
+    ss << actor.lock()->name << endl;
+    for (auto child : actor.lock()->children)
+    {
+        ss << actorHieralcyToString(child).str();
+    }
+    return ss;
+}
+
+stringstream Scene::hieralcyToString()
+{
+    stringstream ss;
+
+    auto actors = this->GetObjectsOfClass<Actor>();
+    ss << "Scene:" << actors.size() << endl;
+    for (auto &actor : actors)
+    {
+        ss << actorHieralcyToString(actor).str();
+    }
+    return ss;
 }

@@ -10,11 +10,12 @@ GameObject::~GameObject()
 }
 void GameObject::SetSpawnedScene(Scene *_scene)
 {
-    this->seneContext = _scene;
+    this->sceneContext = _scene;
 }
 
 void GameObject::Tick(float deltatime) {}
 void GameObject::BeginPlay() {}
+void GameObject::OnDestroyed() {}
 
 string GameObject::GetObjectName()
 {

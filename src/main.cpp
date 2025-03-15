@@ -93,24 +93,34 @@ int main(int argc, char const *argv[])
         // カメラがなかったら取得を試みる
         else if (!scene.GetObjectsOfClass<Camera>().empty())
         {
-            primaryCamera = scene.GetObjectsOfClass<Camera>()[0];
+            primaryCamera = scene.GetObjectsOfClass<Camera>()[0].lock();
             inputDispatcher.addListener([&primaryCamera](const XEvent &event)
                                         {
                                             primaryCamera->OnUpdateInput(event); // メンバ関数を呼び出す
                                         });
         }
 
+        auto lightswp = scene.GetObjectsOfClass<LightBaseActor>();
         environment.setCurrentTIme();
-        environment.lights = scene.GetObjectsOfClass<LightBaseActor>();
-
+        environment.lights.clear();
+        environment.lights.reserve(lightswp.size());
+        for (auto &wp : lightswp)
+        {
+            if (auto sp = wp.lock())
+                environment.lights.push_back(sp);
+        }
         // 各レンダリングパスを実行
         if (environment.quality >= RenderingQuality::Low)
         {
             auto meshes = scene.GetObjectsOfClass<MeshActor>();
+            // cout << scene << endl;
             for (auto &mesh : meshes)
             {
-                in.modelMat = mesh->getMat();
-                RenderingPipeline::Deffered::ExecGeometryPass(*mesh->meshModel, in, gb, VertStandard, PixcelStandard);
+                if (auto sp = mesh.lock())
+                {
+                    in.modelMat = sp->getMat();
+                    RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, gb, VertStandard, PixcelStandard);
+                }
             }
 
             // RenderingPipeline::Lighting::ExecLightGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
@@ -136,10 +146,13 @@ int main(int argc, char const *argv[])
         else
         {
             auto meshes = scene.GetObjectsOfClass<MeshActor>();
-            for (auto &mesh : meshes)
+            for (auto mesh : meshes)
             {
-                in.modelMat = mesh->getMat();
-                RenderingPipeline::Forward::ExecWireFramePass(*mesh->meshModel, in, gb, VertStandard);
+                if (auto sp = mesh.lock())
+                {
+                    in.modelMat = sp->getMat();
+                    RenderingPipeline::Forward::ExecWireFramePass(*sp->meshModel, in, gb, VertStandard);
+                }
             }
         }
 
@@ -150,14 +163,7 @@ int main(int argc, char const *argv[])
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // ms
         scene.ExecTick(static_cast<float>(elapsed.count()) * environment.timeScale / 1000.0f);
-        /*
-                // シーンファイルの更新チェック
-                auto currentModifiedTime = std::filesystem::last_write_time(sceneFileName);
-                if (currentModifiedTime != lastModifiedTime)
-                {
-                    ReloadScene(sceneFileName);
-                }
-                */
+        cout << scene.hieralcyToString().str() << endl;
 
         // イベント処理
         XEvent event;
@@ -195,8 +201,11 @@ int main(int argc, char const *argv[])
 
                         for (auto &mesh : meshes)
                         {
-                            in.modelMat = mesh->getMat();
-                            RenderingPipeline::Deffered::ExecGeometryPass(*mesh->meshModel, in, prehigb, VertStandard, PixcelStandard);
+                            if (auto sp = mesh.lock())
+                            {
+                                in.modelMat = sp->getMat();
+                                RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, prehigb, VertStandard, PixcelStandard);
+                            }
                         }
                         PostProcessShader::ScreenSpaceShadow(prehigb, environment);
                         PostProcessShader::ScreenSpaceReflection(prehigb, environment);
@@ -206,8 +215,11 @@ int main(int argc, char const *argv[])
                         higb.preBeauty = prehigb.beauty;
                         for (auto &mesh : meshes)
                         {
-                            in.modelMat = mesh->getMat();
-                            RenderingPipeline::Deffered::ExecGeometryPass(*mesh->meshModel, in, higb, VertStandard, PixcelStandard);
+                            if (auto sp = mesh.lock())
+                            {
+                                in.modelMat = sp->getMat();
+                                RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, higb, VertStandard, PixcelStandard);
+                            }
                         }
                         PostProcessShader::ScreenSpaceShadow(higb, environment);
                         PostProcessShader::ScreenSpaceReflection(higb, environment);

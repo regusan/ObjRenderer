@@ -3,11 +3,13 @@
 #include <fstream>
 #include <memory>
 #include <vector>
+#include <list>
 #include <unordered_map>
 #include <functional>
 #include <nlohmann/json.hpp>
 
 #include "GameObject.hpp"
+
 #include "GameObjectFactory.hpp"
 #include "../Engine/FileWatcher.hpp"
 
@@ -17,21 +19,30 @@ using namespace std;
 class Scene
 {
 protected:
-    vector<shared_ptr<GameObject>> objects;
+    list<shared_ptr<GameObject>> objects;
     FileWatcher fileWatcher;
 
 public:
     template <typename T, typename... Args>
-    shared_ptr<T> SpawnActorOfClass(Args &&...args)
+    enable_if_t<is_base_of<GameObject, T>::value, weak_ptr<T>>
+    SpawnActorOfClass(Args &&...args)
     {
+        static unsigned long long int count = 0;
+
         // GameObject継承出ないものをスポーンしていたらあさーと
         static_assert(is_base_of<GameObject, T>::value, "GameObject継承ではないクラスはスポーンできません。");
 
         shared_ptr<T> obj = make_shared<T>(forward<Args>(args)...);
+        stringstream ss;
+        ss << typeid(T).name() << "_" << count;
+        obj->name = ss.str();
         obj->SetSpawnedScene(this);
-        objects.push_back(move(obj));
+        obj->BeginPlay();
+        objects.push_back(obj);
+        count++;
         return obj;
     }
+    void DestroyActor(weak_ptr<GameObject> obj);
 
     /// @brief Jsonからシーンを構築
     /// @param sceneJson
@@ -45,16 +56,16 @@ public:
     /// @tparam T
     /// @return
     template <typename T>
-    vector<shared_ptr<T>> GetObjectsOfClass()
+    vector<weak_ptr<T>> GetObjectsOfClass()
     {
-        vector<shared_ptr<T>> retval;
-        for (auto &obj : this->objects)
+        vector<weak_ptr<T>> retval;
+        for (auto obj : this->objects)
         {
             if (obj)
             {
-                shared_ptr<T> casted = dynamic_pointer_cast<T>(obj);
+                auto casted = dynamic_pointer_cast<T>(obj);
                 if (casted)
-                    retval.push_back(casted);
+                    retval.emplace_back(casted);
             }
         }
         return retval;
@@ -63,10 +74,12 @@ public:
     void ExecTick(const float deltatime);
     void ExecBeginPlay();
 
+    stringstream hieralcyToString();
+
     friend ostream &operator<<(ostream &os, const Scene &go)
     {
         for (const auto &obj : go.objects)
-            os << obj.get();
+            os << obj.get() << endl;
         return os;
     }
 };
