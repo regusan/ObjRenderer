@@ -39,7 +39,14 @@ nlohmann::json JsonOpener(string filePath);
 /// @param scenefileName
 void ReloadScene(string scenefileName);
 
-void UpdateInput(const XEvent &event) {}
+/// @brief シーンのヒエラルキーを書き出し
+/// @param scene
+/// @param file
+void UpdateHierarchyLog(Scene &scene, ofstream file);
+
+void UpdateInput(const XEvent &event)
+{
+}
 
 EventDispatcher<XEvent> inputDispatcher;
 
@@ -163,7 +170,9 @@ int main(int argc, char const *argv[])
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // ms
         scene.ExecTick(static_cast<float>(elapsed.count()) * environment.timeScale / 1000.0f);
-        cout << scene.hieralcyToString().str() << endl;
+
+        // ログに書き出し
+        UpdateHierarchyLog(scene, ofstream("hierarchy.log"));
 
         // イベント処理
         XEvent event;
@@ -306,4 +315,13 @@ void ReloadScene(string scenefileName)
     sceneFileName = scenefileName; // 引数のモデルをロード
     scene.loadScene(filesystem::path(sceneFileName));
     scene.ExecBeginPlay();
+}
+
+void UpdateHierarchyLog(Scene &scene, ofstream file)
+{
+    if (file.is_open())
+    {
+        file << scene.hieralcyToString().str();
+        file.close();
+    }
 }

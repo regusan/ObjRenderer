@@ -1,5 +1,16 @@
 #include "Scene.hpp"
 #include "Actor.hpp"
+
+constexpr const char *C_RESET = "\033[0m";
+constexpr const char *C_RED = "\033[31m";
+constexpr const char *C_GREEN = "\033[32m";
+constexpr const char *C_YELLOW = "\033[33m";
+constexpr const char *C_BLUE = "\033[34m";
+constexpr const char *C_MAGENTA = "\033[35m";
+constexpr const char *C_CYAN = "\033[36m";
+constexpr const char *C_BOLD = "\033[1m";
+constexpr const char *C_UNDERLINE = "\033[4m";
+
 void Scene::DestroyActor(weak_ptr<GameObject> obj)
 {
     for (auto it = this->objects.begin(); it != this->objects.end(); ++it)
@@ -28,6 +39,7 @@ void Scene::loadScene(json sceneJson)
         if (obj)
         {
             obj->SetSpawnedScene(this);
+            obj->name = actorName;
             objects.push_back(move(obj));
         }
     }
@@ -78,15 +90,21 @@ void Scene::ExecBeginPlay()
     }
 }
 
-stringstream actorHieralcyToString(weak_ptr<Actor> actor)
+stringstream actorHieralcyToString(weak_ptr<Actor> actor, int depth = 0)
 {
     stringstream ss;
-    if (actor.lock() == nullptr)
+    auto wpActor = actor.lock();
+    if (!wpActor)
         return ss;
-    ss << actor.lock()->name << endl;
-    for (auto child : actor.lock()->children)
+
+    for (int i = 0; i < depth; i++)
     {
-        ss << actorHieralcyToString(child).str();
+        ss << "│\t";
+    }
+    ss << "├─" << C_RED << wpActor->name << C_RESET << "(" << C_CYAN << wpActor << C_RESET << ")" << endl;
+    for (auto child : wpActor->children)
+    {
+        ss << actorHieralcyToString(child, depth + 1).str();
     }
     return ss;
 }
@@ -96,10 +114,25 @@ stringstream Scene::hieralcyToString()
     stringstream ss;
 
     auto actors = this->GetObjectsOfClass<Actor>();
-    ss << "Scene:" << actors.size() << endl;
+    auto gameobjects = this->GetObjectsOfClass<GameObject>();
+    ss << C_YELLOW << "Scene:" << C_CYAN << actors.size() << C_RESET << endl;
+    ss << "├─" << C_YELLOW << "GameObjects(System):" << C_CYAN << gameobjects.size() - actors.size() << C_RESET << endl;
+    for (auto gameobject : gameobjects)
+    {
+        if (auto spGameObject = gameobject.lock())
+        {
+            if (!dynamic_pointer_cast<Actor>(spGameObject))
+            {
+                ss << "|" << C_RED << spGameObject->name << C_RESET << endl;
+            }
+        }
+    }
+    ss << "├─" << C_YELLOW << "Actors:" << C_CYAN << gameobjects.size() - actors.size() << C_RESET << endl;
     for (auto &actor : actors)
     {
-        ss << actorHieralcyToString(actor).str();
+        if (auto spactor = actor.lock())
+            if (!spactor->parent.lock())
+                ss << actorHieralcyToString(actor, 1).str();
     }
     return ss;
 }
