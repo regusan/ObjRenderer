@@ -13,16 +13,31 @@ constexpr const char *C_UNDERLINE = "\033[4m";
 
 void Scene::DestroyActor(weak_ptr<GameObject> obj)
 {
-    for (auto it = this->objects.begin(); it != this->objects.end(); ++it)
+    if (auto spobj = obj.lock())
     {
-        if (auto spobj = obj.lock(); *it == spobj)
+        auto prevSize = objects.size();
+        spobj->OnDestroyed();
+        objects.erase(
+            remove_if(objects.begin(), objects.end(),
+                      [&](const shared_ptr<GameObject> &o)
+                      {
+                          if (o == spobj)
+                          {
+                              return true; // 削除対象
+                          }
+                          return false;
+                      }),
+            objects.end());
+
+        if (objects.size() == prevSize)
         {
-            (*it)->OnDestroyed();
-            this->objects.erase(it);
-            break;
+            cerr << "不明なオブジェクト(" << spobj->name << ")の削除を試行しましたが、GCに存在しません。" << endl;
         }
     }
-    cerr << "不明なオブジェクトの削除を試行しました。" << endl;
+    else
+    {
+        cerr << "無効なオブジェクトの削除を試行しました。" << endl;
+    }
 }
 void Scene::loadScene(json sceneJson)
 {
@@ -80,6 +95,7 @@ void Scene::ExecTick(const float deltatime)
         if (obj)
             obj->Tick(deltatime);
     }
+    this->timeManager.Tick(deltatime);
 }
 void Scene::ExecBeginPlay()
 {
@@ -116,6 +132,7 @@ stringstream Scene::hieralcyToString()
     auto actors = this->GetObjectsOfClass<Actor>();
     auto gameobjects = this->GetObjectsOfClass<GameObject>();
     ss << C_YELLOW << "Scene:" << C_CYAN << actors.size() << C_RESET << endl;
+    ss << "├─" << C_YELLOW << "Timers:" << C_CYAN << timeManager.GetAllTimers().size() << C_RESET << endl;
     ss << "├─" << C_YELLOW << "GameObjects(System):" << C_CYAN << gameobjects.size() - actors.size() << C_RESET << endl;
     for (auto gameobject : gameobjects)
     {

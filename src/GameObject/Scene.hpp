@@ -12,6 +12,7 @@
 
 #include "GameObjectFactory.hpp"
 #include "../Engine/FileWatcher.hpp"
+#include "../Engine/TimeManager.hpp"
 
 using namespace std;
 
@@ -23,6 +24,8 @@ protected:
     FileWatcher fileWatcher;
 
 public:
+public:
+    REngine::TimeManager timeManager = REngine::TimeManager();
     template <typename T, typename... Args>
     enable_if_t<is_base_of<GameObject, T>::value, weak_ptr<T>>
     SpawnActorOfClass(Args &&...args)
