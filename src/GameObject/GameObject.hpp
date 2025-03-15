@@ -14,10 +14,11 @@ using namespace std;
 class Scene;
 
 /// @brief エンジン上で管理されるオブジェクト
-class GameObject
+class GameObject : public std::enable_shared_from_this<GameObject>
 {
 protected:
     Scene *seneContext = nullptr;
+    weak_ptr<GameObject> wpthis;
 
 public:
     string name = "NULL";

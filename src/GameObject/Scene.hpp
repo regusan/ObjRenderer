@@ -22,14 +22,15 @@ protected:
 
 public:
     template <typename T, typename... Args>
-    void SpawnActorOfClass(Args &&...args)
+    shared_ptr<T> SpawnActorOfClass(Args &&...args)
     {
         // GameObject継承出ないものをスポーンしていたらあさーと
         static_assert(is_base_of<GameObject, T>::value, "GameObject継承ではないクラスはスポーンできません。");
 
-        shared_ptr<GameObject> obj = make_shared<T>(forward<Args>(args)...);
+        shared_ptr<T> obj = make_shared<T>(forward<Args>(args)...);
         obj->SetSpawnedScene(this);
         objects.push_back(move(obj));
+        return obj;
     }
 
     /// @brief Jsonからシーンを構築

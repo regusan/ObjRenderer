@@ -1,5 +1,9 @@
 #include "Mesh.hpp"
 
+MeshActor::MeshActor() : Actor()
+{
+}
+
 MeshActor::MeshActor(json args) : Actor(args)
 {
     string meshPath = args["MeshPath"];
