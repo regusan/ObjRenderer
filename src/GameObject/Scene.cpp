@@ -21,11 +21,7 @@ void Scene::DestroyActor(weak_ptr<GameObject> obj)
             remove_if(objects.begin(), objects.end(),
                       [&](const shared_ptr<GameObject> &o)
                       {
-                          if (o == spobj)
-                          {
-                              return true; // 削除対象
-                          }
-                          return false;
+                          return o == spobj;
                       }),
             objects.end());
 
@@ -88,14 +84,15 @@ void Scene::OnFileChanged(const std::filesystem::__cxx11::path &filepath)
 {
     this->loadScene(filepath);
 }
-void Scene::ExecTick(const float deltatime)
+float Scene::ExecTick()
 {
+    float deltatime = this->timeManager.Tick();
     for (auto &obj : this->objects)
     {
         if (obj)
             obj->Tick(deltatime);
     }
-    this->timeManager.Tick(deltatime);
+    return deltatime;
 }
 void Scene::ExecBeginPlay()
 {
@@ -117,7 +114,7 @@ stringstream actorHieralcyToString(weak_ptr<Actor> actor, int depth = 0)
     {
         ss << "│\t";
     }
-    ss << "├─" << C_RED << wpActor->name << C_RESET << "(" << C_CYAN << wpActor << C_RESET << ")" << endl;
+    ss << "├─" << C_RED << wpActor->name << C_RESET << "(" << C_BLUE << wpActor << C_RESET << ")" << endl;
     for (auto child : wpActor->children)
     {
         ss << actorHieralcyToString(child, depth + 1).str();
@@ -132,7 +129,9 @@ stringstream Scene::hieralcyToString()
     auto actors = this->GetObjectsOfClass<Actor>();
     auto gameobjects = this->GetObjectsOfClass<GameObject>();
     ss << C_YELLOW << "Scene:" << C_CYAN << actors.size() << C_RESET << endl;
-    ss << "├─" << C_YELLOW << "Timers:" << C_CYAN << timeManager.GetAllTimers().size() << C_RESET << endl;
+    ss << "├─" << C_YELLOW << "Timers:" << C_CYAN << timeManager.GetAllTimers().size() << C_RESET;
+    ss << "(" << C_CYAN << std::fixed << std::setprecision(3) << this->timeManager.GetDeltatime() << C_RESET << "ms:";
+    ss << C_CYAN << std::fixed << std::setprecision(3) << 1.0f / this->timeManager.GetDeltatime() << C_RESET << "fps)" << endl;
     ss << "├─" << C_YELLOW << "GameObjects(System):" << C_CYAN << gameobjects.size() - actors.size() << C_RESET << endl;
     for (auto gameobject : gameobjects)
     {

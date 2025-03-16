@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <chrono>
 #include <filesystem>
 #include <sstream>
 
@@ -166,10 +165,8 @@ int main(int argc, char const *argv[])
         //   GBufferからデバイスコンテキストにコピーし、表示
         RenderTarget &rt = gb.getRTFromString(environment.buffer2Display);
         display.show(rt.UpSample(environment.screenSize.array() * environment.upscaleRate));
-        // 経過時間の取得とTickの実行
-        auto end = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // ms
-        scene.ExecTick(static_cast<float>(elapsed.count()) * environment.timeScale / 1000.0f);
+
+        float deltasecond = scene.ExecTick();
 
         // ログに書き出し
         UpdateHierarchyLog(scene, ofstream("hierarchy.log"));
@@ -274,7 +271,7 @@ int main(int argc, char const *argv[])
                 }
 
                 // FPSとアセット状況を表示
-                cout << "FPS::" << 1000 / elapsed.count() << endl;
+                cout << "FPS::" << 1.0f / deltasecond << endl;
                 cout << "テクスチャアセット管理状況:" << AssetSubSystem::getInstance().textureManager << endl;
             }
         }

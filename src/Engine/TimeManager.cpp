@@ -12,15 +12,27 @@ namespace REngine
     }
     float TimeManager::GetCurrentTime() const
     {
-        return lastTickedTime;
+        return elapsedTime;
     }
-    void TimeManager::Tick(float deltaSecond)
+    float TimeManager::GetDeltatime() const
     {
+        return this->recordedDeltaSecond;
+    }
+    float TimeManager::Tick()
+    {
+        // 時間計測
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - lastTimeClock); // ms
+        this->recordedDeltaSecond = (float)elapsed.count() * this->timeScale / 1000.0f;
+        this->lastTimeClock = end;
+        this->elapsedTime += this->recordedDeltaSecond;
+
         RemoveUnusedTimers();
         for (auto &timer : timers)
         {
-            timer->Tick(deltaSecond);
+            timer->Tick(this->recordedDeltaSecond);
         }
+        return this->recordedDeltaSecond;
     }
 
     shared_ptr<Timer> TimeManager::CreateTimer(float time, bool loop, function<void()> onTimeout, bool autoStart)

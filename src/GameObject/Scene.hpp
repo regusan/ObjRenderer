@@ -74,7 +74,7 @@ public:
         return retval;
     }
 
-    void ExecTick(const float deltatime);
+    float ExecTick();
     void ExecBeginPlay();
 
     stringstream hieralcyToString();
