@@ -43,6 +43,10 @@ void ReloadScene(string scenefileName);
 /// @param file
 void UpdateHierarchyLog(Scene &scene, ofstream file);
 
+/// @brief リソース書き出し
+/// @param file
+void UpdateResourceLog(ofstream file);
+
 void UpdateInput(const XEvent &event)
 {
 }
@@ -170,6 +174,7 @@ int main(int argc, char const *argv[])
 
         // ログに書き出し
         UpdateHierarchyLog(scene, ofstream("hierarchy.log"));
+        UpdateResourceLog(ofstream("resource.log"));
 
         // イベント処理
         XEvent event;
@@ -269,10 +274,6 @@ int main(int argc, char const *argv[])
                         break;
                     }
                 }
-
-                // FPSとアセット状況を表示
-                cout << "FPS::" << 1.0f / deltasecond << endl;
-                cout << "テクスチャアセット管理状況:" << AssetSubSystem::getInstance().textureManager << endl;
             }
         }
     }
@@ -319,6 +320,15 @@ void UpdateHierarchyLog(Scene &scene, ofstream file)
     if (file.is_open())
     {
         file << scene.hieralcyToString().str();
+        file.close();
+    }
+}
+
+void UpdateResourceLog(ofstream file)
+{
+    if (file.is_open())
+    {
+        file << AssetSubSystem::getInstance() << endl;
         file.close();
     }
 }

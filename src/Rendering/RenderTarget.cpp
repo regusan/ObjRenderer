@@ -498,14 +498,6 @@ RenderTarget operator%(const RenderTarget &rt, const float &val)
 }
 std::ostream &operator<<(std::ostream &os, const RenderTarget &rt)
 {
-    for (int y = 0; y < rt.screenSize.y(); ++y)
-    {
-        for (int x = 0; x < rt.screenSize.x(); ++x)
-        {
-            Vector3f col = rt.array[y * rt.screenSize.x() + x];
-            os << "(" << col.x() << "," << col.y() << "," << col.z() << ") ";
-        }
-        os << "\n";
-    }
+    os << "RenderTarget(" << &rt << ")" << "(" << rt.screenSize.x() << "," << rt.screenSize.y() << ")" << endl;
     return os;
 }

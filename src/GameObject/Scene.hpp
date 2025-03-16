@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include "GameObject.hpp"
+#include "../Engine/TermFormatter.hpp"
 
 #include "GameObjectFactory.hpp"
 #include "../Engine/FileWatcher.hpp"

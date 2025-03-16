@@ -3,6 +3,9 @@
 #include <memory>
 #include <iostream>
 #include "RAsset.hpp"
+#include "../TermFormatter.hpp"
+
+using namespace REngine::Terminal;
 
 /// @brief アセット管理クラス
 /// @tparam AssetType
@@ -58,9 +61,9 @@ public:
         os << "Asset cache size: " << rt.assetCache.size() << endl;
         for (const auto &pair : rt.assetCache)
         {
-            os << "Path:" << pair.first
-               << "\t\tCount:" << pair.second.use_count()
-               << "\tValid:" << (pair.second ? "Yes" : "No")
+            os << "├─Path:" << C_MAGENTA << pair.first << C_RESET
+               << "\t\tCount:" << C_CYAN << pair.second.use_count() << C_RESET
+               << "\tValid:" << C_RED << (pair.second ? "Yes" : "No") << C_RESET
                << endl;
         }
         return os;
