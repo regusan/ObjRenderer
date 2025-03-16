@@ -13,7 +13,7 @@
 
 #include "GameObjectFactory.hpp"
 #include "../Engine/FileWatcher.hpp"
-#include "../Engine/TimeManager.hpp"
+#include "../Engine/Time/TimeManager.hpp"
 
 using namespace std;
 
