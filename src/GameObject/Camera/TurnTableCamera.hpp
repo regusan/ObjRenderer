@@ -16,6 +16,6 @@ public:
     /// @brief カメラブームの半径
     /// @param radius
     void SetRadius(float radius);
-    void OnUpdateInput(const XEvent &event) override;
+    void Tick(float deltatime) override;
 };
 GCLASS(TurnTableCamera)

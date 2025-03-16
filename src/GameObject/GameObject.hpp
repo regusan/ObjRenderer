@@ -8,6 +8,8 @@
 #include <functional>
 
 #include "GameObjectFactory.hpp"
+#include "../Engine/Input/InputEvent.hpp"
+#include "../Engine/Input/InputSubSystem.hpp"
 using namespace std;
 
 // 前方宣言

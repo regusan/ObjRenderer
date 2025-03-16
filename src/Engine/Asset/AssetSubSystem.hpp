@@ -30,9 +30,9 @@ namespace REngine
         friend std::ostream &operator<<(std::ostream &os, const AssetSubSystem &as)
         {
             os << "AssetSubSystem" << endl;
-            os << "テクスチャアセット管理状況" << endl
+            os << "TextureAssets" << endl
                << as.textureManager << endl;
-            os << "メッシュアセット管理状況" << endl
+            os << "MeshAssets" << endl
                << as.meshManager << endl;
             return os;
         }

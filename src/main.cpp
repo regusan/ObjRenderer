@@ -16,8 +16,11 @@
 #include "GameObject/Scene.hpp"
 #include "GameObject/Mesh.hpp"
 
+#include "Engine/Input/InputSubSystem.hpp"
+
 #include "GUI/X11Display.hpp"
-#include "STL/EventDispatcher.hpp"
+#include "GUI/X11toREvent.hpp"
+
 #include "Models/Material.hpp"
 #include "Models/Model.hpp"
 #include "Rendering/PostProcessPass.hpp"
@@ -30,6 +33,7 @@
 using namespace std;
 using namespace Transform;
 using namespace REngine;
+using namespace REngine::Input;
 
 /// @brief Jsonコンフィグファイルを開く処理をまとめた関数
 /// @return
@@ -48,11 +52,8 @@ void UpdateHierarchyLog(Scene &scene, ofstream file);
 /// @param file
 void UpdateResourceLog(ofstream file);
 
-void UpdateInput(const XEvent &event)
-{
-}
-
-EventDispatcher<XEvent> inputDispatcher;
+/// @brief 高解像度スナップショットを撮る
+void TakeHiResSnapShot();
 
 RenderingEnvironmentParameters environment = RenderingEnvironmentParameters();
 VertInputStandard in = VertInputStandard(environment);
@@ -105,10 +106,6 @@ int main(int argc, char const *argv[])
         else if (!scene.GetObjectsOfClass<Camera>().empty())
         {
             primaryCamera = scene.GetObjectsOfClass<Camera>()[0].lock();
-            inputDispatcher.addListener([&primaryCamera](const XEvent &event)
-                                        {
-                                            primaryCamera->OnUpdateInput(event); // メンバ関数を呼び出す
-                                        });
         }
 
         auto lightswp = scene.GetObjectsOfClass<LightBaseActor>();
@@ -178,105 +175,37 @@ int main(int argc, char const *argv[])
         UpdateResourceLog(ofstream("resource.log"));
 
         // イベント処理
-        XEvent event;
-        if (XPending(display.GetDisplay()) > 0)
+        // イベント更新
+        InputSubSystem::getInstance().UpdateKeyStatus(scene.timeManager.GetDeltatime(), X11Event2REvent(display.GetDisplay()));
+        cout << InputSubSystem::getInstance() << endl;
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Enter).isHeld)
         {
-            XNextEvent(display.GetDisplay(), &event);
-            inputDispatcher.dispatch(event);
-            switch (event.type)
-            {
-            case KeyPress:
-                // キーが押された場合
-                {
-                    KeySym key = XLookupKeysym(&event.xkey, 0);
-                    // キーごとに処理を分ける
-                    switch (key)
-                    {
-
-                    case XK_Return: // コンフィグのリロード
-                        environment.loadFromJson(JsonOpener(configFileName));
-                        ReloadScene(sceneFileName);
-                        break;
-                    case XK_space: // スナップショットを記録
-                    {              // 括弧で囲わないとローカル変数定義できない
-                        cout << "キャプチャ開始" << endl;
-                        Vector2i preResolution = environment.screenSize;
-                        RenderingQuality preQuality = environment.quality;
-
-                        environment.screenSize = Vector2i(2048, 2048);
-                        environment.quality = RenderingQuality::Cinema;
-
-                        auto meshes = scene.GetObjectsOfClass<MeshActor>();
-
-                        // 反射キャプチャのための事前レンダリング
-                        GBuffers prehigb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
-
-                        for (auto &mesh : meshes)
-                        {
-                            if (auto sp = mesh.lock())
-                            {
-                                in.modelMat = sp->getMat();
-                                RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, prehigb, VertStandard, PixcelStandard);
-                            }
-                        }
-                        PostProcessShader::ScreenSpaceShadow(prehigb, environment);
-                        PostProcessShader::ScreenSpaceReflection(prehigb, environment);
-                        RenderingPass::ExecTileBasedLightingPass(prehigb, LighingShader::IBLShader, environment);
-
-                        GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
-                        higb.preBeauty = prehigb.beauty;
-                        for (auto &mesh : meshes)
-                        {
-                            if (auto sp = mesh.lock())
-                            {
-                                in.modelMat = sp->getMat();
-                                RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, higb, VertStandard, PixcelStandard);
-                            }
-                        }
-                        PostProcessShader::ScreenSpaceShadow(higb, environment);
-                        PostProcessShader::ScreenSpaceReflection(higb, environment);
-                        RenderingPass::ExecTileBasedLightingPass(higb, LighingShader::IBLShader, environment);
-                        PostProcessShader::SSAOPlusSSGI(higb, environment);
-                        PostProcessShader::BloomWithDownSampling(higb, environment, 5);
-                        PostProcessShader::AutoExposure(higb, environment);
-                        RenderingPass::ExecScanPass(higb, LighingShader::BackGroundLighingShader, environment);
-
-                        cout << "レンダリング終了" << endl;
-
-                        auto now = std::chrono::system_clock::now();
-                        auto now_time_t = std::chrono::system_clock::to_time_t(now);
-
-                        // 時刻を人間可読形式で表示
-                        std::tm local_tm = *std::localtime(&now_time_t);
-                        ostringstream outputPath;
-                        outputPath << "outputs/out_" << std::put_time(&local_tm, "%Y-%m-%d-%H-%M-%S");
-                        higb.writeAsPNG(outputPath.str(), 1); // 書き出し
-                        cout << outputPath.str() << "にキャプチャ完了" << endl;
-
-                        environment.screenSize = preResolution;
-                        environment.quality = preQuality;
-                    }
-                    break;
-                    case XK_Escape: // 終了処理
-                        display.~X11Display();
-                        exit(0);
-                    // レンダリングクオリティの変更
-                    case XK_1:
-                        environment.quality = RenderingQuality::Wire;
-                        break;
-                    case XK_2:
-                        environment.quality = RenderingQuality::Low;
-                        break;
-                    case XK_3:
-                        environment.quality = RenderingQuality::Mid;
-                        break;
-                    case XK_4:
-                        environment.quality = RenderingQuality::Cinema;
-                        break;
-                    }
-                }
-            }
+            environment.loadFromJson(JsonOpener(configFileName));
+            ReloadScene(sceneFileName);
         }
+
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Space).isHeld)
+        {
+            TakeHiResSnapShot();
+        }
+
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Escape).isHeld)
+        {
+            display.~X11Display();
+            exit(0);
+        }
+
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num1).isHeld)
+            environment.quality = RenderingQuality::Wire;
+
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num2).isHeld)
+            environment.quality = RenderingQuality::Low;
+
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num3).isHeld)
+            environment.quality = RenderingQuality::Mid;
+
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num4).isHeld)
+            environment.quality = RenderingQuality::Cinema;
     }
     return 0;
 }
@@ -332,4 +261,64 @@ void UpdateResourceLog(ofstream file)
         file << AssetSubSystem::getInstance() << endl;
         file.close();
     }
+}
+
+void TakeHiResSnapShot()
+{
+    cout << "キャプチャ開始" << endl;
+    Vector2i preResolution = environment.screenSize;
+    RenderingQuality preQuality = environment.quality;
+
+    environment.screenSize = Vector2i(2048, 2048);
+    environment.quality = RenderingQuality::Cinema;
+
+    auto meshes = scene.GetObjectsOfClass<MeshActor>();
+
+    // 反射キャプチャのための事前レンダリング
+    GBuffers prehigb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
+
+    for (auto &mesh : meshes)
+    {
+        if (auto sp = mesh.lock())
+        {
+            in.modelMat = sp->getMat();
+            RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, prehigb, VertStandard, PixcelStandard);
+        }
+    }
+    PostProcessShader::ScreenSpaceShadow(prehigb, environment);
+    PostProcessShader::ScreenSpaceReflection(prehigb, environment);
+    RenderingPass::ExecTileBasedLightingPass(prehigb, LighingShader::IBLShader, environment);
+
+    GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
+    higb.preBeauty = prehigb.beauty;
+    for (auto &mesh : meshes)
+    {
+        if (auto sp = mesh.lock())
+        {
+            in.modelMat = sp->getMat();
+            RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, higb, VertStandard, PixcelStandard);
+        }
+    }
+    PostProcessShader::ScreenSpaceShadow(higb, environment);
+    PostProcessShader::ScreenSpaceReflection(higb, environment);
+    RenderingPass::ExecTileBasedLightingPass(higb, LighingShader::IBLShader, environment);
+    PostProcessShader::SSAOPlusSSGI(higb, environment);
+    PostProcessShader::BloomWithDownSampling(higb, environment, 5);
+    PostProcessShader::AutoExposure(higb, environment);
+    RenderingPass::ExecScanPass(higb, LighingShader::BackGroundLighingShader, environment);
+
+    cout << "レンダリング終了" << endl;
+
+    auto now = std::chrono::system_clock::now();
+    auto now_time_t = std::chrono::system_clock::to_time_t(now);
+
+    // 時刻を人間可読形式で表示
+    std::tm local_tm = *std::localtime(&now_time_t);
+    ostringstream outputPath;
+    outputPath << "outputs/out_" << std::put_time(&local_tm, "%Y-%m-%d-%H-%M-%S");
+    higb.writeAsPNG(outputPath.str(), 1); // 書き出し
+    cout << outputPath.str() << "にキャプチャ完了" << endl;
+
+    environment.screenSize = preResolution;
+    environment.quality = preQuality;
 }

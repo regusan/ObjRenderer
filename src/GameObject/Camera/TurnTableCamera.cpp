@@ -1,5 +1,6 @@
 #include "TurnTableCamera.hpp"
 
+using namespace REngine::Input;
 TurnTableCamera::TurnTableCamera(/* args */) : FPSCamera()
 {
 }
@@ -14,40 +15,20 @@ void TurnTableCamera::matUpdate()
 {
     this->mat = MakeMatOffset(Vector3f(0, 0, this->radius)) * MakeRotMatX(this->rotation.z()) * MakeRotMatY(this->rotation.y()) * MakeMatOffset(this->location);
 }
-void TurnTableCamera::OnUpdateInput(const XEvent &event)
+void TurnTableCamera::Tick(float deltatime)
 {
-    FPSCamera::OnUpdateInput(event);
-    XEvent cpevent = event;
-    switch (event.type)
+    FPSCamera::Tick(deltatime);
+
+    if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Up).isHeld)
     {
-    case KeyPress:
-        // キーが押された場合
-        {
-            KeySym key = XLookupKeysym(&cpevent.xkey, 0);
-            // キーごとに処理を分ける
-            switch (key)
-            {
-            case XK_Up:
-                this->SetRadius(this->radius * 0.9);
-                std::cout << "CameraBoolRadius:" << this->radius << std::endl;
-                break;
+        this->SetRadius(this->radius * 0.9);
+        std::cout << "CameraBoolRadius:" << this->radius << std::endl;
+    }
 
-            case XK_Down:
-                this->SetRadius(this->radius * 1.1);
-                std::cout << "CameraBoolRadius:" << this->radius << std::endl;
-                break;
-
-            case XK_Left:
-                break;
-
-            case XK_Right:
-                break;
-
-            default:
-                break;
-            }
-        }
-        break;
+    if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Down).isHeld)
+    {
+        this->SetRadius(this->radius * 1.1);
+        std::cout << "CameraBoolRadius:" << this->radius << std::endl;
     }
 }
 void TurnTableCamera::SetRadius(float radius)
