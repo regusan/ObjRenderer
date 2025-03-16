@@ -1,5 +1,5 @@
 #include "Material.hpp"
-
+using namespace REngine;
 Material::Material(/* args */)
 {
 }

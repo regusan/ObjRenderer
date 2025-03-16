@@ -1,11 +1,13 @@
 #pragma once
 #include <filesystem>
 using namespace std;
-
-/// @brief アセット管理のためのインターフェース
-class RAsset
+namespace REngine
 {
-public:
-    ~RAsset() = default;
-    virtual bool LoadFromFile(const filesystem::path &filepath) = 0;
-};
+    /// @brief アセット管理のためのインターフェース
+    class RAsset
+    {
+    public:
+        ~RAsset() = default;
+        virtual bool LoadFromFile(const filesystem::path &filepath) = 0;
+    };
+}

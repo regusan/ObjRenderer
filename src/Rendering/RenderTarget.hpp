@@ -12,7 +12,7 @@
 using namespace std;
 
 /// @brief 書き込み先の画像
-class RenderTarget : public RAsset
+class RenderTarget : public REngine::RAsset
 {
 private:
     Vector2i screenSize = Vector2i(0, 0);

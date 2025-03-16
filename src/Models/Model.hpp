@@ -13,7 +13,7 @@
 #include "../header/ShaderHeader.hpp"
 #include "Material.hpp"
 using namespace std;
-class Model : public RAsset
+class Model : public REngine::RAsset
 {
 private:
     void loadObj(const filesystem::path &filepath);

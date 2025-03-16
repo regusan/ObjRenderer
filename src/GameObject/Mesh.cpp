@@ -1,5 +1,6 @@
 #include "Mesh.hpp"
 
+using namespace REngine;
 MeshActor::MeshActor() : Actor()
 {
 }

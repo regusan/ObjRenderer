@@ -29,6 +29,7 @@
 
 using namespace std;
 using namespace Transform;
+using namespace REngine;
 
 /// @brief Jsonコンフィグファイルを開く処理をまとめた関数
 /// @return
