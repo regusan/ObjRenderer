@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "../../header/EigenHeader.hpp"
 
 namespace REngine::Input
 {
@@ -149,6 +150,25 @@ namespace REngine::Input
         {
             os << "Key: " << (int)ko.keyID << ",Pressed:" << ko.isPressed << ",Held:" << ko.isHeld << ",Released:" << ko.isReleased;
             return os;
+        }
+    };
+
+    class AxisState
+    {
+    private:
+        /* data */
+        Vector3f lastPosition;
+
+    public:
+        Vector3f position = Vector3f::Zero();
+        Vector3f velocity = Vector3f::Zero();
+        AxisState(/* args */);
+        ~AxisState();
+        void UpdateAxisState(const float deltasecond, const Vector3f position)
+        {
+            this->lastPosition = this->position;
+            this->position = position;
+            this->velocity = (this->position - this->lastPosition) / deltasecond;
         }
     };
 }

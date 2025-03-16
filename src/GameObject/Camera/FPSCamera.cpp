@@ -31,4 +31,6 @@ void FPSCamera::Tick(float deltatime)
         SetPosition(this->location + GetUpVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
     if (input.GetKeyStatus(KeyID::Q).isHeld)
         SetPosition(this->location - GetUpVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
+
+    this->SetRotation(Vector3f(0, input.axisState.position.x(), input.axisState.position.y()));
 }

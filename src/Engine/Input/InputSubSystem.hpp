@@ -27,6 +27,8 @@ namespace REngine::Input
         InputSubSystem &operator=(const InputSubSystem &) = delete;
 
     public:
+        AxisState axisState;
+
         static InputSubSystem &getInstance()
         {
             static InputSubSystem instance;
@@ -39,6 +41,10 @@ namespace REngine::Input
             {
                 keyState.second.UpdateKeyState(pushedKeys.find(keyState.first) != pushedKeys.end()); // 集合に存在したらPush判定
             }
+        }
+        void UpdateAxisStatus(const float deltatime, const Vector3f position)
+        {
+            axisState.UpdateAxisState(deltatime, position);
         }
         KeyState GetKeyStatus(const KeyID keyID)
         {

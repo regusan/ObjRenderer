@@ -11,4 +11,12 @@ namespace REngine::Input
     KeyState::~KeyState()
     {
     }
+
+    AxisState::AxisState(/* args */)
+    {
+    }
+
+    AxisState::~AxisState()
+    {
+    }
 }

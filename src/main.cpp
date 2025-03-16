@@ -89,16 +89,12 @@ int main(int argc, char const *argv[])
 
     while (true)
     {
-        //  時間の計測
-        auto start = std::chrono::high_resolution_clock::now();
-
-        // GBufferのクリア
-        gb.Clear();
+        // Tick実行
+        float deltasecond = scene.ExecTick();
 
         // 初めに取得したカメラでレンダリング設定
         if (primaryCamera)
         {
-            primaryCamera->SetRotation(Vector3f(0, display.GetMousePos().x(), display.GetMousePos().y()));
             environment.viewMat = in.viewMat = primaryCamera->getMat();
             primaryCamera->speed = environment.cameraSpeed;
         }
@@ -108,6 +104,7 @@ int main(int argc, char const *argv[])
             primaryCamera = scene.GetObjectsOfClass<Camera>()[0].lock();
         }
 
+        // ライトの収集
         auto lightswp = scene.GetObjectsOfClass<LightBaseActor>();
         environment.setCurrentTIme();
         environment.lights.clear();
@@ -117,7 +114,10 @@ int main(int argc, char const *argv[])
             if (auto sp = wp.lock())
                 environment.lights.push_back(sp);
         }
+
         // 各レンダリングパスを実行
+        // GBufferのクリア
+        gb.Clear();
         if (environment.quality >= RenderingQuality::Low)
         {
             auto meshes = scene.GetObjectsOfClass<MeshActor>();
@@ -168,14 +168,12 @@ int main(int argc, char const *argv[])
         RenderTarget &rt = gb.getRTFromString(environment.buffer2Display);
         display.show(rt.UpSample(environment.screenSize.array() * environment.upscaleRate));
 
-        float deltasecond = scene.ExecTick();
-
         // ログに書き出し
         UpdateHierarchyLog(scene, ofstream("hierarchy.log"));
         UpdateResourceLog(ofstream("resource.log"));
 
-        // イベント処理
         // イベント更新
+        InputSubSystem::getInstance().axisState.UpdateAxisState(scene.timeManager.GetDeltatime(), Vector3f(display.GetMousePos().x(), display.GetMousePos().y(), 0));
         InputSubSystem::getInstance().UpdateKeyStatus(scene.timeManager.GetDeltatime(), X11Event2REvent(display.GetDisplay()));
         cout << InputSubSystem::getInstance() << endl;
         if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Enter).isHeld)
