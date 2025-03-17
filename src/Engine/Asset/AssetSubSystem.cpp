@@ -1,5 +1,3 @@
-#pragma once
-
 #include "AssetSubSystem.hpp"
 
 namespace REngine

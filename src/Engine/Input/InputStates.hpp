@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "../TermFormatter.hpp"
 #include "../../header/EigenHeader.hpp"
 
 namespace REngine::Input
@@ -8,6 +9,8 @@ namespace REngine::Input
     using namespace std;
     using namespace REngine;
     using namespace REngine::Input;
+    using namespace REngine::Terminal;
+
     enum class KeyID
     {
         // アルファベットキー
@@ -148,7 +151,11 @@ namespace REngine::Input
 
         friend ostream &operator<<(ostream &os, const KeyState &ko)
         {
-            os << "Key: " << (int)ko.keyID << ",Pressed:" << ko.isPressed << ",Held:" << ko.isHeld << ",Released:" << ko.isReleased;
+
+            os << "Key: " << C_CYAN << static_cast<int>(ko.keyID) << C_RESET
+               << ",Pressed:" << C_CYAN << ko.isPressed << C_RESET
+               << ",Held:" << C_CYAN << ko.isHeld << C_RESET
+               << ",Released:" << C_CYAN << ko.isReleased << C_RESET;
             return os;
         }
     };
@@ -169,6 +176,11 @@ namespace REngine::Input
             this->lastPosition = this->position;
             this->position = position;
             this->velocity = (this->position - this->lastPosition) / deltasecond;
+        }
+        friend ostream &operator<<(ostream &os, const AxisState &ko)
+        {
+            os << "Axis: " << "Position:" << C_CYAN << ko.position << C_RESET << ",Velocity:" << C_CYAN << ko.velocity << C_RESET;
+            return os;
         }
     };
 }

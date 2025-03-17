@@ -21,6 +21,8 @@ enum class RenderingQuality
 };
 
 using namespace std;
+using namespace REngine;
+using namespace REngine::Light;
 class RenderingEnvironmentParameters
 {
 private:

@@ -8,82 +8,86 @@
 #include <functional>
 #include <nlohmann/json.hpp>
 
-#include "GameObject.hpp"
 #include "../Engine/TermFormatter.hpp"
-
-#include "GameObjectFactory.hpp"
 #include "../Engine/FileWatcher.hpp"
 #include "../Engine/Time/TimeManager.hpp"
 
+// Factory を最後にする
+#include "GameObjectFactory.hpp"
+
 using namespace std;
 
-/// @brief シーン管理クラス
-class Scene
+namespace REngine
 {
-protected:
-    list<shared_ptr<GameObject>> objects;
-    FileWatcher fileWatcher;
-
-public:
-public:
-    REngine::TimeManager timeManager = REngine::TimeManager();
-    template <typename T, typename... Args>
-    enable_if_t<is_base_of<GameObject, T>::value, weak_ptr<T>>
-    SpawnActorOfClass(Args &&...args)
+    class GameObject;
+    /// @brief シーン管理クラス
+    class Scene
     {
-        static unsigned long long int count = 0;
+    protected:
+        list<shared_ptr<GameObject>> objects;
+        FileWatcher fileWatcher;
 
-        // GameObject継承出ないものをスポーンしていたらあさーと
-        static_assert(is_base_of<GameObject, T>::value, "GameObject継承ではないクラスはスポーンできません。");
-
-        shared_ptr<T> obj = make_shared<T>(forward<Args>(args)...);
-        stringstream ss;
-        ss << typeid(T).name() << "_" << count;
-        obj->name = ss.str();
-        obj->SetSpawnedScene(this);
-        obj->BeginPlay();
-        objects.push_back(obj);
-        count++;
-        return obj;
-    }
-    void DestroyActor(weak_ptr<GameObject> obj);
-
-    /// @brief Jsonからシーンを構築
-    /// @param sceneJson
-    void loadScene(json sceneJson);
-
-    void loadScene(filesystem::path scenepath);
-
-    void OnFileChanged(const filesystem::path &);
-
-    /// @brief シーン上の指定クラスの全てのオブジェクトを取得
-    /// @tparam T
-    /// @return
-    template <typename T>
-    vector<weak_ptr<T>> GetObjectsOfClass()
-    {
-        vector<weak_ptr<T>> retval;
-        for (auto obj : this->objects)
+    public:
+    public:
+        REngine::TimeManager timeManager = REngine::TimeManager();
+        template <typename T, typename... Args>
+        enable_if_t<is_base_of<GameObject, T>::value, weak_ptr<T>>
+        SpawnActorOfClass(Args &&...args)
         {
-            if (obj)
-            {
-                auto casted = dynamic_pointer_cast<T>(obj);
-                if (casted)
-                    retval.emplace_back(casted);
-            }
+            static unsigned long long int count = 0;
+
+            // GameObject継承出ないものをスポーンしていたらあさーと
+            static_assert(is_base_of<GameObject, T>::value, "GameObject継承ではないクラスはスポーンできません。");
+
+            shared_ptr<T> obj = make_shared<T>(forward<Args>(args)...);
+            stringstream ss;
+            ss << typeid(T).name() << "_" << count;
+            obj->name = ss.str();
+            obj->SetSpawnedScene(this);
+            obj->BeginPlay();
+            objects.push_back(obj);
+            count++;
+            return obj;
         }
-        return retval;
-    }
+        void DestroyActor(weak_ptr<GameObject> obj);
 
-    float ExecTick();
-    void ExecBeginPlay();
+        /// @brief Jsonからシーンを構築
+        /// @param sceneJson
+        void loadScene(json sceneJson);
 
-    stringstream hieralcyToString();
+        void loadScene(filesystem::path scenepath);
 
-    friend ostream &operator<<(ostream &os, const Scene &go)
-    {
-        for (const auto &obj : go.objects)
-            os << obj.get() << endl;
-        return os;
-    }
-};
+        void OnFileChanged(const filesystem::path &);
+
+        /// @brief シーン上の指定クラスの全てのオブジェクトを取得
+        /// @tparam T
+        /// @return
+        template <typename T>
+        vector<weak_ptr<T>> GetObjectsOfClass()
+        {
+            vector<weak_ptr<T>> retval;
+            for (auto obj : this->objects)
+            {
+                if (obj)
+                {
+                    auto casted = dynamic_pointer_cast<T>(obj);
+                    if (casted)
+                        retval.emplace_back(casted);
+                }
+            }
+            return retval;
+        }
+
+        float ExecTick();
+        void ExecBeginPlay();
+
+        stringstream hieralcyToString();
+
+        friend ostream &operator<<(ostream &os, const Scene &go)
+        {
+            for (const auto &obj : go.objects)
+                os << obj.get() << endl;
+            return os;
+        }
+    };
+}

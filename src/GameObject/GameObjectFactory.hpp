@@ -7,18 +7,19 @@
 #include <functional>
 #include <nlohmann/json.hpp>
 
-// 前方宣言（GameObject クラスが未定義のため）
-class GameObject;
-
 using json = nlohmann::json;
 using namespace std;
+namespace REngine
+{
+    class GameObject;
+}
 
 /// @brief ランタイムでのクラス生成管理クラス
 class GameObjectFactory
 {
 public:
     /// @brief 一次的なエイリアス。名前と引数を受け取る関数型
-    using ObjectCreateFunc = function<unique_ptr<GameObject>(const string &, const json &)>;
+    using ObjectCreateFunc = function<unique_ptr<REngine::GameObject>(const string &, const json &)>;
 
     /// @brief クラス登録のためのマップを取得
     static unordered_map<string, ObjectCreateFunc> &getRegistry()
@@ -34,7 +35,7 @@ public:
     }
 
     /// @brief クラス名からオブジェクトを生成
-    static unique_ptr<GameObject> createObject(const string &className, const string &name, const json &params)
+    static unique_ptr<REngine::GameObject> createObject(const string &className, const string &name, const json &params)
     {
         auto &registry = getRegistry();
         if (registry.find(className) != registry.end())
