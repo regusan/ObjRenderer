@@ -25,11 +25,22 @@ namespace REngine
         Scene *sceneContext = nullptr;
         string name = "NULL";
         long uuid = 0;
+
+        weak_ptr<GameObject> parent;
+        vector<weak_ptr<GameObject>> children;
+
         GameObject(/* args */);
         virtual ~GameObject(); // Virtualにして動的型解析有効化
         virtual void Tick(float deltatime);
         virtual void BeginPlay();
         virtual void OnDestroyed();
+
+        // 親子系
+        virtual void SetParent(weak_ptr<GameObject> parent);
+        virtual void DettachParent();
+        virtual void AddChild(weak_ptr<GameObject> child);
+        virtual void DettachChild(weak_ptr<GameObject> child);
+
         string GetObjectName();
         void SetSpawnedScene(Scene *_scene);
         friend ostream &operator<<(ostream &os, const GameObject &go)

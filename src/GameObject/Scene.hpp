@@ -51,7 +51,7 @@ namespace REngine
             count++;
             return obj;
         }
-        void DestroyActor(weak_ptr<GameObject> obj);
+        void DestroyObject(weak_ptr<GameObject> obj);
 
         /// @brief Jsonからシーンを構築
         /// @param sceneJson

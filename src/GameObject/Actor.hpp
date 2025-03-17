@@ -14,9 +14,6 @@ namespace REngine
         virtual void matUpdate();
 
     public:
-        weak_ptr<Actor> parent;
-        vector<weak_ptr<Actor>> children;
-
         Vector3f location = Vector3f(0, 0, 0);
         Vector3f rotation = Vector3f(0, 0, 0);
         Vector3f scale = Vector3f(1, 1, 1);
@@ -24,13 +21,8 @@ namespace REngine
         virtual void SetPosition(Vector3f position);
         virtual void SetScale(Vector3f scale);
 
-        // 親子系
         virtual void SetParent(weak_ptr<Actor> parent);
         virtual void DettachParent();
-        virtual void AddChild(weak_ptr<Actor> child);
-        virtual void DettachChild(weak_ptr<Actor> child);
-
-        virtual void OnDestroyed() override;
 
         static json JsonArgParse(json args);
         Matrix4f getMat();

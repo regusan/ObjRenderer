@@ -3,10 +3,10 @@
 #include "GameObject.hpp"
 #include "Actor.hpp"
 
-using namespace REngine::Terminal;
 namespace REngine
 {
-    void Scene::DestroyActor(weak_ptr<GameObject> obj)
+    using namespace REngine::Terminal;
+    void Scene::DestroyObject(weak_ptr<GameObject> obj)
     {
         if (auto spobj = obj.lock())
         {
@@ -98,7 +98,7 @@ namespace REngine
         }
     }
 
-    stringstream actorHieralcyToString(weak_ptr<Actor> actor, int depth = 0)
+    stringstream objectHieralcyToString(weak_ptr<GameObject> actor, int depth = 0)
     {
         stringstream ss;
         auto wpActor = actor.lock();
@@ -112,7 +112,7 @@ namespace REngine
         ss << "├─" << C_RED << wpActor->name << C_RESET << "(" << C_BLUE << wpActor << C_RESET << ")" << endl;
         for (auto child : wpActor->children)
         {
-            ss << actorHieralcyToString(child, depth + 1).str();
+            ss << objectHieralcyToString(child, depth + 1).str();
         }
         return ss;
     }
@@ -143,7 +143,7 @@ namespace REngine
         {
             if (auto spactor = actor.lock())
                 if (!spactor->parent.lock())
-                    ss << actorHieralcyToString(actor, 1).str();
+                    ss << objectHieralcyToString(actor, 1).str();
         }
         return ss;
     }

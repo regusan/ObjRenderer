@@ -35,50 +35,28 @@ namespace REngine
     void Actor::matUpdate()
     {
         this->mat = MakeMatOffset(this->location) * MakeMatScale(this->scale) * MakeRotMatZ(this->rotation.z()) * MakeRotMatX(this->rotation.x()) * MakeRotMatY(this->rotation.y());
-        if (auto locked = parent.lock())
-            this->mat = locked->mat * this->mat;
-        for (auto child : this->children)
+        if (auto actor = dynamic_pointer_cast<Actor>(parent.lock()))
+            this->mat = actor->mat * this->mat;
+        for (auto child : children)
         {
-            if (auto locked = child.lock())
-                locked->matUpdate();
+            if (auto actor = dynamic_pointer_cast<Actor>(child.lock()))
+                actor->matUpdate();
         }
-    }
-    void Actor::SetParent(weak_ptr<Actor> parent)
-    {
-        this->parent = parent;
-        this->matUpdate();
-    }
-    void Actor::DettachParent()
-    {
-        this->parent.reset();
-        this->matUpdate();
-    }
-    void Actor::AddChild(weak_ptr<Actor> child)
-    {
-        this->children.push_back(child);
-        if (auto locked = child.lock())
-            locked->SetParent(dynamic_pointer_cast<Actor>(this->shared_from_this()));
-    }
-    void Actor::DettachChild(weak_ptr<Actor> child)
-    {
-        for (size_t i = 0; i < this->children.size(); i++)
-        {
-            if (this->children[i].lock() == child.lock())
-            {
-                this->children.erase(this->children.begin() + i);
-                return;
-            }
-        }
-    }
-
-    void Actor::OnDestroyed()
-    {
-        for (auto child : this->children)
-            this->sceneContext->DestroyActor(child);
     }
 
     Matrix4f Actor::getMat()
     {
         return this->mat;
+    }
+
+    void Actor::SetParent(weak_ptr<Actor> parent)
+    {
+        GameObject::SetParent(parent);
+        this->matUpdate();
+    }
+    void Actor::DettachParent()
+    {
+        GameObject::DettachParent();
+        this->matUpdate();
     }
 }
