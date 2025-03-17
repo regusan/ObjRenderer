@@ -7,45 +7,45 @@
 #include <functional>
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
-using namespace std;
 namespace REngine
 {
     class GameObject;
-}
+    using json = nlohmann::json;
+    using namespace std;
 
-/// @brief ランタイムでのクラス生成管理クラス
-class GameObjectFactory
-{
-public:
-    /// @brief 一次的なエイリアス。名前と引数を受け取る関数型
-    using ObjectCreateFunc = function<unique_ptr<REngine::GameObject>(const string &, const json &)>;
-
-    /// @brief クラス登録のためのマップを取得
-    static unordered_map<string, ObjectCreateFunc> &getRegistry()
+    /// @brief ランタイムでのクラス生成管理クラス
+    class GameObjectFactory
     {
-        static unordered_map<string, ObjectCreateFunc> registry;
-        return registry;
-    }
+    public:
+        /// @brief 一次的なエイリアス。名前と引数を受け取る関数型
+        using ObjectCreateFunc = function<unique_ptr<REngine::GameObject>(const string &, const json &)>;
 
-    /// @brief クラスをファクトリに登録
-    static void registerObject(const string &className, ObjectCreateFunc createFunc)
-    {
-        getRegistry()[className] = move(createFunc);
-    }
-
-    /// @brief クラス名からオブジェクトを生成
-    static unique_ptr<REngine::GameObject> createObject(const string &className, const string &name, const json &params)
-    {
-        auto &registry = getRegistry();
-        if (registry.find(className) != registry.end())
+        /// @brief クラス登録のためのマップを取得
+        static unordered_map<string, ObjectCreateFunc> &getRegistry()
         {
-            return registry[className](name, params);
+            static unordered_map<string, ObjectCreateFunc> registry;
+            return registry;
         }
-        cerr << "Error: Unknown class type '" << className << "'\n";
-        return nullptr;
-    }
-};
+
+        /// @brief クラスをファクトリに登録
+        static void registerObject(const string &className, ObjectCreateFunc createFunc)
+        {
+            getRegistry()[className] = move(createFunc);
+        }
+
+        /// @brief クラス名からオブジェクトを生成
+        static unique_ptr<REngine::GameObject> createObject(const string &className, const string &name, const json &params)
+        {
+            auto &registry = getRegistry();
+            if (registry.find(className) != registry.end())
+            {
+                return registry[className](name, params);
+            }
+            cerr << "Error: Unknown class type '" << className << "'\n";
+            return nullptr;
+        }
+    };
+}
 
 // 指定型クラスについて、文字列での生成に対応させるマクロ。引き数Json。
 #define GCLASS(ClassType)                                                                               \

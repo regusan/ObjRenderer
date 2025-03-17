@@ -2,7 +2,6 @@
 
 #include "PointLightActor.hpp"
 #include "../../header/RenderingHeader.hpp"
-using namespace Transform;
 namespace REngine::Light
 {
     /// @brief エリアライトのクラス

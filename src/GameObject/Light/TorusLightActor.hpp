@@ -5,8 +5,6 @@
 
 namespace REngine::Light
 {
-    using namespace Transform;
-
     /// @brief ポイントライトのクラス
     class TorusLightActor : public LightBaseActor
     {

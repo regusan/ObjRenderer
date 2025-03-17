@@ -15,11 +15,13 @@
 // Factory を最後にする
 #include "GameObjectFactory.hpp"
 
-using namespace std;
-
 namespace REngine
 {
+    using namespace std;
+
+    // 先方宣言
     class GameObject;
+
     /// @brief シーン管理クラス
     class Scene
     {

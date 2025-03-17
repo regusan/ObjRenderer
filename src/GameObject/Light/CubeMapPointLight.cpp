@@ -1,7 +1,6 @@
 #include "CubeMapPointLight.hpp"
 namespace REngine::Light
 {
-    using namespace REngine;
     Vector3f CubeMapPointLight::lightSDF(const Vector3f &positionWS, const Vector3f &normalWS)
     {
         if (!this->map)

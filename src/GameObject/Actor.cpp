@@ -2,6 +2,7 @@
 
 namespace REngine
 {
+    using namespace Transform;
     Actor::Actor(/* args */) {}
     Actor::Actor(json args)
     {

@@ -4,8 +4,6 @@
 #include "../../header/RenderingHeader.hpp"
 namespace REngine::Light
 {
-    using namespace Transform;
-
     /// @brief ポイントライトのクラス
     class RandomWalkPointLightActor : public PointLightActor
     {

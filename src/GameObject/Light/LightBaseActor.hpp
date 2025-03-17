@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../Actor.hpp"
-using namespace Transform;
 namespace REngine::Light
 {
+    using namespace Transform;
     /// @brief ライトにまつわる仮想クラス
     class LightBaseActor : public Actor
     {

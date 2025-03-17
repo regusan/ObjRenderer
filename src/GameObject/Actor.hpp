@@ -4,8 +4,6 @@
 #include "Scene.hpp"
 #include "../header/EigenHeader.hpp"
 #include "../header/MathHeader.hpp"
-using namespace Transform;
-
 namespace REngine
 {
     /// @brief シーン上に配置されるオブジェクト

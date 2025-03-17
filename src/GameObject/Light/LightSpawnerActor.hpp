@@ -5,8 +5,6 @@
 #include "RandomWalkPointLightActor.hpp"
 namespace REngine::Light
 {
-    using namespace Transform;
-
     /// @brief ライトをランダムにスポーンする
     class LightSpawnActor : public Actor
     {

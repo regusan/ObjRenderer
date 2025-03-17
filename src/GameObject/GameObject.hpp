@@ -11,10 +11,10 @@
 #include "../Engine/Input/InputEvent.hpp"
 #include "../Engine/Input/InputSubSystem.hpp"
 
-using namespace std;
-
+using json = nlohmann::json;
 namespace REngine
 {
+    using namespace std;
     // 前方宣言
     class Scene;
     /// @brief エンジン上で管理されるオブジェクト
