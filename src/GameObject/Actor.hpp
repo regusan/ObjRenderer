@@ -7,6 +7,7 @@
 namespace REngine
 {
     using namespace REngine::Input;
+    using REngine::Component::ActorComponent;
     /// @brief シーン上に配置されるオブジェクト
     class Actor : public GameObject
     {
@@ -18,7 +19,7 @@ namespace REngine
     public:
         weak_ptr<Actor> parent;
         vector<weak_ptr<Actor>> children;
-        vector<weak_ptr<Component>> components;
+        vector<weak_ptr<ActorComponent>> components;
 
         Vector3f location = Vector3f(0, 0, 0);
         Vector3f rotation = Vector3f(0, 0, 0);
@@ -62,10 +63,10 @@ namespace REngine
         //============コンポーネント系===============
         /// @brief コンポーネントを追加する
         /// @param component
-        virtual void AddComponent(weak_ptr<Component> component);
+        virtual void AddComponent(weak_ptr<ActorComponent> component);
         /// @brief コンポーネントを削除する
         /// @param component
-        virtual void RemoveComponent(weak_ptr<Component> component);
+        virtual void RemoveComponent(weak_ptr<ActorComponent> component);
 
         static json JsonArgParse(json args);
         Matrix4f getWorldMat() const;

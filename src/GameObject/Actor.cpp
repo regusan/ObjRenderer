@@ -1,4 +1,5 @@
 #include "Actor.hpp"
+#include "Component/ActorComponent.hpp"
 
 namespace REngine
 {
@@ -172,18 +173,21 @@ namespace REngine
         }
     }
 
-    void Actor::AddComponent(weak_ptr<Component> component)
+    void Actor::AddComponent(weak_ptr<ActorComponent> component)
     {
         this->components.push_back(component);
+        if (auto lockedComponent = component.lock())
+            lockedComponent->SetOwner(static_pointer_cast<Actor>(this->shared_from_this()));
     }
 
-    void Actor::RemoveComponent(weak_ptr<Component> component)
+    void Actor::RemoveComponent(weak_ptr<ActorComponent> component)
     {
         for (size_t i = 0; i < this->components.size(); i++)
         {
             if (this->components[i].lock() == component.lock())
             {
                 this->components.erase(this->components.begin() + i);
+                this->sceneContext->DestroyObject(component);
                 return;
             }
         }

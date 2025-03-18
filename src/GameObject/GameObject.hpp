@@ -12,6 +12,10 @@
 #include "../Engine/Input/InputSubSystem.hpp"
 
 using json = nlohmann::json;
+namespace REngine::Component
+{
+    class ActorComponent;
+}
 namespace REngine
 {
     using namespace std;
@@ -20,7 +24,6 @@ namespace REngine
     // 前方宣言
     class Scene;
     class GameObject;
-    class Component;
     /// @brief エンジン上で管理されるオブジェクト
     class GameObject : public enable_shared_from_this<GameObject>
     {
