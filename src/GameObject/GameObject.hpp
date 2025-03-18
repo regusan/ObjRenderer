@@ -15,6 +15,8 @@ using json = nlohmann::json;
 namespace REngine
 {
     using namespace std;
+    using namespace REngine::Terminal;
+    using namespace REngine::Input;
     // 前方宣言
     class Scene;
     /// @brief エンジン上で管理されるオブジェクト
@@ -43,9 +45,12 @@ namespace REngine
 
         string GetObjectName();
         void SetSpawnedScene(Scene *_scene);
+
+        virtual void toString(ostream &os) const;
+
         friend ostream &operator<<(ostream &os, const GameObject &go)
         {
-            os << "GameObject:" << go.name << "(" << go.uuid << ")" << endl;
+            go.toString(os);
             return os;
         }
     };

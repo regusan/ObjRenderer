@@ -56,4 +56,9 @@ namespace REngine
     {
         return this->name;
     }
+
+    void GameObject::toString(ostream &os) const
+    {
+        os << C_RED << name << C_RESET << "(" << C_BLUE << shared_from_this() << C_RESET << ")";
+    }
 }

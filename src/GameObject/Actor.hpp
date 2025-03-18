@@ -6,6 +6,7 @@
 #include "../header/MathHeader.hpp"
 namespace REngine
 {
+    using namespace REngine::Input;
     /// @brief シーン上に配置されるオブジェクト
     class Actor : public GameObject
     {

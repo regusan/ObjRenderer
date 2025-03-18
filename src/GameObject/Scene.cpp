@@ -98,19 +98,19 @@ namespace REngine
         }
     }
 
-    stringstream objectHieralcyToString(weak_ptr<GameObject> actor, int depth = 0)
+    stringstream objectHieralcyToString(weak_ptr<GameObject> gameobjects, int depth = 0)
     {
         stringstream ss;
-        auto wpActor = actor.lock();
-        if (!wpActor)
+        auto unlocked = gameobjects.lock();
+        if (!unlocked)
             return ss;
 
         for (int i = 0; i < depth; i++)
         {
             ss << "│\t";
         }
-        ss << "├─" << C_RED << wpActor->name << C_RESET << "(" << C_BLUE << wpActor << C_RESET << ")" << endl;
-        for (auto child : wpActor->children)
+        ss << "├─" << *unlocked << endl;
+        for (auto child : unlocked->children)
         {
             ss << objectHieralcyToString(child, depth + 1).str();
         }
@@ -121,29 +121,18 @@ namespace REngine
     {
         stringstream ss;
 
-        auto actors = this->GetObjectsOfClass<Actor>();
         auto gameobjects = this->GetObjectsOfClass<GameObject>();
-        ss << C_YELLOW << "Scene:" << C_CYAN << actors.size() << C_RESET << endl;
+        ss << C_YELLOW << "Scene:" << C_CYAN << gameobjects.size() << C_RESET << endl;
         ss << "├─" << C_YELLOW << "Timers:" << C_CYAN << timeManager.GetAllTimers().size() << C_RESET;
         ss << "(" << C_CYAN << std::fixed << std::setprecision(3) << this->timeManager.GetDeltatime() << C_RESET << "ms:";
         ss << C_CYAN << std::fixed << std::setprecision(3) << 1.0f / this->timeManager.GetDeltatime() << C_RESET << "fps)" << endl;
-        ss << "├─" << C_YELLOW << "GameObjects(System):" << C_CYAN << gameobjects.size() - actors.size() << C_RESET << endl;
-        for (auto gameobject : gameobjects)
+
+        ss << "├─" << C_YELLOW << "GameObjects:" << C_CYAN << gameobjects.size() << C_RESET << endl;
+        for (auto &obj : gameobjects)
         {
-            if (auto spGameObject = gameobject.lock())
-            {
-                if (!dynamic_pointer_cast<Actor>(spGameObject))
-                {
-                    ss << "|" << C_RED << spGameObject->name << C_RESET << endl;
-                }
-            }
-        }
-        ss << "├─" << C_YELLOW << "Actors:" << C_CYAN << gameobjects.size() - actors.size() << C_RESET << endl;
-        for (auto &actor : actors)
-        {
-            if (auto spactor = actor.lock())
-                if (!spactor->parent.lock())
-                    ss << objectHieralcyToString(actor, 1).str();
+            if (auto unlocked = obj.lock())
+                if (!unlocked->parent.lock())
+                    ss << objectHieralcyToString(unlocked, 1).str();
         }
         return ss;
     }

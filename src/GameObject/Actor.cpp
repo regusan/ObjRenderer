@@ -80,11 +80,9 @@ namespace REngine
 
     Vector3f Actor::GetWorldRotation() const
     {
-        Matrix3f rotationMatrix = Affine3f(this->getWorldMat()).linear();
-        rotationMatrix.col(0).normalize();
-        rotationMatrix.col(1).normalize();
-        rotationMatrix.col(2).normalize();
-        return rotationMatrix.eulerAngles(1, 0, 2); // YXZ順でオイラー角に変換
+        if (auto actor = dynamic_pointer_cast<Actor>(parent.lock()))
+            return this->rotation + actor->GetWorldRotation();
+        return this->rotation;
     }
 
     Vector3f Actor::GetWorldPosition() const
@@ -103,7 +101,7 @@ namespace REngine
         localRotationMatrix.col(0).normalize();
         localRotationMatrix.col(1).normalize();
         localRotationMatrix.col(2).normalize();
-        return localRotationMatrix.eulerAngles(2, 0, 1);
+        return localRotationMatrix.eulerAngles(2, 0, 1) * 180 / M_PI; // YXZ順でオイラー角に変換
     }
 
     Vector3f Actor::GetLocalPosition() const
