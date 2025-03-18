@@ -46,6 +46,7 @@ namespace REngine
             {
                 obj->SetSpawnedScene(this);
                 obj->name = actorName;
+                obj->uuid = rand();
                 objects.push_back(move(obj));
             }
         }
@@ -98,7 +99,7 @@ namespace REngine
         }
     }
 
-    stringstream objectHieralcyToString(weak_ptr<GameObject> gameobjects, int depth = 0)
+    stringstream objectHieralcyToString(weak_ptr<Actor> gameobjects, int depth = 0)
     {
         stringstream ss;
         auto unlocked = gameobjects.lock();
@@ -122,15 +123,16 @@ namespace REngine
         stringstream ss;
 
         auto gameobjects = this->GetObjectsOfClass<GameObject>();
+        auto actors = this->GetObjectsOfClass<Actor>();
         ss << C_YELLOW << "Scene:" << C_CYAN << gameobjects.size() << C_RESET << endl;
         ss << "├─" << C_YELLOW << "Timers:" << C_CYAN << timeManager.GetAllTimers().size() << C_RESET;
         ss << "(" << C_CYAN << std::fixed << std::setprecision(3) << this->timeManager.GetDeltatime() << C_RESET << "ms:";
         ss << C_CYAN << std::fixed << std::setprecision(3) << 1.0f / this->timeManager.GetDeltatime() << C_RESET << "fps)" << endl;
 
         ss << "├─" << C_YELLOW << "GameObjects:" << C_CYAN << gameobjects.size() << C_RESET << endl;
-        for (auto &obj : gameobjects)
+        for (auto &actor : actors)
         {
-            if (auto unlocked = obj.lock())
+            if (auto unlocked = actor.lock())
                 if (!unlocked->parent.lock())
                     ss << objectHieralcyToString(unlocked, 1).str();
         }

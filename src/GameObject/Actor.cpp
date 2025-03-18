@@ -15,6 +15,11 @@ namespace REngine
         this->matUpdate();
     }
     Actor::~Actor() {}
+    void Actor::OnDestroyed()
+    {
+        for (auto child : this->children)
+            this->sceneContext->DestroyObject(child);
+    }
 
     // Transform系
     void Actor::SetLocalRotation(Vector3f rotate)
@@ -80,7 +85,7 @@ namespace REngine
 
     Vector3f Actor::GetWorldRotation() const
     {
-        if (auto actor = dynamic_pointer_cast<Actor>(parent.lock()))
+        if (auto actor = parent.lock())
             return this->rotation + actor->GetWorldRotation();
         return this->rotation;
     }
@@ -123,12 +128,14 @@ namespace REngine
              AngleAxisf(this->rotation.x() * M_PI / 180.0f, Vector3f::UnitX()) *
              AngleAxisf(this->rotation.z() * M_PI / 180.0f, Vector3f::UnitZ()))
                 .matrix();
-        if (auto actor = dynamic_pointer_cast<Actor>(parent.lock()))
-            this->worldMatrix = actor->localMatrix * this->worldMatrix;
+        if (auto actor = parent.lock())
+            this->worldMatrix = actor->worldMatrix * this->worldMatrix;
         for (auto child : children)
         {
-            if (auto actor = dynamic_pointer_cast<Actor>(child.lock()))
+            if (auto actor = child.lock())
+            {
                 actor->matUpdate();
+            }
         }
     }
 
@@ -139,12 +146,46 @@ namespace REngine
 
     void Actor::SetParent(weak_ptr<Actor> parent)
     {
-        GameObject::SetParent(parent);
+        this->parent = parent;
         this->matUpdate();
     }
     void Actor::DettachParent()
     {
-        GameObject::DettachParent();
+        this->parent.reset();
         this->matUpdate();
+    }
+    void Actor::AddChild(weak_ptr<Actor> child)
+    {
+        this->children.push_back(child);
+        if (auto lockedChild = child.lock())
+            lockedChild->SetParent(static_pointer_cast<Actor>(this->shared_from_this()));
+    }
+    void Actor::DettachChild(weak_ptr<Actor> child)
+    {
+        for (size_t i = 0; i < this->children.size(); i++)
+        {
+            if (this->children[i].lock() == child.lock())
+            {
+                this->children.erase(this->children.begin() + i);
+                return;
+            }
+        }
+    }
+
+    void Actor::AddComponent(weak_ptr<Component> component)
+    {
+        this->components.push_back(component);
+    }
+
+    void Actor::RemoveComponent(weak_ptr<Component> component)
+    {
+        for (size_t i = 0; i < this->components.size(); i++)
+        {
+            if (this->components[i].lock() == component.lock())
+            {
+                this->components.erase(this->components.begin() + i);
+                return;
+            }
+        }
     }
 }

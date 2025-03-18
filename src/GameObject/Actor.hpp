@@ -16,9 +16,15 @@ namespace REngine
         virtual void matUpdate();
 
     public:
+        weak_ptr<Actor> parent;
+        vector<weak_ptr<Actor>> children;
+        vector<weak_ptr<Component>> components;
+
         Vector3f location = Vector3f(0, 0, 0);
         Vector3f rotation = Vector3f(0, 0, 0);
         Vector3f scale = Vector3f(1, 1, 1);
+
+        void OnDestroyed();
 
         virtual void SetLocalRotation(Vector3f rotate);
         virtual void SetLocalPosition(Vector3f position);
@@ -37,8 +43,29 @@ namespace REngine
         virtual Vector3f GetLocalPosition() const;
         virtual Vector3f GetLocalScale() const;
 
+        // ==========親子系===================-
+        /// @brief 自身の親を設定
+        /// @param parent
         virtual void SetParent(weak_ptr<Actor> parent);
+
+        /// @brief 自身の親から切り離す
         virtual void DettachParent();
+
+        /// @brief オブジェクトを子供にする
+        /// @param child
+        virtual void AddChild(weak_ptr<Actor> child);
+
+        /// @brief 子供オブジェクトの親子関係を解除する
+        /// @param child
+        virtual void DettachChild(weak_ptr<Actor> child);
+
+        //============コンポーネント系===============
+        /// @brief コンポーネントを追加する
+        /// @param component
+        virtual void AddComponent(weak_ptr<Component> component);
+        /// @brief コンポーネントを削除する
+        /// @param component
+        virtual void RemoveComponent(weak_ptr<Component> component);
 
         static json JsonArgParse(json args);
         Matrix4f getWorldMat() const;

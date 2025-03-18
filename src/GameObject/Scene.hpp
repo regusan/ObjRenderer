@@ -45,6 +45,7 @@ namespace REngine
             stringstream ss;
             ss << typeid(T).name() << "_" << count;
             obj->name = ss.str();
+            obj->uuid = rand();
             obj->SetSpawnedScene(this);
             obj->BeginPlay();
             objects.push_back(obj);
@@ -70,11 +71,12 @@ namespace REngine
             vector<weak_ptr<T>> retval;
             for (auto obj : this->objects)
             {
-                if (obj)
+                if (auto casted = dynamic_pointer_cast<T>(obj))
                 {
-                    auto casted = dynamic_pointer_cast<T>(obj);
                     if (casted)
+                    {
                         retval.emplace_back(casted);
+                    }
                 }
             }
             return retval;
