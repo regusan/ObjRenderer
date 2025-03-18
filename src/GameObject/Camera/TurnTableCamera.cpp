@@ -15,7 +15,8 @@ namespace REngine
     }
     void TurnTableCamera::matUpdate()
     {
-        this->mat = MakeMatOffset(Vector3f(0, 0, this->radius)) * MakeRotMatX(this->rotation.z()) * MakeRotMatY(this->rotation.y()) * MakeMatOffset(this->location);
+        FPSCamera::matUpdate();
+        this->worldMatrix = this->worldMatrix * Affine3f(Translation3f(Vector3f(0, 0, -this->radius))).matrix();
     }
     void TurnTableCamera::Tick(float deltatime)
     {

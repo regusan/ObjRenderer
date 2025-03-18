@@ -16,14 +16,14 @@ namespace REngine::Light
         estTime += deltatime;
         float t = estTime;
         Vector3f offset = Vector3f(sin(t * freq.x()), 0, cos(t * freq.z())) * radius * 1;
-        this->SetPosition(this->origin + offset);
+        this->SetLocalPosition(this->origin + offset);
     }
 
     RandomWalkPointLightActor::RandomWalkPointLightActor(Vector3f pos, float radius, Vector3f color) : RandomWalkPointLightActor()
     {
         this->color = color;
         this->radius = radius;
-        this->SetPosition(pos);
+        this->SetLocalPosition(pos);
         this->origin = pos;
     }
     void RandomWalkPointLightActor::BeginPlay()

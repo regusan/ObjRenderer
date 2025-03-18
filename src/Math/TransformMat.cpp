@@ -4,35 +4,20 @@ namespace Transform
 
     Matrix4f MakeRotMatX(const float &degree)
     {
-        float th = degree / 180.0 * M_PI;
-        Matrix4f retval = Matrix4f();
-
-        retval << 1, 0, 0, 0,
-            0, cos(th), -sin(th), 0,
-            0, sin(th), cos(th), 0,
-            0, 0, 0, 1;
-
-        return retval;
+        float rad = degree * M_PI / 180.0f;
+        return Affine3f(AngleAxisf(rad, Vector3f::UnitX())).matrix();
     }
+
     Matrix4f MakeRotMatY(const float &degree)
     {
-        float th = degree / 180.0 * M_PI;
-        Matrix4f retval = Matrix4f();
-        retval << cos(th), 0, sin(th), 0,
-            0, 1, 0, 0,
-            -sin(th), 0, cos(th), 0,
-            0, 0, 0, 1;
-        return retval;
+        float rad = degree * M_PI / 180.0f;
+        return Affine3f(AngleAxisf(rad, Vector3f::UnitY())).matrix();
     }
+
     Matrix4f MakeRotMatZ(const float &degree)
     {
-        float th = degree / 180.0 * M_PI;
-        Matrix4f retval = Matrix4f();
-        retval << cos(th), -sin(th), 0, 0,
-            sin(th), cos(th), 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1;
-        return retval;
+        float rad = degree * M_PI / 180.0f;
+        return Affine3f(AngleAxisf(rad, Vector3f::UnitZ())).matrix();
     }
     Matrix4f MakeRotMat(const Vector3f &rotaiton)
     {
@@ -40,27 +25,30 @@ namespace Transform
     }
     Matrix4f MakeMatOffset(const Vector3f &offset)
     {
-        Matrix4f retval = Matrix4f();
-        retval << 1, 0, 0, offset.x(),
-            0, 1, 0, offset.y(),
-            0, 0, 1, offset.z(),
-            0, 0, 0, 1;
-        return retval;
+        return Affine3f(Translation3f(offset)).matrix();
     }
     Matrix4f MakeMatScale(const Vector3f &scale)
     {
-        Matrix4f retval = Matrix4f();
-        retval << scale.x(), 0, 0, 0,
-            0, scale.y(), 0, 0,
-            0, 0, scale.z(), 0,
-            0, 0, 0, 1;
-        return retval;
+        return Eigen::Affine3f(Eigen::Scaling(scale)).matrix();
     }
 
     Vector4f GetPositionFromMat(const Matrix4f &mat)
     {
         return Vector4f(mat(0, 3), mat(1, 3), mat(2, 3), 1);
     }
+
+    Vector3f GetScaleFromMat(const Matrix4f &mat)
+    {
+        return Vector3f(mat.block<3, 3>(0, 0).colwise().norm());
+    }
+    /*
+        Matrix4f GetRotationFromMat(const Matrix4f &mat)
+        {
+            Matrix3f rotation = mat.block<3, 3>(0, 0);
+            Vector3f scale = GetScaleFromMat(mat);
+            return rotation.array().colwise() / scale.array(); // スケールを除去
+        }
+        */
     Matrix4f ResetScale(const Matrix4f &mat)
     {
 

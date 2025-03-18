@@ -10,22 +10,37 @@ namespace REngine
     class Actor : public GameObject
     {
     protected:
-        Matrix4f mat = Matrix4f::Identity();
+        Matrix4f worldMatrix = Matrix4f::Identity();
+        Matrix4f localMatrix = Matrix4f::Identity();
         virtual void matUpdate();
 
     public:
         Vector3f location = Vector3f(0, 0, 0);
         Vector3f rotation = Vector3f(0, 0, 0);
         Vector3f scale = Vector3f(1, 1, 1);
-        virtual void SetRotation(Vector3f rotate);
-        virtual void SetPosition(Vector3f position);
-        virtual void SetScale(Vector3f scale);
+
+        virtual void SetLocalRotation(Vector3f rotate);
+        virtual void SetLocalPosition(Vector3f position);
+        virtual void SetLocalScale(Vector3f scale);
+
+        /*
+        virtual void SetWorldRotation(Vector3f rotate);
+        virtual void SetWorldPosition(Vector3f position);
+        virtual void SetWorldScale(Vector3f scale);
+        */
+
+        virtual Vector3f GetWorldRotation() const;
+        virtual Vector3f GetWorldPosition() const;
+        virtual Vector3f GetWorldScale() const;
+        virtual Vector3f GetLocalRotation() const;
+        virtual Vector3f GetLocalPosition() const;
+        virtual Vector3f GetLocalScale() const;
 
         virtual void SetParent(weak_ptr<Actor> parent);
         virtual void DettachParent();
 
         static json JsonArgParse(json args);
-        Matrix4f getMat();
+        Matrix4f getWorldMat() const;
         Actor(/* args */);
         Actor(json args);
         ~Actor();

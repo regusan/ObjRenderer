@@ -9,7 +9,7 @@ namespace REngine::Light
         }
         Vector3f light2PosDir = (this->location - positionWS).normalized();
         Vector4f light2PosDir4f = Vector4f(light2PosDir.x(), light2PosDir.y(), light2PosDir.z(), 1);
-        Vector4f dirWS = Transform::ResetScale(Transform::ResetPosition(this->getMat())) * light2PosDir4f;
+        Vector4f dirWS = Transform::ResetScale(Transform::ResetPosition(this->getWorldMat())) * light2PosDir4f;
         Vector2f uv = TextureMath::UVMod1(TextureMath::RectangularToPolarUV(dirWS.head<3>()));
         return PointLightActor::lightSDF(positionWS, normalWS).array() * map->SampleColor01(uv.x(), uv.y()).array();
     }

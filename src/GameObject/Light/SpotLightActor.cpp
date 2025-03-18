@@ -4,7 +4,7 @@ namespace REngine::Light
     Vector3f SpotLightActor::lightSDF(const Vector3f &positionWS, const Vector3f &normalWS)
     {
         // 球状に、かつ光源方向を向いている面を明るくする
-        Vector3f normal = Transform::GetForwardVector(this->getMat()).head<3>();
+        Vector3f normal = Transform::GetForwardVector(this->getWorldMat()).head<3>();
 
         Vector3f light2PosDir = (this->location - positionWS).normalized();
         float angleRate = this->angle / 180;

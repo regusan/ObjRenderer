@@ -17,3 +17,10 @@ using Eigen::Vector4f;
 using Eigen::Vector4i;
 
 using Eigen::VectorXf;
+
+using Eigen::Affine3f;
+using Eigen::AngleAxisf;
+using Eigen::Isometry3f;
+using Eigen::Quaternionf;
+using Eigen::Scaling;
+using Eigen::Translation3f;

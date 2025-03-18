@@ -4,7 +4,7 @@ namespace REngine::Light
     Vector3f AreaLightActor::lightSDF(const Vector3f &positionWS, const Vector3f &normalWS)
     {
         // 原点中心でX-Z面に投影するボックスライトで考えるため、入力posとnormをオブジェクトスペースへ変換
-        Matrix4f invModelMat = this->getMat().inverse();
+        Matrix4f invModelMat = this->getWorldMat().inverse();
         Vector4f positionWS4 = Vector4f(positionWS.x(), positionWS.y(), positionWS.z(), 1);
         Vector3f positionOS = (invModelMat * positionWS4).head<3>();
         Vector3f normalOS = (invModelMat.block<3, 3>(0, 0) * normalWS).normalized(); // 3x3で位置情報を削除

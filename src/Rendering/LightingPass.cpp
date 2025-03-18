@@ -36,7 +36,7 @@ namespace RenderingPass
         for (auto light : environment.lights)
         {
             lightBoundData lightBound;
-            Vector4f posOS = light->getMat().col(3);
+            Vector4f posOS = light->getWorldMat().col(3);
             posOS.w() = 1;
             Vector4f posVS = environment.viewMat * posOS;
 

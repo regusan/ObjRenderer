@@ -13,24 +13,25 @@ FPSCamera::~FPSCamera()
 
 void FPSCamera::matUpdate()
 {
-    this->mat = MakeRotMatX(this->rotation.z()) * MakeRotMatY(this->rotation.y()) * MakeMatOffset(this->location);
+    Actor::matUpdate();
+    return;
 }
 
 void FPSCamera::Tick(float deltatime)
 {
     InputSubSystem &input = InputSubSystem::getInstance();
     if (input.GetKeyStatus(KeyID::W).isHeld)
-        SetPosition(this->location - GetForwardVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
+        SetLocalPosition(this->location + GetForwardVector(this->worldMatrix.inverse()).head<3>() * this->speed * deltatime);
     if (input.GetKeyStatus(KeyID::S).isHeld)
-        SetPosition(this->location + GetForwardVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
+        SetLocalPosition(this->location - GetForwardVector(this->worldMatrix.inverse()).head<3>() * this->speed * deltatime);
     if (input.GetKeyStatus(KeyID::A).isHeld)
-        SetPosition(this->location + GetRightVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
+        SetLocalPosition(this->location - GetRightVector(this->worldMatrix.inverse()).head<3>() * this->speed * deltatime);
     if (input.GetKeyStatus(KeyID::D).isHeld)
-        SetPosition(this->location - GetRightVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
+        SetLocalPosition(this->location + GetRightVector(this->worldMatrix.inverse()).head<3>() * this->speed * deltatime);
     if (input.GetKeyStatus(KeyID::E).isHeld)
-        SetPosition(this->location + GetUpVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
+        SetLocalPosition(this->location - GetUpVector(this->worldMatrix.inverse()).head<3>() * this->speed * deltatime);
     if (input.GetKeyStatus(KeyID::Q).isHeld)
-        SetPosition(this->location - GetUpVector(this->mat.inverse()).head<3>() * this->speed * deltatime);
+        SetLocalPosition(this->location + GetUpVector(this->worldMatrix.inverse()).head<3>() * this->speed * deltatime);
 
-    this->SetRotation(Vector3f(0, input.axisState.position.x(), input.axisState.position.y()));
+    this->SetLocalRotation(Vector3f(-input.axisState.position.y(), -input.axisState.position.x(), 0));
 }

@@ -95,7 +95,7 @@ int main(int argc, char const *argv[])
         // 初めに取得したカメラでレンダリング設定
         if (primaryCamera)
         {
-            environment.viewMat = in.viewMat = primaryCamera->getMat();
+            environment.viewMat = in.viewMat = primaryCamera->getWorldMat().inverse();
             primaryCamera->speed = environment.cameraSpeed;
         }
         // カメラがなかったら取得を試みる
@@ -126,7 +126,7 @@ int main(int argc, char const *argv[])
             {
                 if (auto sp = mesh.lock())
                 {
-                    in.modelMat = sp->getMat();
+                    in.modelMat = sp->getWorldMat();
                     RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, gb, VertStandard, PixcelStandard);
                 }
             }
@@ -158,7 +158,7 @@ int main(int argc, char const *argv[])
             {
                 if (auto sp = mesh.lock())
                 {
-                    in.modelMat = sp->getMat();
+                    in.modelMat = sp->getWorldMat();
                     RenderingPipeline::Forward::ExecWireFramePass(*sp->meshModel, in, gb, VertStandard);
                 }
             }
@@ -175,7 +175,7 @@ int main(int argc, char const *argv[])
         // イベント更新
         InputSubSystem::getInstance().axisState.UpdateAxisState(scene.timeManager.GetDeltatime(), Vector3f(display.GetMousePos().x(), display.GetMousePos().y(), 0));
         InputSubSystem::getInstance().UpdateKeyStatus(scene.timeManager.GetDeltatime(), X11Event2REvent(display.GetDisplay()));
-        cout << InputSubSystem::getInstance() << endl;
+        // cout << InputSubSystem::getInstance() << endl;
         if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Enter).isHeld)
         {
             environment.loadFromJson(JsonOpener(configFileName));
@@ -279,7 +279,7 @@ void TakeHiResSnapShot()
     {
         if (auto sp = mesh.lock())
         {
-            in.modelMat = sp->getMat();
+            in.modelMat = sp->getWorldMat();
             RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, prehigb, VertStandard, PixcelStandard);
         }
     }
@@ -293,7 +293,7 @@ void TakeHiResSnapShot()
     {
         if (auto sp = mesh.lock())
         {
-            in.modelMat = sp->getMat();
+            in.modelMat = sp->getWorldMat();
             RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, higb, VertStandard, PixcelStandard);
         }
     }

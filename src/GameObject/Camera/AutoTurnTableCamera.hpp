@@ -15,7 +15,7 @@ namespace REngine
         ~AutoTurnTableCamera();
 
         void Tick(float deltatime) override;
-        void SetRotation(Vector3f rotation) override;
+        void SetLocalRotation(Vector3f rotation) override;
     };
     GCLASS(AutoTurnTableCamera)
 }

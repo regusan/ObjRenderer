@@ -11,8 +11,8 @@ namespace REngine
         rotaitonOffset += Vector3f(0, deltatime * 10, 0);
     };
 
-    void AutoTurnTableCamera::SetRotation(Vector3f rotation)
+    void AutoTurnTableCamera::SetLocalRotation(Vector3f rotation)
     {
-        TurnTableCamera::SetRotation(rotation + rotaitonOffset);
+        TurnTableCamera::SetLocalRotation(rotation + rotaitonOffset);
     }
 }
