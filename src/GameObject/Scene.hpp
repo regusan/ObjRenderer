@@ -26,12 +26,13 @@ namespace REngine
     class Scene
     {
     protected:
-        list<shared_ptr<GameObject>> objects;
-        FileWatcher fileWatcher;
+        list<shared_ptr<GameObject>> objects;  // 現在スポーンされているオブジェクト
+        list<weak_ptr<GameObject>> newobjects; // 現在生成待機中のオブジェクト
+        FileWatcher fileWatcher;               // ファイルの自動更新のためのウォッチャー
 
     public:
     public:
-        REngine::TimeManager timeManager = REngine::TimeManager();
+        REngine::TimeManager timeManager = REngine::TimeManager(); // 同期タイマーの生成破棄管理
         template <typename T, typename... Args>
         enable_if_t<is_base_of<GameObject, T>::value, weak_ptr<T>>
         SpawnActorOfClass(Args &&...args)
@@ -47,11 +48,13 @@ namespace REngine
             obj->name = ss.str();
             obj->uuid = rand();
             obj->SetSpawnedScene(this);
-            obj->BeginPlay();
+            this->newobjects.push_back(obj);
             objects.push_back(obj);
             count++;
             return obj;
         }
+        /// @brief 指定のオブジェクトを破棄
+        /// @param obj
         void DestroyObject(weak_ptr<GameObject> obj);
 
         /// @brief Jsonからシーンを構築

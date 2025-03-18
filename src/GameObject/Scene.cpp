@@ -47,6 +47,7 @@ namespace REngine
                 obj->SetSpawnedScene(this);
                 obj->name = actorName;
                 obj->uuid = rand();
+                this->newobjects.push_back(obj);
                 objects.push_back(move(obj));
             }
         }
@@ -92,11 +93,12 @@ namespace REngine
     }
     void Scene::ExecBeginPlay()
     {
-        for (auto &obj : this->objects)
+        for (auto &obj : this->newobjects)
         {
-            if (obj)
-                obj->BeginPlay();
+            if (auto unlocked = obj.lock())
+                unlocked->BeginPlay();
         }
+        this->newobjects.clear();
     }
 
     stringstream objectHieralcyToString(weak_ptr<Actor> gameobjects, int depth = 0)

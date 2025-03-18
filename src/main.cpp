@@ -89,6 +89,7 @@ int main(int argc, char const *argv[])
 
     while (true)
     {
+        scene.ExecBeginPlay();
         // Tick実行
         float deltasecond = scene.ExecTick();
 
@@ -240,7 +241,6 @@ void ReloadScene(string scenefileName)
 {
     sceneFileName = scenefileName; // 引数のモデルをロード
     scene.loadScene(filesystem::path(sceneFileName));
-    scene.ExecBeginPlay();
 }
 
 void UpdateHierarchyLog(Scene &scene, ofstream file)
