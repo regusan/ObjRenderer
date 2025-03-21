@@ -56,8 +56,8 @@ namespace REngine::Component
             if (retval.isOverlapp)
             {
                 retval.hitCollider = other;
-                retval.impactNormal = box.ComputeNearestBoxFaceNormal(fixedSphereCentor);
-                retval.impactNormal = (sharedOtherOwner->getWorldMat() * Vector4f(retval.impactNormal.x(), retval.impactNormal.y(), retval.impactNormal.z(), 1)).head<3>();
+                Vector3f normalOS = box.ComputeNearestBoxFaceNormal(fixedSphereCentor);
+                retval.impactNormal = (sharedOtherOwner->getWorldMat() * Vector4f(normalOS.x(), normalOS.y(), normalOS.z(), 1)).head<3>().normalized();
                 retval.penetrationDepth = fmax(0, sphereRadius - (box.ComputeNearestBoxFacePos(fixedSphereCentor) - fixedSphereCentor).norm());
                 retval.penetrationDepth = fmax(0, box.ComputePenetrationDist(fixedSphereCentor, sphereRadius));
                 retval.isOverlapp = retval.penetrationDepth > sphereRadius * 0.1;
@@ -71,6 +71,17 @@ namespace REngine::Component
         // pi*r^2で体積を求め体積を更新
         if (this->isAutoCaluculateMassFromVolume)
             this->mass = this->radius * this->radius * M_PI * this->dencity;
+    }
+    void SphereCollider::DrawDebugShape()
+    {
+        Collider::DrawDebugShape();
+        if (auto sharedOwner = this->owner.lock())
+            DebugDrawSubSystem::getInstance().DrawDebugSphere(
+                this->radius,
+                sharedOwner->GetWorldPosition(),
+                sharedOwner->GetWorldRotation(),
+                sharedOwner->GetWorldScale(),
+                this->colliderDebugColor);
     }
 
 }

@@ -16,6 +16,7 @@ namespace REngine::Component
         ~SphereCollider();
         virtual Hit DetectHit(const weak_ptr<Collider> &other) override;
         virtual void CaluculateMass() override;
+        virtual void DrawDebugShape() override;
     };
     GCLASS(SphereCollider)
 }

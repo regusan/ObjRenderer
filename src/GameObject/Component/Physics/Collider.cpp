@@ -22,4 +22,11 @@ namespace REngine::Component
     {
         this->CaluculateMass();
     }
+    void Collider::Tick(float deltasecond)
+    {
+        this->DrawDebugShape();
+    }
+    void Collider::DrawDebugShape()
+    {
+    }
 }

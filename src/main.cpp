@@ -17,6 +17,8 @@
 #include "GameObject/Mesh.hpp"
 
 #include "Engine/Input/InputSubSystem.hpp"
+#include "Engine/Data/PrimitiveMeshData.hpp"
+#include "Engine/SubSystem/DebugDrawSubSystem.hpp"
 
 #include "GUI/X11Display.hpp"
 #include "GUI/X11toREvent.hpp"
@@ -163,6 +165,15 @@ int main(int argc, char const *argv[])
                     RenderingPipeline::Forward::ExecWireFramePass(*sp->meshModel, in, gb, VertStandard);
                 }
             }
+        }
+
+        { // デバッグ用メッシュをワイヤフレームで描画
+            for (auto &model : DebugDrawSubSystem::getInstance().wireFrameDrawCall)
+            {
+                in.modelMat = model->getWorldMat();
+                RenderingPipeline::Forward::ExecWireFramePass(*model->meshModel, in, gb, VertStandard);
+            }
+            DebugDrawSubSystem::getInstance().wireFrameDrawCall.clear();
         }
 
         //   GBufferからデバイスコンテキストにコピーし、表示

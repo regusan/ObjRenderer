@@ -136,7 +136,7 @@ void RenderTarget::DrawLine(const Vector2f &start, const Vector2f &end, const Ve
 {
     constexpr int skip = 1;
     Vector2f delta = end - start;
-    float steps = fmax(delta.x(), delta.y());
+    float steps = fmax(fabs(delta.x()), fabs(delta.y()));
     Vector2f inc = delta / steps * skip;
     Vector2f current = start;
     for (int i = 0; i < steps; i += skip)

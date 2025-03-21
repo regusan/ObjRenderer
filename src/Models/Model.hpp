@@ -44,26 +44,40 @@ public:
     /// @brief マテリアルIDに対応するマテリアル名
     vector<string> materialNames;
 
+    // マテリアルの登録が何もない時に使用されるマテリアル
+    Material defaultMaterial;
+
     shared_ptr<RenderTarget> VATPos;
     shared_ptr<RenderTarget> VATNormal;
 
     map<string, Material> materials;
     bool LoadFromFile(const filesystem::path &filepath) override;
-    const string toString();
-    friend std::ostream &operator<<(std::ostream &os, const Model &model);
 
-    [[deprecated("法線取得に問題あり")]]
-    void transformVerts(
-        const VertInputStandard &in,
-        const VertOutputStandard (*vertFunc)(const VertInputStandard &in))
+    inline Material &GetMaterialFromFaceIndex(const int faceIndex)
     {
-        VertInputStandard vin = in;
-        transformed.clear();
-        for (size_t i = 0; i < this->verts.size(); i++)
-        {
-            vin.position = this->verts[i];
-            vin.normal = this->vertNormals[i];
-            transformed.push_back(vertFunc(vin));
-        }
+        return (materials.empty()) ? defaultMaterial : materials[materialNames[materialID[faceIndex]]];
+    }
+
+    inline const Vector4f GetNormalFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex)
+    {
+        static const Vector4f defaultNormal = Vector4f(1, 0, 0, 1);
+        return (this->vertNormals.empty()) ? defaultNormal : this->vertNormals[(this->normalID[faceIndex])[vertIndex]];
+    }
+    inline const Vector4f GetPositionFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex)
+    {
+        static const Vector4f defaultPosiiton = Vector4f(1, 0, 0, 1);
+        return (this->verts.empty()) ? defaultPosiiton : this->verts[(this->facesID[faceIndex])[vertIndex]];
+    }
+    inline const Vector2f GetUVFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex)
+    {
+        static const Vector2f defaultUV = Vector2f(0, 0);
+        return (this->uv.empty()) ? defaultUV : this->uv[(this->uvID[faceIndex])[vertIndex]];
+    }
+
+    const string toString();
+    friend std::ostream &operator<<(std::ostream &os, Model &model)
+    {
+        os << model.toString() << endl;
+        return os;
     }
 };
