@@ -100,19 +100,33 @@ namespace REngine
         }
         this->newobjects.clear();
     }
-
+    string InsertAfterNewline(const string &input, const string &insertStr)
+    {
+        string result;
+        for (size_t i = 0; i < input.size(); ++i)
+        {
+            result += input[i];
+            if (input[i] == '\n')
+            {
+                result += insertStr; // 改行の直後に挿入
+            }
+        }
+        return result;
+    }
     stringstream objectHieralcyToString(weak_ptr<Actor> gameobjects, int depth = 0)
     {
         stringstream ss;
         auto unlocked = gameobjects.lock();
         if (!unlocked)
             return ss;
-
+        stringstream tab;
         for (int i = 0; i < depth; i++)
-        {
-            ss << "│\t";
-        }
-        ss << "├─" << *unlocked << endl;
+            tab << "│\t";
+
+        stringstream temp;
+        temp << *unlocked;
+        ss << tab.str() << "├──" << InsertAfterNewline(temp.str(), tab.str() + "│") << endl;
+
         for (auto child : unlocked->children)
         {
             ss << objectHieralcyToString(child, depth + 1).str();
@@ -127,11 +141,11 @@ namespace REngine
         auto gameobjects = this->GetObjectsOfClass<GameObject>();
         auto actors = this->GetObjectsOfClass<Actor>();
         ss << C_YELLOW << "Scene:" << C_CYAN << gameobjects.size() << C_RESET << endl;
-        ss << "├─" << C_YELLOW << "Timers:" << C_CYAN << timeManager.GetAllTimers().size() << C_RESET;
+        ss << "├──" << C_YELLOW << "Timers:" << C_CYAN << timeManager.GetAllTimers().size() << C_RESET;
         ss << "(" << C_CYAN << std::fixed << std::setprecision(3) << this->timeManager.GetDeltatime() << C_RESET << "ms:";
         ss << C_CYAN << std::fixed << std::setprecision(3) << 1.0f / this->timeManager.GetDeltatime() << C_RESET << "fps)" << endl;
 
-        ss << "├─" << C_YELLOW << "GameObjects:" << C_CYAN << gameobjects.size() << C_RESET << endl;
+        ss << "├──" << C_YELLOW << "GameObjects:" << C_CYAN << gameobjects.size() << C_RESET << endl;
         for (auto &actor : actors)
         {
             if (auto unlocked = actor.lock())

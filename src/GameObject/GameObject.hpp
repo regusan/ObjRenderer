@@ -67,6 +67,8 @@ namespace REngine
         /// @param os
         virtual void toString(ostream &os) const;
 
+        ostream &logStart(ostream &in) const;
+
         friend ostream &operator<<(ostream &os, const GameObject &go)
         {
             go.toString(os);

@@ -17,7 +17,9 @@ namespace REngine
     }
 
     void GameObject::Tick(float deltatime) {}
-    void GameObject::BeginPlay() {}
+    void GameObject::BeginPlay()
+    {
+    }
     void GameObject::OnDestroyed()
     {
     }
@@ -30,5 +32,10 @@ namespace REngine
     void GameObject::toString(ostream &os) const
     {
         os << C_RED << name << C_RESET << "(" << C_BLUE << shared_from_this() << C_RESET << ")";
+    }
+    ostream &GameObject::logStart(ostream &in) const
+    {
+        in << C_BLUE << this->name << C_RESET << endl;
+        return in;
     }
 }

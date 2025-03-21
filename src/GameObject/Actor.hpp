@@ -68,8 +68,29 @@ namespace REngine
         /// @param component
         virtual void RemoveComponent(weak_ptr<ActorComponent> component);
 
+        /// @brief 所有しているコンポーネントを指定クラスで取得
+        /// @tparam T
+        /// @return
+        template <typename T>
+        inline vector<weak_ptr<T>> GetComponentsOfClass()
+        {
+            vector<weak_ptr<T>> result;
+            for (auto &component : components)
+            {
+                if (auto sharedComponent = component.lock())
+                {
+                    if (auto castedComponent = dynamic_pointer_cast<T>(sharedComponent))
+                    {
+                        result.push_back(castedComponent);
+                    }
+                }
+            }
+            return result;
+        }
+
         static json JsonArgParse(json args);
         Matrix4f getWorldMat() const;
+        void toString(ostream &os) const override;
         Actor(/* args */);
         Actor(json args);
         ~Actor();

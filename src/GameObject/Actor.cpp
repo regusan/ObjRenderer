@@ -20,6 +20,8 @@ namespace REngine
     {
         for (auto child : this->children)
             this->sceneContext->DestroyObject(child);
+        for (auto child : this->components)
+            this->sceneContext->DestroyObject(child);
     }
 
     // Transform系
@@ -123,14 +125,14 @@ namespace REngine
     void Actor::matUpdate()
     {
         this->localMatrix = this->worldMatrix =
-            (Scaling(this->scale.x(), this->scale.y(), this->scale.z()) *
-             Translation3f(this->location) *
+            (Translation3f(this->location) *
+             Scaling(this->scale.x(), this->scale.y(), this->scale.z()) *
+             AngleAxisf(this->rotation.z() * M_PI / 180.0f, Vector3f::UnitZ()) *
              AngleAxisf(this->rotation.y() * M_PI / 180.0f, Vector3f::UnitY()) *
-             AngleAxisf(this->rotation.x() * M_PI / 180.0f, Vector3f::UnitX()) *
-             AngleAxisf(this->rotation.z() * M_PI / 180.0f, Vector3f::UnitZ()))
+             AngleAxisf(this->rotation.x() * M_PI / 180.0f, Vector3f::UnitX()))
                 .matrix();
         if (auto actor = parent.lock())
-            this->worldMatrix = actor->worldMatrix * this->worldMatrix;
+            this->worldMatrix = actor->worldMatrix * this->localMatrix;
         for (auto child : children)
         {
             if (auto actor = child.lock())
@@ -189,6 +191,24 @@ namespace REngine
                 this->components.erase(this->components.begin() + i);
                 this->sceneContext->DestroyObject(component);
                 return;
+            }
+        }
+    }
+
+    void Actor::toString(ostream &os) const
+    {
+        GameObject::toString(os);
+        if (this->components.size() != 0)
+        {
+            os << "\n\t├──" << C_GREEN << "Components:" << C_CYAN << this->components.size() << C_RESET;
+        }
+        for (auto component : this->components)
+        {
+            if (auto lockedComponent = component.lock())
+            {
+                os << endl
+                   << "\t│\t" << C_GREEN << "├─" << C_RESET;
+                lockedComponent->toString(os);
             }
         }
     }
