@@ -32,9 +32,9 @@ namespace Transform
         return Eigen::Affine3f(Eigen::Scaling(scale)).matrix();
     }
 
-    Vector4f GetPositionFromMat(const Matrix4f &mat)
+    Vector3f GetPositionFromMat(const Matrix4f &mat)
     {
-        return Vector4f(mat(0, 3), mat(1, 3), mat(2, 3), 1);
+        return Vector3f(mat(0, 3), mat(1, 3), mat(2, 3));
     }
 
     Vector3f GetScaleFromMat(const Matrix4f &mat)
@@ -77,16 +77,16 @@ namespace Transform
         transformed(2, 3) = pos.z();
         return transformed;
     }
-    Vector4f GetForwardVector(const Matrix4f &mat)
+    Vector3f GetForwardVector(const Matrix4f &mat)
     {
-        return mat.col(2);
+        return mat.col(2).head<3>().normalized();
     }
-    Vector4f GetRightVector(const Matrix4f &mat)
+    Vector3f GetRightVector(const Matrix4f &mat)
     {
-        return mat.col(0);
+        return mat.col(0).head<3>().normalized();
     }
-    Vector4f GetUpVector(const Matrix4f &mat)
+    Vector3f GetUpVector(const Matrix4f &mat)
     {
-        return mat.col(1);
-    }
+        return mat.col(1).head<3>().normalized();
+    };
 }

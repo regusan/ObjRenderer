@@ -10,13 +10,13 @@ namespace Transform
     Matrix4f MakeRotMat(const Vector3f &rotaiton);
     Matrix4f MakeMatOffset(const Vector3f &offset);
     Matrix4f MakeMatScale(const Vector3f &scale);
-    Vector4f GetPositionFromMat(const Matrix4f &mat);
+    Vector3f GetPositionFromMat(const Matrix4f &mat);
     Matrix4f ResetScale(const Matrix4f &mat);
     Matrix4f SetPosition(const Matrix4f &mat, const Vector4f &pos);
     Matrix4f ResetPosition(const Matrix4f &mat);
-    Vector4f GetForwardVector(const Matrix4f &mat);
-    Vector4f GetRightVector(const Matrix4f &mat);
-    Vector4f GetUpVector(const Matrix4f &mat);
+    Vector3f GetForwardVector(const Matrix4f &mat);
+    Vector3f GetRightVector(const Matrix4f &mat);
+    Vector3f GetUpVector(const Matrix4f &mat);
 
 };
 
