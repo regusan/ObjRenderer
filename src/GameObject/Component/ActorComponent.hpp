@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../GameObject.hpp"
-
+#include "../Actor.hpp"
 namespace REngine
 {
     class Actor; // 前方宣言

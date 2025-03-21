@@ -1,5 +1,4 @@
 #include "ActorComponent.hpp"
-#include "../Actor.hpp"
 namespace REngine::Component
 {
     ActorComponent::ActorComponent()
