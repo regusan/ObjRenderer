@@ -94,6 +94,7 @@ int main(int argc, char const *argv[])
         scene.ExecBeginPlay();
         // Tick実行
         float deltasecond = scene.ExecTick();
+        scene.ExecDestroyObject();
 
         // 初めに取得したカメラでレンダリング設定
         if (primaryCamera)
@@ -166,7 +167,7 @@ int main(int argc, char const *argv[])
                 }
             }
         }
-
+        if (environment.drawDebugShape)
         { // デバッグ用メッシュをワイヤフレームで描画
             for (auto &model : DebugDrawSubSystem::getInstance().wireFrameDrawCall)
             {
@@ -188,34 +189,36 @@ int main(int argc, char const *argv[])
         InputSubSystem::getInstance().axisState.UpdateAxisState(scene.timeManager.GetDeltatime(), Vector3f(display.GetMousePos().x(), display.GetMousePos().y(), 0));
         InputSubSystem::getInstance().UpdateKeyStatus(scene.timeManager.GetDeltatime(), X11Event2REvent(display.GetDisplay()));
         // cout << InputSubSystem::getInstance() << endl;
-        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Enter).isHeld)
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Enter).isPressed)
         {
             environment.loadFromJson(JsonOpener(configFileName));
             ReloadScene(sceneFileName);
         }
 
-        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Space).isHeld)
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Space).isPressed)
         {
             TakeHiResSnapShot();
         }
 
-        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Escape).isHeld)
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Escape).isPressed)
         {
             display.~X11Display();
             exit(0);
         }
 
-        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num1).isHeld)
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num1).isPressed)
             environment.quality = RenderingQuality::Wire;
 
-        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num2).isHeld)
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num2).isPressed)
             environment.quality = RenderingQuality::Low;
 
-        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num3).isHeld)
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num3).isPressed)
             environment.quality = RenderingQuality::Mid;
 
-        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num4).isHeld)
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num4).isPressed)
             environment.quality = RenderingQuality::Cinema;
+        if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num5).isPressed)
+            environment.drawDebugShape = !environment.drawDebugShape;
     }
     return 0;
 }

@@ -45,6 +45,7 @@ public:
     float time = 0;
     RenderingQuality quality = RenderingQuality::Mid;
     string buffer2Display = "beauty";
+    bool drawDebugShape = true;
     float cameraSpeed = 1.0f;
 
     float timeScale = 1.0f;
