@@ -7,12 +7,16 @@ namespace REngine
     Actor::Actor(/* args */) {}
     Actor::Actor(json args)
     {
-        json positionArg = args["position"];
-        json rotationArg = args["rotation"];
-        json scaleArg = args["scale"];
-        this->SetLocalPosition(Vector3f(positionArg[0], positionArg[1], positionArg[2]));
-        this->SetLocalRotation(Vector3f(rotationArg[0], rotationArg[1], rotationArg[2]));
-        this->SetLocalScale(Vector3f(scaleArg[0], scaleArg[1], scaleArg[2]));
+        json positionArg = args.value("position", json());
+
+        json rotationArg = args.value("rotation", json());
+        json scaleArg = args.value("scale", json());
+        if (!positionArg.empty())
+            this->SetLocalPosition(Vector3f(positionArg[0], positionArg[1], positionArg[2]));
+        if (!rotationArg.empty())
+            this->SetLocalRotation(Vector3f(rotationArg[0], rotationArg[1], rotationArg[2]));
+        if (!scaleArg.empty())
+            this->SetLocalScale(Vector3f(scaleArg[0], scaleArg[1], scaleArg[2]));
         this->matUpdate();
     }
     Actor::~Actor() {}
@@ -198,9 +202,23 @@ namespace REngine
     void Actor::toString(ostream &os) const
     {
         GameObject::toString(os);
+        Vector3i pos = this->GetWorldPosition().cast<int>();
+        Vector3i rot = this->GetWorldRotation().cast<int>();
+        Vector3i scale = this->GetWorldScale().cast<int>();
+        auto printV3 = [](Vector3i v3, ostream &os)
+        { os << C_BLUE << v3.x() << C_RESET << "," << C_BLUE << v3.y() << C_RESET << "," << C_BLUE << v3.z() << C_RESET; };
+        os << endl;
+        os << "\t├──Pos(";
+        printV3(pos, os);
+        os << "), " << "Rot(";
+        printV3(rot, os);
+        os << "), " << "Scale(";
+        printV3(scale, os);
+        os << ")";
         if (this->components.size() != 0)
         {
-            os << "\n\t├──" << C_GREEN << "Components:" << C_CYAN << this->components.size() << C_RESET;
+            os << endl
+               << "\t├──" << C_GREEN << "Components:" << C_CYAN << this->components.size() << C_RESET;
         }
         for (auto component : this->components)
         {

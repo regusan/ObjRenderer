@@ -28,23 +28,38 @@ namespace REngine
     class GameObject : public enable_shared_from_this<GameObject>
     {
     protected:
+        /// @brief オブジェクトの破棄が進行中かのフラグ
+        bool hasDestroyMarker = false;
+
     public:
+        /// @brief このオブジェクトの破棄が進行中かを示すフラグ
         Scene *sceneContext = nullptr;
+        /// @brief このオブジェクトの名前
         string name = "NULL";
+        /// @brief このオブジェクトのUUID
         long uuid = 0;
 
         GameObject(/* args */);
         virtual ~GameObject(); // Virtualにして動的型解析有効化
 
+        /// @brief 生成直後に一度だけ呼ばれる関数。同一ティック内で実行される。
+        virtual void PostInitProperties();
+
+        /// @brief スポーン後に一度だけ呼ばれる関数。スポーン処理の次のティック前に実行される。
+        virtual void BeginPlay();
+
         /// @brief 毎フレーム呼ばれる関数
         /// @param deltatime
         virtual void Tick(float deltatime);
 
-        /// @brief スポーン後に一度だけ呼ばれる関数
-        virtual void BeginPlay();
-
         /// @brief このオブジェクトの破棄が決定した際に呼ばれる関数
         virtual void OnDestroyed();
+
+        /// @brief このオブジェクトの破棄処理が進行中か取得
+        bool HasDestroyMarker() const;
+
+        /// @brief オブジェクトを廃棄待ちにする
+        void MarkDestroy();
 
         /// @brief オブジェクトが指定型かチェック
         /// @tparam T

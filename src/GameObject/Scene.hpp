@@ -26,9 +26,10 @@ namespace REngine
     class Scene
     {
     protected:
-        list<shared_ptr<GameObject>> objects;  // 現在スポーンされているオブジェクト
-        list<weak_ptr<GameObject>> newobjects; // 現在生成待機中のオブジェクト
-        FileWatcher fileWatcher;               // ファイルの自動更新のためのウォッチャー
+        list<shared_ptr<GameObject>> objects;         // 現在スポーンされているオブジェクト
+        list<shared_ptr<GameObject>> newobjectsQueue; // 現在生成待機中のオブジェクト
+        list<weak_ptr<GameObject>> deleteObjectQueue; // 破棄待機中のオブジェクト
+        FileWatcher fileWatcher;                      // ファイルの自動更新のためのウォッチャー
 
     public:
     public:
@@ -37,20 +38,21 @@ namespace REngine
         enable_if_t<is_base_of<GameObject, T>::value, weak_ptr<T>>
         SpawnActorOfClass(Args &&...args)
         {
-            static unsigned long long int count = 0;
+            static unsigned long long int gameObjectSpawnCount = 0;
 
             // GameObject継承出ないものをスポーンしていたらあさーと
             static_assert(is_base_of<GameObject, T>::value, "GameObject継承ではないクラスはスポーンできません。");
 
             shared_ptr<T> obj = make_shared<T>(forward<Args>(args)...);
             stringstream ss;
-            ss << typeid(T).name() << "_" << count;
+            ss << typeid(T).name() << "_" << gameObjectSpawnCount;
             obj->name = ss.str();
             obj->uuid = rand();
             obj->SetSpawnedScene(this);
-            this->newobjects.push_back(obj);
-            objects.push_back(obj);
-            count++;
+            obj->PostInitProperties();
+            this->newobjectsQueue.push_back(obj);
+
+            gameObjectSpawnCount++;
             return obj;
         }
         /// @brief 指定のオブジェクトを破棄
@@ -87,6 +89,7 @@ namespace REngine
 
         float ExecTick();
         void ExecBeginPlay();
+        void ExecDestroyObject();
 
         stringstream hieralcyToString();
 

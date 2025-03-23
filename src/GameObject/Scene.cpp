@@ -8,22 +8,10 @@ namespace REngine
     using namespace REngine::Terminal;
     void Scene::DestroyObject(weak_ptr<GameObject> obj)
     {
-        if (auto spobj = obj.lock())
+        if (auto sp = obj.lock())
         {
-            auto prevSize = objects.size();
-            spobj->OnDestroyed();
-            objects.erase(
-                remove_if(objects.begin(), objects.end(),
-                          [&](const shared_ptr<GameObject> &o)
-                          {
-                              return o == spobj;
-                          }),
-                objects.end());
-
-            if (objects.size() == prevSize)
-            {
-                cerr << "不明なオブジェクト(" << spobj->name << ")の削除を試行しましたが、GCに存在しません。" << endl;
-            }
+            deleteObjectQueue.push_back(obj);
+            sp->MarkDestroy();
         }
         else
         {
@@ -47,8 +35,7 @@ namespace REngine
                 obj->SetSpawnedScene(this);
                 obj->name = actorName;
                 obj->uuid = rand();
-                this->newobjects.push_back(obj);
-                objects.push_back(move(obj));
+                this->newobjectsQueue.push_back(obj);
             }
         }
     }
@@ -93,12 +80,26 @@ namespace REngine
     }
     void Scene::ExecBeginPlay()
     {
-        for (auto &obj : this->newobjects)
+        for (auto &obj : this->newobjectsQueue)
+        {
+            this->objects.push_back(obj);
+            obj->BeginPlay();
+        }
+        this->newobjectsQueue.clear();
+    }
+    void Scene::ExecDestroyObject()
+    {
+        for (auto &obj : this->deleteObjectQueue)
         {
             if (auto unlocked = obj.lock())
-                unlocked->BeginPlay();
+            {
+                unlocked->OnDestroyed();
+                this->objects.remove_if([&](const std::shared_ptr<GameObject> &o)
+                                        { return o == unlocked; });
+            }
         }
-        this->newobjects.clear();
+
+        this->deleteObjectQueue.clear();
     }
     string InsertAfterNewline(const string &input, const string &insertStr)
     {

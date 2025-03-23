@@ -17,11 +17,21 @@ namespace REngine
     }
 
     void GameObject::Tick(float deltatime) {}
+    void GameObject::PostInitProperties() {}
     void GameObject::BeginPlay()
     {
     }
     void GameObject::OnDestroyed()
     {
+    }
+    bool GameObject::HasDestroyMarker() const
+    {
+        return this->hasDestroyMarker;
+    }
+
+    void GameObject::MarkDestroy()
+    {
+        this->hasDestroyMarker = true;
     }
 
     string GameObject::GetObjectName()

@@ -68,7 +68,7 @@ namespace REngine
         /// @param component
         virtual void RemoveComponent(weak_ptr<ActorComponent> component);
 
-        /// @brief 所有しているコンポーネントを指定クラスで取得
+        /// @brief 所有しているコンポーネントを指定クラスで全て取得
         /// @tparam T
         /// @return
         template <typename T>
@@ -86,6 +86,24 @@ namespace REngine
                 }
             }
             return result;
+        }
+        /// @brief 所有しているコンポーネントを指定クラスで取得
+        /// @tparam T
+        /// @return
+        template <typename T>
+        inline weak_ptr<T> GetComponentOfClass()
+        {
+            for (auto &component : components)
+            {
+                if (auto sharedComponent = component.lock())
+                {
+                    if (auto castedComponent = dynamic_pointer_cast<T>(sharedComponent))
+                    {
+                        return castedComponent;
+                    }
+                }
+            }
+            return weak_ptr<T>();
         }
 
         static json JsonArgParse(json args);
