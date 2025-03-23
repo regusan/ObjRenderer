@@ -1,6 +1,7 @@
 #pragma once
 #include "ActorComponent.hpp"
 
+#include "Physics/Collider.hpp"
 namespace REngine::Component
 {
     /// @brief メッシュを持つアクター
@@ -14,6 +15,13 @@ namespace REngine::Component
         Vector3f accumulatedAcceleration = Vector3f::Zero();
         Vector3f accumulatedAngularAcceleration = Vector3f::Zero();
         Vector3f accumulatedPushBack = Vector3f::Zero();
+
+        void UpdateSleepState();
+
+        static vector<Hit> GetHits(const vector<weak_ptr<Collider>> &colliders);
+        static Hit GetPrimaryHit(const vector<Hit> &hits);
+        static Vector3f GetAccumulatedPushBack(const vector<Hit> &hits);
+        Vector3f GetProjectedGravityAcceleration(Vector3f floorNormal) const;
 
     public:
         Vector3f velocity = Vector3f::Zero();
