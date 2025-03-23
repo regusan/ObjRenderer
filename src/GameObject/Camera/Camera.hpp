@@ -13,12 +13,12 @@ namespace REngine
     class Camera : public Actor
     {
     protected:
-        Camera(json args) : Actor(args) {}
-        Camera() : Actor() {}
-
     private:
     public:
         float speed = 30.0f;
-        virtual ~Camera() = default; // 仮想デストラクタを定義
+        Camera(json args) : Actor(args) {}
+        Camera() : Actor() {}
+        ~Camera() {}
     };
+    GCLASS(Camera);
 }
