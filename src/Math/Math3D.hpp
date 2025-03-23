@@ -75,6 +75,32 @@ namespace MathPhysics
     {
         return (in - 2.0f * in.dot(normal) * normal).normalized();
     }
+
+    inline Vector3f ComputePostCollisionVelocity(Vector3f v1, Vector3f v2, Vector3f normal, float m1 = 1.0f, float m2 = 1.0f, float e = 0.7f)
+    {
+        // 法線ベクトルの正規化
+        Vector3f n = normal.normalized();
+
+        // 各物体の法線方向の速度成分を計算
+        float v1n = v1.dot(n);
+        float v2n = v2.dot(n);
+
+        // 接線方向の速度成分（変化しない）を計算
+        Vector3f v1t = v1 - v1n * n;
+
+        // 運動量保存と反発係数に基づく衝突後の法線方向速度
+        float v1n_after = (m1 * v1n + m2 * v2n - m2 * e * (v1n - v2n)) / (m1 + m2);
+
+        // 衝突が実際に起きている場合のみ速度を更新（速度が離れる方向の場合は衝突しない）
+        if (v1n <= v2n)
+        {
+            // すでに離れる方向に動いている場合は速度を変更しない
+            return v1;
+        }
+
+        // 法線方向と接線方向の速度を組み合わせて最終速度を返す
+        return v1t + v1n_after * n;
+    }
 }
 namespace StandardMath
 {
