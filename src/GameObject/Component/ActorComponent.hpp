@@ -11,7 +11,7 @@ namespace REngine::Component
     /// @brief コンポーネントの基底クラス
     class ActorComponent : public GameObject
     {
-    private:
+    protected:
         bool bIsActive = true;
 
     public:
