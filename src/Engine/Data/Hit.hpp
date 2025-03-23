@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "../../header/EigenHeader.hpp"
+#include "PhysicMaterial.hpp"
 
 namespace REngine::Component
 {
@@ -22,6 +23,8 @@ namespace REngine
         std::weak_ptr<Actor> hitActor;
         std::weak_ptr<Component::Collider> hitCollider;
         std::weak_ptr<Component::Collider> thisCollider;
+        PhysicMaterial thisMaterial;
+        PhysicMaterial otherMaterial;
 
         Hit(/* args */);
         ~Hit();
