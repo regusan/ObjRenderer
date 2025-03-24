@@ -1,0 +1,122 @@
+{
+    "_comment": "シーンの定義ファイル",
+    "GameObjects": {
+        "Camera0": {
+            "_comment": "カメラの定義例",
+            "class": "Camera",
+            "args": {
+                "position": [
+                    0,
+                    -6,
+                    -12
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    180
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            }
+        },
+        "Mesh1": {
+            "_comment": "メッシュの定義例",
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    -0,
+                    -15,
+                    2
+                ],
+                "rotation": [
+                    0,
+                    90,
+                    0
+                ],
+                "scale": [
+                    3.9,
+                    3.9,
+                    3.9
+                ],
+                "MeshPath": "GameAsset/SphereGame/SphereGameMachine.obj"
+            }
+        },
+        "DropPlayer": {
+            "_comment": "ランダムポイントライトの定義例",
+            "class": "DropPlayer",
+            "args": {
+                "position": [
+                    5,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "size": [
+                    1,
+                    5,
+                    5
+                ]
+            }
+        },
+        "ColliderWall1": {
+            "_comment": "ランダムポイントライトの定義例",
+            "class": "BoxColliderActor",
+            "args": {
+                "position": [
+                    -10,
+                    -5,
+                    0
+                ],
+                "size": [
+                    10,
+                    30,
+                    5
+                ]
+            }
+        },
+        "ColliderWall2": {
+            "_comment": "ランダムポイントライトの定義例",
+            "class": "BoxColliderActor",
+            "args": {
+                "position": [
+                    10,
+                    -5,
+                    0
+                ],
+                "size": [
+                    10,
+                    30,
+                    5
+                ]
+            }
+        },
+        "ColliderFloor": {
+            "_comment": "ランダムポイントライトの定義例",
+            "class": "BoxColliderActor",
+            "args": {
+                "position": [
+                    0,
+                    -20,
+                    0
+                ],
+                "size": [
+                    15,
+                    16,
+                    5
+                ]
+            }
+        }
+    }
+}
