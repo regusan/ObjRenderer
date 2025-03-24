@@ -5,9 +5,13 @@ https://github.com/user-attachments/assets/d3723aea-6997-4102-ab67-70e1ea449652
 
 https://github.com/user-attachments/assets/4f3b877d-1ed6-4ca4-b31a-02768c429276
 
-[SuicaGameLikeDemo][https://youtu.be/J_MNxFds-0Q/0](https://youtu.be/J_MNxFds-0Q)
+[![SuicaGameLikeDemo](https://img.youtube.com/vi/J_MNxFds-0Q/0.jpg)](https://www.youtube.com/watch?v=J_MNxFds-0Q)
 
-This demo is On [/src/Eaxmples/SphereGame](https://github.com/regusan/ObjRenderer/tree/main/src/Eaxmples/SphereGame)
+This demo is in [/src/Eaxmples/SphereGame](https://github.com/regusan/ObjRenderer/tree/main/src/Eaxmples/SphereGame). and run 
+```bash
+./build/Regu3D scene/SphereGame.json
+```
+
 |  |  |
 | ---- | ---- |
 |![beauty](https://github.com/user-attachments/assets/6f26296d-c238-4026-96bf-2f69830eabf3) | ![beauty](https://github.com/user-attachments/assets/32dc5594-6cc9-43ea-b99e-b416e7fb00bd) |
