@@ -6,6 +6,12 @@
 #include <map>
 #include "InputStates.hpp"
 #include "InputEvent.hpp"
+
+#include "../../BuildSetting.hpp"
+#ifdef TARGET_X11BACKEND
+#include "../../GUI/X11Display.hpp"
+#endif
+
 namespace REngine::Input
 {
     using namespace std;
@@ -27,6 +33,9 @@ namespace REngine::Input
         InputSubSystem &operator=(const InputSubSystem &) = delete;
 
     public:
+#ifdef TARGET_X11BACKEND
+        X11Display *display = nullptr;
+#endif
         AxisState axisState;
 
         static InputSubSystem &getInstance()
@@ -53,6 +62,22 @@ namespace REngine::Input
                 return this->keyStates[keyID];
             this->keyStates[keyID] = KeyState(keyID);
             return this->keyStates[keyID];
+        }
+
+        void ShowMouse(bool show)
+        {
+#ifdef TARGET_X11BACKEND
+            if (this->display)
+                this->display->X11ShowMouseCursor(show);
+#endif
+        }
+
+        void SetMousePos(Vector2i pos)
+        {
+#ifdef TARGET_X11BACKEND
+            if (this->display)
+                this->display->SetMousePos(pos);
+#endif
         }
         void InvokeEvents()
         {

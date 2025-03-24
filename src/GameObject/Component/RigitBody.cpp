@@ -127,11 +127,12 @@ namespace REngine::Component
             if (!hitCollider || !thisCollider)
                 continue;
 
+            float otherMass = hitCollider->mass; // 衝突相手の質量
+            float thisMass = thisCollider->mass; // 自身の質量
+
             if (hit.isBlockingHit) // 衝突があったら
             {
                 hitCount++;
-                // 貫通深度に基づく押し戻し力（より滑らかな係数を適用）
-                // pushBackAccumulated += hit.impactNormal * hit.penetrationDepth * 1.5f;
             }
 
             if (hit.isBlockingHit && hit.isOverlapp)
@@ -140,9 +141,16 @@ namespace REngine::Component
                 if (maxPenetrationDepth < hit.penetrationDepth)
                 {
                     maxPenetrationDepth = hit.penetrationDepth;
+
                     // 反発係数を両オブジェクトの平均に変更
                     float combinedBounciness = (thisCollider->physicMaterial.bounciness + hitCollider->physicMaterial.bounciness) * 0.5f;
-                    hitNormalAccumulated = hit.impactNormal * combinedBounciness;
+
+                    // 質量比に基づいて衝突の影響を計算
+                    float massRatio = thisMass / (thisMass + otherMass);
+                    float inverseMassRatio = 1.0f - massRatio; // 相手の質量の影響率
+
+                    // 質量が大きいほど、受ける影響は小さくなる
+                    hitNormalAccumulated = hit.impactNormal * combinedBounciness * inverseMassRatio;
                 }
             }
         }
@@ -155,7 +163,7 @@ namespace REngine::Component
             // pushBackAccumulated /= std::max(1, hitCount);
 
             // 加速度の蓄積を滑らかに
-            float accelerationBlend = 0.8f; // 前フレームからの影響を減らす
+            float accelerationBlend = 0.2f; // 前フレームからの影響
             accumulatedAcceleration = accumulatedAcceleration * (1.0f - accelerationBlend) + hitNormalAccumulated * accelerationBlend;
 
             if (accumulatedAcceleration.norm() > 0.001f)
@@ -195,10 +203,9 @@ namespace REngine::Component
             boundingRadius = thisCollider->GetBoundingRadius();
 
         Vector3f pushBackAccumulated = this->GetAccumulatedPushBack(hits);
-        float minPushbackThreshold = boundingRadius * 0.05f; // 閾値を5%に下げる
+        float minPushbackThreshold = boundingRadius * 0.1f; // この値以下のプッシュバックは微振動とみなし無視
         if (pushBackAccumulated.norm() > minPushbackThreshold)
         {
-            // より滑らかなプッシュバックを適用
             float pushStrength = std::min(1.0f, pushBackAccumulated.norm() / boundingRadius);
             pushBackAccumulated *= pushStrength;
         }

@@ -126,6 +126,11 @@ namespace REngine::Input
         KeypadDecimal,
         KeypadDivide,
 
+        // マウス
+        MouseLeft,
+        MouseRight,
+        MouseMiddle,
+
         Unknown
     };
 

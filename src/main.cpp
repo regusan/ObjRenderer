@@ -88,6 +88,7 @@ int main(int argc, char const *argv[])
     // 描画先初期化
     X11Display display(environment.screenSize.x() * environment.upscaleRate, environment.screenSize.y() * environment.upscaleRate);
     GBuffers gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
+    InputSubSystem::getInstance().display = &display;
 
     while (true)
     {

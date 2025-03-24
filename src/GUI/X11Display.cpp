@@ -1,5 +1,6 @@
 #include "X11Display.hpp"
-
+#include "../header/RenderingHeader.hpp"
+#ifdef TARGET_X11BACKEND
 X11Display::X11Display(int width, int height)
     : width(width), height(height)
 {
@@ -22,9 +23,9 @@ X11Display::~X11Display()
 
 void X11Display::createWindow(int width, int height)
 {
-    window = XCreateSimpleWindow(display, RootWindow(display, screen), 10, 10, width, height, 1,
-                                 BlackPixel(display, screen), WhitePixel(display, screen));
-    XSelectInput(display, window, ExposureMask | KeyPressMask);
+    this->window = XCreateSimpleWindow(display, RootWindow(display, screen), 10, 10, width, height, 1,
+                                       BlackPixel(display, screen), WhitePixel(display, screen));
+    XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
 
     gc = XCreateGC(display, window, 0, nullptr);
     XMapWindow(display, window);
@@ -108,3 +109,23 @@ void X11Display::Resize(Vector2i size)
 {
     XResizeWindow(display, window, size.x(), size.y());
 }
+
+void X11Display::X11ShowMouseCursor(const bool show)
+{
+    auto w = DefaultRootWindow(this->display);
+    if (this->display != nullptr && w != 0x0)
+    {
+        if (show)
+            XFixesShowCursor(display, w);
+        else
+            XFixesHideCursor(display, w);
+    }
+}
+void X11Display::SetMousePos(Vector2i pos)
+{
+    auto w = DefaultRootWindow(this->display);
+    if (this->display != nullptr && w != 0x0)
+        XWarpPointer(display, None, w, 0, 0, 0, 0, pos.x(), pos.y());
+}
+
+#endif

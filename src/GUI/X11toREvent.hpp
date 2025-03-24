@@ -144,6 +144,18 @@ namespace REngine::Input
                     retval.insert(remap[keysym]);
                 }
             }
+        } // 🔹 マウスボタンの状態を取得
+        Window root, child;
+        int rootX, rootY, winX, winY;
+        unsigned int mask;
+        if (XQueryPointer(display, DefaultRootWindow(display), &root, &child, &rootX, &rootY, &winX, &winY, &mask))
+        {
+            if (mask & Button1Mask)
+                retval.insert(KeyID::MouseLeft);
+            if (mask & Button2Mask)
+                retval.insert(KeyID::MouseMiddle);
+            if (mask & Button3Mask)
+                retval.insert(KeyID::MouseRight);
         }
 
         return retval;

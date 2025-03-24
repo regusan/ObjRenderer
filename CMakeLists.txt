@@ -28,6 +28,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 # X11の設定
 find_package(X11 REQUIRED)
+find_library(XFIXES_LIB NAMES Xfixes)
 include_directories(${X11_INCLUDE_DIR})
 
 # ソースファイルの検索
@@ -37,4 +38,4 @@ file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_executable(Regu3D ${SOURCES})
 
 # リンクライブラリ
-target_link_libraries(Regu3D ${X11_LIBRARIES} OpenMP::OpenMP_CXX)
+target_link_libraries(Regu3D ${X11_LIBRARIES} ${XFIXES_LIB} OpenMP::OpenMP_CXX)
