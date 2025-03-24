@@ -1,11 +1,13 @@
-# ObjRenderer
+# ObjRenderer + ReguEngine
 
 # DEMOs
 https://github.com/user-attachments/assets/d3723aea-6997-4102-ab67-70e1ea449652
 
 https://github.com/user-attachments/assets/4f3b877d-1ed6-4ca4-b31a-02768c429276
 
+[SuicaGameLikeDemo][https://youtu.be/J_MNxFds-0Q/0](https://youtu.be/J_MNxFds-0Q)
 
+This demo is On [/src/Eaxmples/SphereGame](https://github.com/regusan/ObjRenderer/tree/main/src/Eaxmples/SphereGame)
 |  |  |
 | ---- | ---- |
 |![beauty](https://github.com/user-attachments/assets/6f26296d-c238-4026-96bf-2f69830eabf3) | ![beauty](https://github.com/user-attachments/assets/32dc5594-6cc9-43ea-b99e-b416e7fb00bd) |
@@ -13,6 +15,7 @@ https://github.com/user-attachments/assets/4f3b877d-1ed6-4ca4-b31a-02768c429276
 
 # Features
 - Software Rendering(C++)
+- GameEngine
 ### Rendering Features
 - Smooth Shading
 - Deferred Rendering
@@ -21,6 +24,12 @@ https://github.com/user-attachments/assets/4f3b877d-1ed6-4ca4-b31a-02768c429276
 - Post Process
 - Texture Sample(Albedo, Roughness, Metalic, Normal)
 - Tessellation + DisplacementMap
+
+### Engine Features
+- Physics
+    - Collisions
+- Resource Manager
+- I/O Manager
 
 ### PostProcesses
 - Screen Space Ambient Occlusion(CryTek)
@@ -108,6 +117,11 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j
 cd ../
 ./build/Regu3D scene/RoomScene.json
+
+#ログ表示
+xterm -e watch -n 0.1 cat resource.log &
+
+xterm -e watch -n -fs 3 0.1 cat hierarchy.log &
 ```
 
 # Customize
