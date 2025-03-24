@@ -5,7 +5,8 @@ https://github.com/user-attachments/assets/d3723aea-6997-4102-ab67-70e1ea449652
 
 https://github.com/user-attachments/assets/4f3b877d-1ed6-4ca4-b31a-02768c429276
 
-[![SuicaGameLikeDemo](https://img.youtube.com/vi/J_MNxFds-0Q/0.jpg)](https://www.youtube.com/watch?v=J_MNxFds-0Q)
+[![SuicaGameLikeDemo](https://github.com/user-attachments/assets/7a7b0069-af47-4e00-accb-f077c6d9b74c
+)](https://www.youtube.com/watch?v=J_MNxFds-0Q)
 
 This demo is in [/src/Eaxmples/SphereGame](https://github.com/regusan/ObjRenderer/tree/main/src/Eaxmples/SphereGame). and run 
 ```bash
