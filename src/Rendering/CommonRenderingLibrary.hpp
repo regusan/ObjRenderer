@@ -13,20 +13,31 @@
 using namespace std;
 namespace RenderingPipeline
 {
-    inline bool isInFrustum(const vector<VertOutputStandard> &poly)
+    inline bool isAllVertInFrustum(const vector<VertOutputStandard> &poly)
     {
-        bool anyInBox = false;
         for (const VertOutputStandard &vert : poly)
         {
             bool inBox = true;
             inBox &= -1 < vert.positionNDC.x() && vert.positionNDC.x() < 1;
             inBox &= -1 < vert.positionNDC.y() && vert.positionNDC.y() < 1;
             inBox &= 0 < vert.positionNDC.z() && vert.positionNDC.z() < 1;
-            anyInBox |= inBox;
-            // if (!inBox) // フラスタム外の頂点が含まれていたらFalse
-            //   return true;
+            if (!inBox) // フラスタム外の頂点が含まれていたらFalse
+                return false;
         }
-        return anyInBox; // 全ての頂点はフラスタム内
+        return true; // 全ての頂点はフラスタム内
+    }
+    inline bool isAnyVertInFrustum(const vector<VertOutputStandard> &poly)
+    {
+        for (const VertOutputStandard &vert : poly)
+        {
+            bool inBox = true;
+            inBox &= -1 < vert.positionNDC.x() && vert.positionNDC.x() < 1;
+            inBox &= -1 < vert.positionNDC.y() && vert.positionNDC.y() < 1;
+            inBox &= 0 < vert.positionNDC.z() && vert.positionNDC.z() < 1;
+            if (inBox) // フラスタム内の頂点が含まれていたらTrue
+                return true;
+        }
+        return false; // 全ての頂点はフラスタム外
     }
 
     /// @brief VertOut配列をPixcelIn配列に変換

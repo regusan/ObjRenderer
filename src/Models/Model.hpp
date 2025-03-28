@@ -11,14 +11,17 @@
 #include <stdexcept>
 #include "../header/EigenHeader.hpp"
 #include "../header/ShaderHeader.hpp"
+#include "../Math/BoundingBox3D.hpp"
 #include "Material.hpp"
 using namespace std;
 class Model : public REngine::RAsset
 {
 private:
     void loadObj(const filesystem::path &filepath);
+    void CalcBoundingBox();
 
 public:
+    BoundingBox3D bounds;
     Model(/* args */);
     ~Model();
     filesystem::path loadedFilepath = "";
@@ -55,20 +58,20 @@ public:
 
     inline Material &GetMaterialFromFaceIndex(const int faceIndex)
     {
-        return (materials.empty()) ? defaultMaterial : materials[materialNames[materialID[faceIndex]]];
+        return (materials.empty()) ? defaultMaterial : materials.at(materialNames[materialID[faceIndex]]);
     }
 
-    inline const Vector4f GetNormalFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex)
+    inline const Vector4f GetNormalFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex) const
     {
         static const Vector4f defaultNormal = Vector4f(1, 0, 0, 1);
         return (this->vertNormals.empty()) ? defaultNormal : this->vertNormals[(this->normalID[faceIndex])[vertIndex]];
     }
-    inline const Vector4f GetPositionFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex)
+    inline const Vector4f GetPositionFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex) const
     {
         static const Vector4f defaultPosiiton = Vector4f(1, 0, 0, 1);
         return (this->verts.empty()) ? defaultPosiiton : this->verts[(this->facesID[faceIndex])[vertIndex]];
     }
-    inline const Vector2f GetUVFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex)
+    inline const Vector2f GetUVFromFaceIndexAndVertIndex(const int faceIndex, const int vertIndex) const
     {
         static const Vector2f defaultUV = Vector2f(0, 0);
         return (this->uv.empty()) ? defaultUV : this->uv[(this->uvID[faceIndex])[vertIndex]];

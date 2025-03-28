@@ -9,19 +9,21 @@ namespace REngine
     bool BoundingBox3D::IsPointInBox(const Vector3f &point)
     {
         Vector3f halfSize = this->size / 2;
+        Vector3f fixedPos = point - this->position;
         // 各軸について指定範囲内にいたら1
-        return (-halfSize.x() <= point.x() && point.x() <= halfSize.x()) &&
-               (-halfSize.y() <= point.y() && point.y() <= halfSize.y()) &&
-               (-halfSize.z() <= point.z() && point.z() <= halfSize.z());
+        return (-halfSize.x() <= fixedPos.x() && fixedPos.x() <= halfSize.x()) &&
+               (-halfSize.y() <= fixedPos.y() && fixedPos.y() <= halfSize.y()) &&
+               (-halfSize.z() <= fixedPos.z() && fixedPos.z() <= halfSize.z());
     }
     // TODO::ボックスのエッジでの計算が曖昧
     bool BoundingBox3D::IsOverlapp(const Vector3f &center, const float radius)
     {
+        Vector3f fixedCentor = center - this->position; // ボックス基準へ
         Vector3f halfSize = this->size / 2 + Vector3f::Ones() * radius;
         // 各軸について指定範囲内にいたら1
-        return (-halfSize.x() <= center.x() && center.x() <= halfSize.x()) &&
-               (-halfSize.y() <= center.y() && center.y() <= halfSize.y()) &&
-               (-halfSize.z() <= center.z() && center.z() <= halfSize.z());
+        return (-halfSize.x() <= fixedCentor.x() && fixedCentor.x() <= halfSize.x()) &&
+               (-halfSize.y() <= fixedCentor.y() && fixedCentor.y() <= halfSize.y()) &&
+               (-halfSize.z() <= fixedCentor.z() && fixedCentor.z() <= halfSize.z());
     }
     float BoundingBox3D::ComputePenetrationDist(const Vector3f &center, const float radius)
     {
@@ -57,5 +59,21 @@ namespace REngine
             fmin(halfSize.x(), fmax(-halfSize.x(), point.x())),
             fmin(halfSize.y(), fmax(-halfSize.y(), point.y())),
             fmin(halfSize.z(), fmax(-halfSize.z(), point.z())));
+    }
+
+    std::vector<Vector3f> BoundingBox3D::GetVertices() const
+    {
+        Vector3f halfSize = this->size * 0.5f;
+        std::vector<Vector3f> vertices = {
+            position + Vector3f(-halfSize.x(), -halfSize.y(), -halfSize.z()),
+            position + Vector3f(halfSize.x(), -halfSize.y(), -halfSize.z()),
+            position + Vector3f(halfSize.x(), halfSize.y(), -halfSize.z()),
+            position + Vector3f(-halfSize.x(), halfSize.y(), -halfSize.z()),
+            position + Vector3f(-halfSize.x(), -halfSize.y(), halfSize.z()),
+            position + Vector3f(halfSize.x(), -halfSize.y(), halfSize.z()),
+            position + Vector3f(halfSize.x(), halfSize.y(), halfSize.z()),
+            position + Vector3f(-halfSize.x(), halfSize.y(), halfSize.z())};
+
+        return vertices;
     }
 }

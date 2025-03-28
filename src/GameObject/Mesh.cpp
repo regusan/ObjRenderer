@@ -19,4 +19,10 @@ namespace REngine
             this->meshModel->VATNormal = AssetSubSystem::getInstance().textureManager.LoadAsset(dir / VATNormalPath);
     }
     MeshActor::~MeshActor() {}
+
+    void MeshActor::toString(ostream &os) const
+    {
+        Actor::toString(os);
+        os << "(Culling=" << C_BLUE << ((this->culled) ? string("Yes") : string("No")) << C_RESET << ")";
+    }
 }

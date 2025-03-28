@@ -8,7 +8,17 @@ bool Model::LoadFromFile(const filesystem::path &filepath)
     this->loadObj(filepath);
     return true;
 }
-
+void Model::CalcBoundingBox()
+{
+    Vector3f size(0, 0, 0);
+    for (const auto &v : verts)
+    {
+        size.x() = max(size.x(), fabs(v.x()));
+        size.y() = max(size.y(), fabs(v.y()));
+        size.z() = max(size.z(), fabs(v.z()));
+    }
+    this->bounds = BoundingBox3D(size);
+}
 void Model::loadObj(const filesystem::path &filepath)
 {
     ifstream file(filepath); // ファイルを開く
@@ -90,7 +100,7 @@ void Model::loadObj(const filesystem::path &filepath)
                 faceNormals.push_back(normalIndex);
             }
 
-            if (faceVerts.size() == 3)
+            if (faceVerts.size() >= 3)
             {
                 facesID.push_back(faceVerts);
                 uvID.push_back(faceUVs);
@@ -125,6 +135,8 @@ void Model::loadObj(const filesystem::path &filepath)
         }
     }
     file.close(); // ファイルを閉じる
+
+    this->CalcBoundingBox();
 }
 
 const string Model::toString()

@@ -20,6 +20,21 @@ namespace Transform
 
 };
 
+inline Matrix4f CalcHomographyMatrix(Vector4f a0, Vector4f a1, Vector4f a2, Vector4f a3, Vector4f b0, Vector4f b1, Vector4f b2, Vector4f b3)
+{
+    Matrix4f original = Matrix4f::Zero();
+    original << a0.x(), a0.y(), a0.z(), a0.w(),
+        a1.x(), a1.y(), a1.z(), a1.w(),
+        a2.x(), a2.y(), a2.z(), a2.w(),
+        a3.x(), a3.y(), a3.z(), a3.w();
+    Matrix4f transformed = Matrix4f::Zero();
+    transformed << b0.x(), b0.y(), b0.z(), b0.w(),
+        b1.x(), b1.y(), b1.z(), b1.w(),
+        b2.x(), b2.y(), b2.z(), b2.w(),
+        b3.x(), b3.y(), b3.z(), b3.w();
+    return original.inverse() * transformed;
+}
+
 /// @brief 指定点の重心座標系での補完率を出力
 /// @param a 頂点
 /// @param b 頂点

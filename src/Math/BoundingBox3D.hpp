@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 #include "../header/EigenHeader.hpp"
 namespace REngine
 {
@@ -9,6 +9,7 @@ namespace REngine
     public:
         ~BoundingBox3D();
         BoundingBox3D(const Vector3f &size);
+        BoundingBox3D() {}
 
         Vector3f position = Vector3f::Zero();
         Vector3f size = Vector3f::Ones();
@@ -37,5 +38,7 @@ namespace REngine
         /// @param point
         /// @return
         Vector3f ComputeNearestBoxFacePos(const Vector3f &point);
+
+        std::vector<Vector3f> GetVertices() const;
     };
 }

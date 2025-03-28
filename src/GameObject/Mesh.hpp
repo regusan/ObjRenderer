@@ -9,10 +9,12 @@ namespace REngine
     {
     private:
     public:
+        bool culled = false;
         shared_ptr<Model> meshModel = nullptr;
         MeshActor();
         MeshActor(json args);
         ~MeshActor();
+        virtual void toString(ostream &os) const;
     };
     GCLASS(MeshActor)
 }

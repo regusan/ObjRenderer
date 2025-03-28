@@ -89,6 +89,18 @@ namespace REngine
             go.toString(os);
             return os;
         }
+
+        template <typename T>
+        static ostream &VectorPrintor(ostream &os, const T &value)
+        {
+            for (int i = 0; i < value.size(); i++)
+            {
+                os << C_BLUE << value[i] << C_RESET;
+                if (i != value.size())
+                    os << ",";
+            }
+            return os;
+        }
     };
     // 文字列生成などの初期化のために使用
     GCLASS_NO_ARG(GameObject)
