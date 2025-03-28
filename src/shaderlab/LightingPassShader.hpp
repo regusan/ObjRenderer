@@ -46,7 +46,7 @@ namespace LighingShader
     inline const Vector3f IBLShader(GBuffers &gbuffers, RenderingEnvironmentParameters &environment,
                                     vector<shared_ptr<LightBaseActor>> lights, int x, int y)
     {
-        constexpr float irradianceStrength = 10;
+        constexpr float irradianceStrength = 1;
 
         // 物体がなければ何もしない
         float depthSampled = gbuffers.depth.SampleColor(x, y).x();
@@ -157,6 +157,7 @@ namespace LighingShader
         // return subsurfaceScattering;
         Vector3f final = DiffuseBRDF * (1.0f - metalicSampled) + specularBRDF + radiation + irradianceSampled * irradianceStrength; // + subsurfaceScattering;
         // gbuffers.reflection.PaintPixel(x, y, final);
+        // return irradianceSampled;
         return final;
     }
 

@@ -140,7 +140,7 @@ namespace PostProcessShader
         int maxSampleNum = (environment.quality == RenderingQuality::Cinema) ? 500 : 10;
         int NoiseCount = maxSampleNum * 10;
         int skipSize = 1;                               // 何ピクセルおきに計算するか
-        constexpr float sphereRadius = 1;               // ランダムにサンプルする球の半径1
+        constexpr float sphereRadius = 3;               // ランダムにサンプルする球の半径1
         constexpr float invisibleDepthThreshold = 1.0f; // この深度以上の遮蔽は可視判定にする→アウトラインの発生抑制
 
         //  ノイズを事前計算
@@ -193,7 +193,7 @@ namespace PostProcessShader
                         float affectRateByDistance = 1 - (factPosVS - positionVS).norm() / sphereRadius;    // 近いほど大きくなる影響度合い
                         float affectRateByAngle = clamp<float>((1 - factNormalVS.dot(normalVS)) / 2, 0, 1); // 正面になるほど大きくなる影響度合い
                         float strength = affectRateByAngle * affectRateByDistance;
-                        bouncedColor = bouncedColor + gbuffers.beauty.SampleColor01(randomSS.x(), randomSS.y()) * strength;
+                        bouncedColor = bouncedColor + gbuffers.diffuse.SampleColor01(randomSS.x(), randomSS.y()) * strength;
                     }
                 }
                 float ratio = fmin(1, static_cast<float>(visibleCount) / maxSampleNum); // 可視サンプル数から比率を計算
