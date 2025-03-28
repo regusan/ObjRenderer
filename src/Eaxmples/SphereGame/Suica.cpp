@@ -1,7 +1,6 @@
 
 #include "../../GameObject/Scene.hpp"
 #include "Suica.hpp"
-#include "../ShooterSample/ShooterGameCollisionLayer.hpp"
 namespace REngine::SphereGame
 {
     using namespace REngine;
