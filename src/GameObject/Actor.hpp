@@ -108,7 +108,7 @@ namespace REngine
 
         static json JsonArgParse(json args);
         Matrix4f getWorldMat() const;
-        void toString(ostream &os) const override;
+        virtual void toString(ostream &os) const override;
         Actor(/* args */);
         Actor(json args);
         ~Actor();

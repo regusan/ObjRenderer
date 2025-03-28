@@ -154,6 +154,8 @@ namespace REngine
     void Actor::SetParent(weak_ptr<Actor> parent)
     {
         this->parent = parent;
+        if (auto lockedParent = parent.lock())
+            lockedParent->children.push_back(static_pointer_cast<Actor>(this->shared_from_this()));
         this->matUpdate();
     }
     void Actor::DettachParent()
