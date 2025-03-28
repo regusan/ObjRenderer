@@ -55,7 +55,9 @@ void UpdateHierarchyLog(Scene &scene, ofstream file);
 void UpdateResourceLog(ofstream file);
 
 /// @brief 高解像度スナップショットを撮る
-void TakeHiResSnapShot();
+void TakeHiResSnapShot(RenderingEnvironmentParameters &environment, Scene &scene);
+
+void ExecRendering(GBuffers &_gb, Scene &_scene, RenderingEnvironmentParameters &environment);
 
 RenderingEnvironmentParameters environment = RenderingEnvironmentParameters();
 VertInputStandard in = VertInputStandard(environment);
@@ -63,11 +65,15 @@ Scene scene = Scene();
 string sceneFileName = "";
 
 const string configFileName = "config.json";
+
+/// @brief エンジンのメインループ
+/// @param argc
+/// @param argv
+/// @return
 int main(int argc, char const *argv[])
 {
     // 初期化処理
-    cout << "起動" << endl;
-
+    cout << "ReguEngine起動中..." << endl;
     if (argc >= 2)
     {
         ReloadScene(argv[1]);
@@ -79,17 +85,18 @@ int main(int argc, char const *argv[])
     }
 
     // コンフィグの読み取り
+    cout << "コンフィグ読み込み中..." << endl;
     environment.loadFromJson(JsonOpener(configFileName));
-    cout << environment << endl;
-
-    // カメラ初期設定
-    shared_ptr<Camera> primaryCamera;
+    cout << "コンフィグ読み込み完了" << endl;
 
     // 描画先初期化
+    cout << "描画先初期化中..." << endl;
     X11Display display(environment.screenSize.x() * environment.upscaleRate, environment.screenSize.y() * environment.upscaleRate);
     GBuffers gb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
     InputSubSystem::getInstance().display = &display;
+    cout << "描画先初期化完了" << endl;
 
+    cout << "ReguEngine初期化完了" << endl;
     while (true)
     {
         scene.ExecBeginPlay();
@@ -97,86 +104,7 @@ int main(int argc, char const *argv[])
         float deltasecond = scene.ExecTick();
         scene.ExecDestroyObject();
 
-        // 初めに取得したカメラでレンダリング設定
-        if (primaryCamera)
-        {
-            environment.viewMat = in.viewMat = primaryCamera->getWorldMat().inverse();
-            primaryCamera->speed = environment.cameraSpeed;
-        }
-        // カメラがなかったら取得を試みる
-        else if (!scene.GetObjectsOfClass<Camera>().empty())
-        {
-            primaryCamera = scene.GetObjectsOfClass<Camera>()[0].lock();
-        }
-
-        // ライトの収集
-        auto lightswp = scene.GetObjectsOfClass<LightBaseActor>();
-        environment.setCurrentTIme();
-        environment.lights.clear();
-        environment.lights.reserve(lightswp.size());
-        for (auto &wp : lightswp)
-        {
-            if (auto sp = wp.lock())
-                environment.lights.push_back(sp);
-        }
-
-        // 各レンダリングパスを実行
-        // GBufferのクリア
-        gb.Clear();
-        if (environment.quality >= RenderingQuality::Low)
-        {
-            auto meshes = scene.GetObjectsOfClass<MeshActor>();
-            // cout << scene << endl;
-            for (auto &mesh : meshes)
-            {
-                if (auto sp = mesh.lock())
-                {
-                    in.modelMat = sp->getWorldMat();
-                    RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, gb, VertStandard, PixcelStandard);
-                }
-            }
-
-            // RenderingPipeline::Lighting::ExecLightGeometryPass(primaryModel, in, gb, VertStandard, PixcelStandard);
-
-            // Low未満ではそもそもパスを実行しない
-            if (environment.quality > RenderingQuality::Low)
-            {
-                // PostProcessShader::ScreenSpaceShadow(gb, environment);
-                PostProcessShader::ScreenSpaceReflection(gb, environment);
-            }
-            RenderingPass::ExecLightingPass(gb, LighingShader::IBLShader, environment);
-            if (environment.quality > RenderingQuality::Low)
-            {
-                PostProcessShader::SSAOPlusSSGI(gb, environment);
-            }
-            RenderingPass::ExecScanPass(gb, LighingShader::BackGroundLighingShader, environment);
-            if (environment.quality > RenderingQuality::Low)
-            {
-                PostProcessShader::BloomWithDownSampling(gb, environment, 10.0f);
-            }
-            PostProcessShader::AutoExposure(gb, environment);
-        }
-        else
-        {
-            auto meshes = scene.GetObjectsOfClass<MeshActor>();
-            for (auto mesh : meshes)
-            {
-                if (auto sp = mesh.lock())
-                {
-                    in.modelMat = sp->getWorldMat();
-                    RenderingPipeline::Forward::ExecWireFramePass(*sp->meshModel, in, gb, VertStandard);
-                }
-            }
-        }
-        if (environment.drawDebugShape)
-        { // デバッグ用メッシュをワイヤフレームで描画
-            for (auto &model : DebugDrawSubSystem::getInstance().wireFrameDrawCall)
-            {
-                in.modelMat = model->getWorldMat();
-                RenderingPipeline::Forward::ExecWireFramePass(*model->meshModel, in, gb, VertStandard);
-            }
-            DebugDrawSubSystem::getInstance().wireFrameDrawCall.clear();
-        }
+        ExecRendering(gb, scene, environment);
 
         //   GBufferからデバイスコンテキストにコピーし、表示
         RenderTarget &rt = gb.getRTFromString(environment.buffer2Display);
@@ -195,18 +123,14 @@ int main(int argc, char const *argv[])
             environment.loadFromJson(JsonOpener(configFileName));
             ReloadScene(sceneFileName);
         }
-
         if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Space).isPressed)
-        {
-            TakeHiResSnapShot();
-        }
+            TakeHiResSnapShot(environment, scene);
 
         if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Escape).isPressed)
         {
             display.~X11Display();
             exit(0);
         }
-
         if (InputSubSystem::getInstance().GetKeyStatus(KeyID::Num1).isPressed)
             environment.quality = RenderingQuality::Wire;
 
@@ -276,7 +200,86 @@ void UpdateResourceLog(ofstream file)
     }
 }
 
-void TakeHiResSnapShot()
+void ExecRendering(GBuffers &_gb, Scene &_scene, RenderingEnvironmentParameters &environment)
+{
+    if (!_scene.GetObjectsOfClass<Camera>().empty())
+    {
+        auto camera = _scene.GetObjectsOfClass<Camera>()[0];
+        if (auto unlocked = camera.lock())
+            environment.viewMat = in.viewMat = unlocked->getWorldMat().inverse();
+    }
+
+    // ライトの収集
+    auto lightswp = _scene.GetObjectsOfClass<LightBaseActor>();
+    environment.setCurrentTIme();
+    environment.lights.clear();
+    environment.lights.reserve(lightswp.size());
+    for (auto &wp : lightswp)
+        if (auto sp = wp.lock())
+            environment.lights.push_back(sp);
+
+    // 各レンダリングパスを実行
+    // GBufferのクリア
+    _gb.Clear();
+    if (environment.quality >= RenderingQuality::Low)
+    {
+        auto meshes = _scene.GetObjectsOfClass<MeshActor>();
+        for (auto &mesh : meshes)
+        {
+            if (auto sp = mesh.lock())
+            {
+                in.modelMat = sp->getWorldMat();
+                if (RenderingPipeline::BBFrustomCulling(sp->meshModel->bounds, in.viewMat, in.modelMat))
+                {
+                    RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, _gb, VertStandard, PixcelStandard);
+                    sp->culled = false;
+                }
+                else
+                {
+                    sp->culled = true;
+                }
+            }
+        }
+
+        // Low以下ではパスを実行しない
+        if (environment.quality > RenderingQuality::Low)
+        {
+            // PostProcessShader::ScreenSpaceShadow(gb, environment);
+            PostProcessShader::ScreenSpaceReflection(_gb, environment);
+            PostProcessShader::SSAOPlusSSGI(_gb, environment);
+        }
+        RenderingPass::ExecLightingPass(_gb, LighingShader::IBLShader, environment);
+        RenderingPass::ExecScanPass(_gb, LighingShader::BackGroundLighingShader, environment);
+        if (environment.quality > RenderingQuality::Low)
+        {
+            PostProcessShader::BloomWithDownSampling(_gb, environment, 10.0f);
+        }
+        PostProcessShader::AutoExposure(_gb, environment);
+    }
+    else
+    {
+        auto meshes = _scene.GetObjectsOfClass<MeshActor>();
+        for (auto mesh : meshes)
+        {
+            if (auto sp = mesh.lock())
+            {
+                in.modelMat = sp->getWorldMat();
+                RenderingPipeline::Forward::ExecWireFramePass(*sp->meshModel, in, _gb, VertStandard);
+            }
+        }
+    }
+    if (environment.drawDebugShape)
+    { // デバッグ用メッシュをワイヤフレームで描画
+        for (auto &model : DebugDrawSubSystem::getInstance().wireFrameDrawCall)
+        {
+            in.modelMat = model->getWorldMat();
+            //  RenderingPipeline::Forward::ExecWireFramePass(*model->meshModel, in, gb, VertStandard);
+        }
+        DebugDrawSubSystem::getInstance().wireFrameDrawCall.clear();
+    }
+}
+
+void TakeHiResSnapShot(RenderingEnvironmentParameters &environment, Scene &scene)
 {
     cout << "キャプチャ開始" << endl;
     Vector2i preResolution = environment.screenSize;
@@ -285,42 +288,9 @@ void TakeHiResSnapShot()
     environment.screenSize = Vector2i(2048, 2048);
     environment.quality = RenderingQuality::Cinema;
 
-    auto meshes = scene.GetObjectsOfClass<MeshActor>();
-
-    // 反射キャプチャのための事前レンダリング
-    GBuffers prehigb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
-
-    for (auto &mesh : meshes)
-    {
-        if (auto sp = mesh.lock())
-        {
-            in.modelMat = sp->getWorldMat();
-            RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, prehigb, VertStandard, PixcelStandard);
-        }
-    }
-    PostProcessShader::ScreenSpaceShadow(prehigb, environment);
-    PostProcessShader::ScreenSpaceReflection(prehigb, environment);
-    RenderingPass::ExecTileBasedLightingPass(prehigb, LighingShader::IBLShader, environment);
-
     GBuffers higb = GBuffers(environment.screenSize.x(), environment.screenSize.y());
-    higb.preBeauty = prehigb.beauty;
-    for (auto &mesh : meshes)
-    {
-        if (auto sp = mesh.lock())
-        {
-            in.modelMat = sp->getWorldMat();
-            RenderingPipeline::Deffered::ExecGeometryPass(*sp->meshModel, in, higb, VertStandard, PixcelStandard);
-        }
-    }
-    PostProcessShader::ScreenSpaceShadow(higb, environment);
-    PostProcessShader::ScreenSpaceReflection(higb, environment);
-    RenderingPass::ExecTileBasedLightingPass(higb, LighingShader::IBLShader, environment);
-    PostProcessShader::SSAOPlusSSGI(higb, environment);
-    PostProcessShader::BloomWithDownSampling(higb, environment, 5);
-    PostProcessShader::AutoExposure(higb, environment);
-    RenderingPass::ExecScanPass(higb, LighingShader::BackGroundLighingShader, environment);
-
-    cout << "レンダリング終了" << endl;
+    ExecRendering(higb, scene, environment); // 反射キャプチャのための事前レンダリング
+    ExecRendering(higb, scene, environment);
 
     auto now = std::chrono::system_clock::now();
     auto now_time_t = std::chrono::system_clock::to_time_t(now);
