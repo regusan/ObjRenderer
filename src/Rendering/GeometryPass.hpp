@@ -14,6 +14,7 @@
 using namespace std;
 namespace RenderingPipeline
 {
+    bool BBFrustomCulling(const BoundingBox3D &bb, const Matrix4f &view, const Matrix4f &modelMat);
     namespace Deffered
     {
         /// @brief DefferedRenderingで3Dモデルをレンダーターゲットに描画する
@@ -42,20 +43,7 @@ namespace RenderingPipeline
             GBuffers &gb,
             const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
     }
-    namespace Lighting
-    {
-        void ExecLightGeometryPass(
-            Model &model,
-            const VertInputStandard &in,
-            GBuffers &gb,
-            const VertOutputStandard (*vert)(const VertInputStandard &in),
-            const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in));
-        void FillLightPolygon(
-            const vector<PixcelInputStandard> &points,
-            Vector3f centorPosVS,
-            GBuffers &gb,
-            const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in));
-    }
+
     namespace Tessellation
     {
         /// @brief 三角形を指定面積に分割するのに必要な回数を計算

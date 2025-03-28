@@ -23,11 +23,11 @@ inline const VertOutputStandard VertStandard(const VertInputStandard &in)
     out.positionWS = in.modelMat * out.positionOS; // モデル座標→ワールド座標
     out.positionVS = in.viewMat * out.positionWS;  // ワールド座標→カメラ座標
     // カメラ座標→クリップ座標（Z割)
-    out.positionCS = Vector4f(out.positionVS.x() / out.positionVS.z(),
-                              out.positionVS.y() / out.positionVS.z(),
+    out.positionCS = Vector4f(out.positionVS.x() / fabs(out.positionVS.z()),
+                              out.positionVS.y() / fabs(out.positionVS.z()),
                               out.positionVS.z(), 1);
     // クリップ座標→正規化デバイス座標
-    out.positionNDC = Vector4f(out.positionCS.x(), out.positionCS.y(), (out.positionCS.z() - in.environment.nearClip) / (in.environment.farClip - in.environment.nearClip), 1);
+    out.positionNDC = Vector4f(out.positionCS.x(), out.positionCS.y(), fabs((out.positionCS.z() - in.environment.nearClip) / (in.environment.farClip - in.environment.nearClip)), 1);
     // 正規化デバイス座標系→ディスプレイ座標系
     out.positionSS = Vector4f((out.positionNDC.x() + 1) * 0.5 * in.environment.screenSize.x(),
                               (out.positionNDC.y() + 1) * 0.5 * in.environment.screenSize.y(),

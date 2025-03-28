@@ -2,7 +2,7 @@
 #define PARALLEL_FOR_TRANSFORM
 namespace RenderingPipeline
 {
-    Vector3f EncordVAT(shared_ptr<Texture2D> vat, int index, float time)
+    Vector3f EncodeVAT(shared_ptr<Texture2D> vat, int index, float time)
     {
         if (vat)
         {
@@ -16,7 +16,119 @@ namespace RenderingPipeline
             return Vector3f::Zero();
         }
     }
+    void ApplyVAT(VertInputStandard &vin, const int vertexId, const float time, const shared_ptr<Texture2D> &vatPos, const shared_ptr<Texture2D> &vatNormal)
+    {
+        if (vatPos)
+        {
+            Vector3f pos3f = EncodeVAT(vatPos, vertexId, time);
+            vin.position += Vector4f(pos3f.x(), pos3f.y(), pos3f.z(), 0);
+        }
 
+        if (vatNormal)
+        {
+            Vector3f norm3f = EncodeVAT(vatNormal, vertexId, time);
+            vin.normal = Vector4f(norm3f.x(), norm3f.y(), norm3f.z(), 1);
+        }
+    }
+    bool BBFrustomCulling(const BoundingBox3D &bb, const Matrix4f &view, const Matrix4f &modelMat)
+    {
+        auto vertices = bb.GetVertices();
+        for (auto vert : vertices)
+        {
+            Vector4f posOS = Vector4f(vert.x(), vert.y(), vert.z(), 1);
+            Vector4f posWS = modelMat * posOS;
+            Vector4f posVS = view * posWS;
+            if (posVS.z() > 0)
+                return true;
+        }
+        return false;
+    }
+    struct VertShaderResult
+    {
+        vector<VertInputStandard> vins;
+        vector<VertOutputStandard> vertOuts;
+    };
+
+    /// @brief 面毎に頂点シェーダーを実行し、結果を返す
+    /// @param faceIndex
+    /// @param model
+    /// @param in
+    /// @param vert
+    /// @return
+    VertShaderResult ExecVertShaderEachFace(
+        const int faceIndex,
+        Model &model,
+        const VertInputStandard &in,
+        const VertOutputStandard (*vert)(const VertInputStandard &in))
+    {
+        VertInputStandard vin = in;
+        VertShaderResult result;
+
+        const vector<int> &face = model.facesID[faceIndex];
+        vin.material = &model.GetMaterialFromFaceIndex(faceIndex);
+
+        // 面を構成する各頂点IDについてFor
+        vector<VertOutputStandard> outs;
+        vector<VertInputStandard> vins;
+
+        result.vins.reserve(face.size());
+        result.vertOuts.reserve(face.size());
+        for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
+        {
+            vin.position = model.GetPositionFromFaceIndexAndVertIndex(faceIndex, vertIndex);
+            vin.normal = model.GetNormalFromFaceIndexAndVertIndex(faceIndex, vertIndex);
+            vin.uv = model.GetUVFromFaceIndexAndVertIndex(faceIndex, vertIndex);
+            ApplyVAT(vin, vertIndex, in.environment.time, model.VATPos, model.VATNormal);
+
+            VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
+            result.vertOuts.push_back(out);     // 描画待ち配列に追加
+            result.vins.push_back(vin);
+        }
+        return result;
+    }
+
+    vector<vector<VertOutputStandard>> ExecTessellationPass(
+        VertShaderResult &vertResult,
+        const vector<int> &face,
+        const VertInputStandard &vin,
+        const VertOutputStandard (*vert)(const VertInputStandard &in))
+    {
+        int tessCount = 0;
+        // バンプマップがあるときのみ分割
+        if (vin.material && vin.material->bumpMap)
+            tessCount = Tessellation::CalcTessLevel(
+                vertResult.vertOuts[0].positionSS.head<2>(),
+                vertResult.vertOuts[1].positionSS.head<2>(),
+                vertResult.vertOuts[2].positionSS.head<2>(), 200, vin.environment.MaxTesselleateCount);
+        auto tessVIns = Tessellation::TessellateSpecificArea(vertResult.vins, tessCount);
+        vector<vector<VertOutputStandard>> tessVOuts;
+        tessVOuts.reserve(tessVIns.size());
+        for (size_t tessIndex = 0; tessIndex < tessVIns.size(); tessIndex++)
+        {
+            vector<VertOutputStandard> tmpouts;
+            tmpouts.reserve(face.size());
+            for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
+                tmpouts.push_back(vert(tessVIns[tessIndex][vertIndex]));
+            tessVOuts.push_back(tmpouts);
+        }
+        return tessVOuts;
+    }
+
+    bool ShouldCullFace(const vector<VertOutputStandard> &vertices, const RenderingEnvironmentParameters &env)
+    {
+        Vector3f normal = GeometryMath::ComputeFaceNormal(
+            vertices[0].positionVS.head<3>(),
+            vertices[1].positionVS.head<3>(),
+            vertices[2].positionVS.head<3>());
+
+        Vector3f center = (vertices[0].positionVS + vertices[1].positionVS + vertices[2].positionVS).head<3>() / 3;
+        float orientation = normal.dot(center);
+
+        // バックフェースカリングのチェック
+        bool backfaceCull = env.backFaceCullingDirection * orientation >= 0 || !env.backfaceCulling;
+
+        return backfaceCull && isAnyVertInFrustum(vertices);
+    }
     namespace Deffered
     {
         void ExecGeometryPass(
@@ -28,75 +140,29 @@ namespace RenderingPipeline
         {
             VertInputStandard nonparallel_vin = in;
             nonparallel_vin.environment.screenSize = gb.beauty.getScreenSize();
+
 //  各面についてFor(並列処理)
 #ifdef PARALLEL_FOR_TRANSFORM
 #pragma omp parallel for
 #endif
-
             for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
             {
+
                 VertInputStandard vin = nonparallel_vin;
                 const vector<int> face = model.facesID[faceIndex];
-                vin.material = (!model.materials.empty()) ? &model.materials[model.materialNames[model.materialID[faceIndex]]] : &model.defaultMaterial;
-
-                // 面を構成する各頂点IDについてFor
-                vector<VertOutputStandard> outs;
-                vector<VertInputStandard> vins;
-                for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
-                {
-                    vin.position = model.GetPositionFromFaceIndexAndVertIndex(faceIndex, vertIndex);
-                    vin.normal = model.GetNormalFromFaceIndexAndVertIndex(faceIndex, vertIndex);
-                    vin.uv = model.GetUVFromFaceIndexAndVertIndex(faceIndex, vertIndex);
-                    if (model.VATPos)
-                    {
-                        Vector3f pos3f = RenderingPipeline::EncordVAT(model.VATPos, face[vertIndex], in.environment.time);
-                        vin.position += Vector4f(pos3f.x(), pos3f.y(), pos3f.z(), 0);
-                    }
-                    if (model.VATNormal)
-                    {
-                        Vector3f norm3f = RenderingPipeline::EncordVAT(model.VATNormal, face[vertIndex], in.environment.time);
-                        vin.normal = Vector4f(norm3f.x(), norm3f.y(), norm3f.z(), 1); // z-upからy-upに変換
-                    }
-                    VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
-                    outs.push_back(out);                // 描画待ち配列に追加
-                    vins.push_back(vin);
-                }
-
-                if (outs.size() < 3) // 面以外は処理しない
+                if (face.size() < 3) // 三角面未満なら描画できない
                     continue;
+                auto vertResult = ExecVertShaderEachFace(faceIndex, model, vin, vert);
 
-                // テッセレーション処理開始
-                int tessCount = 0;
-                // バンプマップがあるときのみ分割
-                if (vin.material->bumpMap)
-                    tessCount = Tessellation::CalcTessLevel(
-                        outs[0].positionSS.head<2>(),
-                        outs[1].positionSS.head<2>(),
-                        outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
-                auto tessVIns = Tessellation::TessellateSpecificArea(vins, tessCount);
-                vector<vector<VertOutputStandard>> tessVOuts;
-                for (size_t tessIndex = 0; tessIndex < tessVIns.size(); tessIndex++)
-                {
-                    vector<VertOutputStandard> tmpouts;
-                    for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
-                        tmpouts.push_back(vert(tessVIns[tessIndex][vertIndex]));
-                    tessVOuts.push_back(tmpouts);
-                }
+                auto tessVOuts = ExecTessellationPass(vertResult, face, vin, vert);
 
                 // 分割された各面について
                 for (size_t tessedFaceIndex = 0; tessedFaceIndex < tessVOuts.size(); tessedFaceIndex++)
                 {
-                    vector<VertOutputStandard> &tessOut = tessVOuts[tessedFaceIndex];
-                    Vector3f norm = GeometryMath::ComputeFaceNormal(tessOut[0].positionVS.head<3>(), tessOut[1].positionVS.head<3>(), tessOut[2].positionVS.head<3>());
-                    Vector3f centor = (tessOut[0].positionVS + tessOut[1].positionVS + tessOut[2].positionVS).head<3>() / 3;
-                    float orientation = norm.dot(centor);
-                    bool backfacecull = in.environment.backFaceCullingDirection * orientation >= 0 || !in.environment.backfaceCulling;
-                    bool isFront = tessOut[0].positionVS.z() > 0 && tessOut[1].positionVS.z() > 0 && tessOut[2].positionVS.z() > 0;
-
-                    if (backfacecull && isInFrustum(tessOut) && isFront)
+                    if (ShouldCullFace(tessVOuts[tessedFaceIndex], in.environment))
                     {
                         // 面を一つ描画
-                        SimpleDefferedFillPolygon(RenderingPipeline::VertOuts2PixcelIns(tessOut), gb, *pixcel);
+                        SimpleDefferedFillPolygon(RenderingPipeline::VertOuts2PixcelIns(tessVOuts[tessedFaceIndex]), gb, *pixcel);
                     }
                 }
             }
@@ -146,6 +212,7 @@ namespace RenderingPipeline
                 // 塗りつぶす部分を設定（交差点でペアになるx座標間を塗りつぶす）
                 for (size_t i = 0; i < intersections.size(); i += 2)
                 {
+
                     // 線分間で補完するための値
                     Vector3f startUVW = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
                                                                       points[1].positionSS.head<2>(),
@@ -205,7 +272,6 @@ namespace RenderingPipeline
                 }
             }
         }
-
     }
     namespace Tessellation
     {
@@ -274,164 +340,7 @@ namespace RenderingPipeline
             return logs.back();
         }
     }
-    namespace Lighting
-    {
-        void ExecLightGeometryPass(
-            Model &model,
-            const VertInputStandard &in,
-            GBuffers &gb,
-            const VertOutputStandard (*vert)(const VertInputStandard &in),
-            const PixcelOutputStandard (*pixcel)(const PixcelInputStandard &in))
-        {
-            VertInputStandard nonparallel_vin = in;
-            nonparallel_vin.environment.screenSize = gb.beauty.getScreenSize();
 
-//  各面についてFor(並列処理)
-#ifdef PARALLEL_FOR_TRANSFORM
-#pragma omp parallel for
-#endif
-            for (unsigned long int faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
-            {
-                if (model.materials[model.materialNames[model.materialID[faceIndex]]].emission.norm() <= 0.0001)
-                    continue;
-                VertInputStandard vin = nonparallel_vin;
-                const vector<int> face = model.facesID[faceIndex];
-                const vector<int> facenorm = model.normalID[faceIndex];
-                const vector<int> faceuv = model.uvID[faceIndex];
-                vin.material = &model.materials[model.materialNames[model.materialID[faceIndex]]];
-
-                // 面を構成する各頂点IDについてFor
-                vector<VertOutputStandard> outs;
-                Vector4f centorPosOS = Vector4f::Zero();
-                for (unsigned long int vertIndex = 0; vertIndex < face.size(); vertIndex++)
-                {
-                    constexpr float lightScale = 2.0f;
-                    centorPosOS += model.verts[face[vertIndex]];
-                    vin.normal = model.vertNormals[facenorm[vertIndex]];
-                    vin.position = model.verts[face[vertIndex]] + vin.normal * lightScale;
-                    vin.position.w() = 1;
-                    vin.uv = model.uv[faceuv[vertIndex]];
-                    VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
-                    outs.push_back(out);                // 描画待ち配列に追加
-                }
-                centorPosOS /= face.size();
-                Vector4f centorPosVS = in.viewMat * in.modelMat * centorPosOS;
-
-                vector<VertOutputStandard> outsLight;
-                if (outs.size() >= 3 && vin.material->emission.norm() > 0)
-                {
-                    VertInputStandard vinLight = nonparallel_vin;
-                    for (unsigned long int vertIndex = 0; vertIndex < face.size(); vertIndex++)
-                    {
-                        vinLight.normal = model.vertNormals[facenorm[vertIndex]];
-                        vinLight.position = model.verts[face[vertIndex]];
-                        vinLight.uv = model.uv[faceuv[vertIndex]];
-                        VertOutputStandard out = vert(vinLight); // 頂点シェーダーでクリップ座標系に変換
-                        outsLight.push_back(out);                // 描画待ち配列に追加
-                    }
-
-                    bool isFront = outs[0].positionVS.z() > 0 && outs[1].positionVS.z() > 0 && outs[2].positionVS.z() > 0;
-
-                    if (isInFrustum(outsLight) && isFront)
-                    {
-                        // 面を一つ描画
-                        FillLightPolygon(RenderingPipeline::VertOuts2PixcelIns(outs), centorPosVS.head<3>(), gb, *pixcel);
-                    }
-                }
-            }
-        }
-
-        void FillLightPolygon(
-            const vector<PixcelInputStandard> &points,
-            Vector3f centorPosVS,
-            GBuffers &gb,
-            const PixcelOutputStandard (&pixcel)(const PixcelInputStandard &in))
-        {
-            // BBをディスプレイサイズで初期化
-            int minX = gb.screenSize.x(), minY = gb.screenSize.y(), maxX = 0, maxY = 0;
-            // BBを計算
-            for (const auto &point : points)
-            {
-                minX = min((float)minX, point.positionSS.x());
-                minY = min((float)minY, point.positionSS.y());
-                maxX = max((float)maxX, point.positionSS.x());
-                maxY = max((float)maxY, point.positionSS.y());
-            }
-            // ディスプレイにフィッティング
-            minX = max(minX, 0);
-            minY = max(minY, 0);
-            maxX = min(maxX, gb.screenSize.x() - 1);
-            maxY = min(maxY, gb.screenSize.y() - 1);
-
-            for (int y = minY; y <= maxY; ++y)
-            {
-                vector<int> intersections;
-                for (unsigned long int i = 0; i < points.size(); ++i)
-                {
-                    const auto &p1 = points[i];
-                    const auto &p2 = points[(i + 1) % points.size()];
-
-                    // 頂点p1とp2がスキャンラインyに交差するなら
-                    if ((p1.positionSS.y() > y && p2.positionSS.y() <= y) || (p1.positionSS.y() <= y && p2.positionSS.y() > y))
-                    {
-                        // 線分がスキャンラインと交差するなら
-                        int xIntersection = p1.positionSS.x() + (y - p1.positionSS.y()) * (p2.positionSS.x() - p1.positionSS.x()) / (p2.positionSS.y() - p1.positionSS.y());
-                        intersections.push_back(xIntersection);
-                    }
-                }
-
-                // x座標で交差点をソート
-                std::sort(intersections.begin(), intersections.end());
-
-                // 塗りつぶす部分を設定（交差点でペアになるx座標間を塗りつぶす）
-                for (unsigned long int i = 0; i < intersections.size(); i += 2)
-                {
-                    // 線分間で補完するための値
-                    Vector3f startUVW = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
-                                                                      points[1].positionSS.head<2>(),
-                                                                      points[2].positionSS.head<2>(),
-                                                                      Vector2f(intersections[i], y));
-                    Vector3f endUVW = computeBarycentricCoordinates(points[0].positionSS.head<2>(),
-                                                                    points[1].positionSS.head<2>(),
-                                                                    points[2].positionSS.head<2>(),
-                                                                    Vector2f(intersections[i + 1], y));
-                    float invScanXLength = 1.0f / (intersections[i + 1] - intersections[i]);
-                    for (int x = intersections[i]; x < intersections[i + 1]; ++x)
-                    {
-                        if (points.size() <= 2)
-                            continue;
-
-                        // 現在のピクセルの重心座標を計算
-                        float interpRatio = (float)(x - intersections[i]) * invScanXLength;
-                        Vector3f uvw = startUVW * (1.0f - interpRatio) + endUVW * interpRatio;
-
-                        // 早期シェーダー用の補完値を計算
-                        Vector4f positionVS = points[0].positionVS * uvw.x() + points[1].positionVS * uvw.y() + points[2].positionVS * uvw.z();
-                        float depth = positionVS.z();
-
-                        // 早期シェーダーのための深度チェックに引っかかったら終了
-                        if (depth > gb.depth.SampleColor(x, y).x())
-                            continue;
-
-                        //  重心座標を元にピクセルの情報を補間
-                        PixcelInputStandard draw = PixcelInputStandard::barycentricLerp(
-                            points[0], points[1], points[2], uvw.x(), uvw.y(), uvw.z());
-                        PixcelOutputStandard out = pixcel(draw);
-                        if (draw.normalVS.dot(positionVS) > 0)
-                        {
-                            gb.lightBackDepth.PaintPixel(x, y, Vector3f(depth, depth, depth));
-                        }
-                        else
-                        {
-                            gb.lightDepth.PaintPixel(x, y, Vector3f(depth, depth, depth));
-                            gb.lightPositionVS.PaintPixel(x, y, centorPosVS);
-                        }
-                        gb.lightDomain.PaintPixel(x, y, gb.lightDomain.SampleColor(x, y).array() + out.diffuse.array() * out.emission.array());
-                    }
-                }
-            }
-        }
-    }
     namespace Forward
     {
         void ExecWireFramePass(
@@ -449,54 +358,20 @@ namespace RenderingPipeline
 #endif
             for (size_t faceIndex = 0; faceIndex < model.facesID.size(); faceIndex++)
             {
+
                 VertInputStandard vin = nonparallel_vin;
                 const vector<int> face = model.facesID[faceIndex];
-                vin.material = &model.GetMaterialFromFaceIndex(faceIndex);
-
-                // 面を構成する各頂点IDについてFor
-                vector<VertOutputStandard> outs;
-                vector<VertInputStandard> vins;
-
-                for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
-                {
-                    vin.position = model.GetPositionFromFaceIndexAndVertIndex(faceIndex, vertIndex);
-                    vin.normal = model.GetNormalFromFaceIndexAndVertIndex(faceIndex, vertIndex);
-                    vin.uv = model.GetUVFromFaceIndexAndVertIndex(faceIndex, vertIndex);
-                    vins.push_back(vin);
-                    VertOutputStandard out = vert(vin); // 頂点シェーダーでクリップ座標系に変換
-                    outs.push_back(out);                // 描画待ち配列に追加
-                }
-                if (outs.size() < 3) // 面以外は処理しない
+                if (face.size() < 3) // 三角面未満なら描画できない
                     continue;
+                auto vertResult = ExecVertShaderEachFace(faceIndex, model, vin, vert);
 
-                // テッセレーション処理開始
-                int tessCount = 0;
-                // バンプマップがあるときのみ分割
-                if (vin.material->bumpMap)
-                    tessCount = Tessellation::CalcTessLevel(
-                        outs[0].positionSS.head<2>(),
-                        outs[1].positionSS.head<2>(),
-                        outs[2].positionSS.head<2>(), 200, in.environment.MaxTesselleateCount);
-                auto tessVIns = Tessellation::TessellateSpecificArea(vins, tessCount);
-                vector<vector<VertOutputStandard>> tessVOuts;
-                for (size_t tessIndex = 0; tessIndex < tessVIns.size(); tessIndex++)
-                {
-                    vector<VertOutputStandard> tmpouts;
-                    for (size_t vertIndex = 0; vertIndex < face.size(); vertIndex++)
-                        tmpouts.push_back(vert(tessVIns[tessIndex][vertIndex]));
-                    tessVOuts.push_back(tmpouts);
-                }
+                auto tessVOuts = ExecTessellationPass(vertResult, face, vin, vert);
 
                 // 分割された各面について
                 for (size_t tessedFaceIndex = 0; tessedFaceIndex < tessVOuts.size(); tessedFaceIndex++)
                 {
-                    vector<VertOutputStandard> &tessOut = tessVOuts[tessedFaceIndex];
-
-                    Vector3f norm = GeometryMath::ComputeFaceNormal(tessOut[0].positionVS.head<3>(), tessOut[1].positionVS.head<3>(), tessOut[2].positionVS.head<3>());
-                    bool backfacecull = in.environment.backFaceCullingDirection * norm.z() >= 0 || !in.environment.backfaceCulling;
-                    bool isFront = tessOut[0].positionVS.z() > 0 && tessOut[1].positionVS.z() > 0 && tessOut[2].positionVS.z() > 0;
-
-                    if (backfacecull && isInFrustum(tessOut) && isFront)
+                    auto tessOut = tessVOuts[tessedFaceIndex];
+                    if (ShouldCullFace(tessOut, in.environment))
                     {
                         for (size_t i = 0; i < tessOut.size() + 1; i++)
                         {
