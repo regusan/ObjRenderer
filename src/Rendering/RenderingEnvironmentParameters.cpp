@@ -48,8 +48,6 @@ void RenderingEnvironmentParameters::loadFromJson(nlohmann::json jsonObj)
         exit(1);
     }
 
-    this->cameraSpeed = renderingSettings["CameraSpeed"];
-
     this->timeScale = renderingSettings["timeScale"];
 
     // HDRI Setup
