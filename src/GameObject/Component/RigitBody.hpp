@@ -48,11 +48,14 @@ namespace REngine::Component
 
         virtual void SetVelocity(const Vector3f &newVelocity);
         virtual void AddImpulse(const Vector3f &acceleration);
+        virtual void AddForce(const Vector3f &force);
 
         void AddTorque(const Vector3f &torque);
         void SetAngularVelocity(const Vector3f &newAngularVelocity);
 
         bool IsSleeping() const;
+
+        virtual void toString(ostream &os) const override;
     };
     GCLASS(RigitBody)
 }

@@ -223,6 +223,11 @@ namespace REngine::Component
         this->lastPosition = unlockedOwner->GetWorldPosition();
         unlockedOwner->SetLocalPosition(unlockedOwner->GetWorldPosition() + moveOffset);
 
+        // 角速度の減衰 (負の値にならないようにクランプ)
+        float dampingFactor = std::max(0.0f, 1.0f - this->angularDamping * deltaTime);
+        this->angularVelocity *= dampingFactor;
+        unlockedOwner->SetLocalRotation(unlockedOwner->rotation + this->angularVelocity * deltaTime);
+
         this->UpdateSleepState();
     }
     void RigitBody::UpdateSleepState()
@@ -244,6 +249,10 @@ namespace REngine::Component
     {
         this->velocity += acceleration;
     }
+    void RigitBody::AddForce(const Vector3f &force)
+    {
+        this->velocity += force;
+    }
     void RigitBody::SetVelocity(const Vector3f &newVelocity)
     {
         this->velocity = newVelocity;
@@ -261,5 +270,15 @@ namespace REngine::Component
     bool RigitBody::IsSleeping() const
     {
         return this->isSleeping;
+    }
+    void RigitBody::toString(ostream &os) const
+    {
+        ActorComponent::toString(os);
+        os << endl
+           << "\t├──Velocity(";
+        this->VectorPrintor(os, this->velocity);
+        os << ")," << "AngularVelocity(";
+        this->VectorPrintor(os, this->angularVelocity);
+        os << ")";
     }
 }
