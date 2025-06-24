@@ -18,7 +18,7 @@ _scene/*
 *.slo
 *.lo
 *.o
-*.obj
+build/*.obj
 !models/*.obj
 # Precompiled Headers
 *.gch
