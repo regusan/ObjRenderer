@@ -58,7 +58,7 @@ jobs:
           cp -r imgs ${ARTIFACT_DIR}/
           cp -r models ${ARTIFACT_DIR}/
           cp -r GameAsset ${ARTIFACT_DIR}/
-          
+          cp -r config.json ${ARTIFACT_DIR}/
           # ドキュメント類もコピー
           cp README.md ${ARTIFACT_DIR}/
           cp LICENSE ${ARTIFACT_DIR}/
