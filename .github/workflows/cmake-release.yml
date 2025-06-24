@@ -31,7 +31,8 @@ jobs:
             libeigen3-dev \
             x11-apps \
             libx11-dev \
-            nlohmann-json3-dev
+            nlohmann-json3-dev \
+            libxfixes-dev
 
       # 3. CMakeのConfigureステップ
       - name: Configure CMake
