@@ -1,0 +1,146 @@
+{
+    "_comment": "シーンの定義ファイル",
+    "GameObjects": {
+        "Camera0": {
+            "_comment": "カメラの定義例",
+            "class": "FPSCamera",
+            "args": {
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            }
+        },
+        "RoadJunction": {
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "GameAsset/Common/City/road_junction.obj"
+            }
+        },
+        "RoadStraight": {
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    0,
+                    0,
+                    -2
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "GameAsset/Common/City/road_straight.obj"
+            }
+        },
+        "CarTaxi": {
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    0,
+                    0,
+                    -4
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "GameAsset/Common/City/car_taxi.obj"
+            }
+        },
+        "CarSedan": {
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    0,
+                    0,
+                    -6
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "GameAsset/Common/City/car_sedan.obj"
+            }
+        },
+        "BuildingE": {
+            "class": "MeshActor",
+            "args": {
+                "position": [
+                    2,
+                    0,
+                    -2
+                ],
+                "rotation": [
+                    0,
+                    1,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "MeshPath": "GameAsset/Common/City/building_E.obj"
+            }
+        },
+        "ColliderBuildingC": {
+            "class": "BoxColliderActor",
+            "args": {
+                "position": [
+                    1,
+                    2,
+                    -2
+                ],
+                "size": [
+                    21.4,
+                    2,
+                    20.345
+                ]
+            }
+        }
+    }
+}
