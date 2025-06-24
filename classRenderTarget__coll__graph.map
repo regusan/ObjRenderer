@@ -1,0 +1,7 @@
+<map id="RenderTarget" name="RenderTarget">
+<area shape="rect" id="Node000001" title="書き込み先の画像" alt="" coords="78,93,186,119"/>
+<area shape="rect" id="Node000002" href="$classREngine_1_1RAsset.html" title="アセット管理のためのインターフェース" alt="" coords="5,5,133,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,40,125,91,121,94,84,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="158,5,234,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,43,143,94,139,91,177,40"/>
+</map>

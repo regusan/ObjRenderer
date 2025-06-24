@@ -1,0 +1,13 @@
+<map id="REngine::Light::RandomWalkPointLightActor" name="REngine::Light::RandomWalkPointLightActor">
+<area shape="rect" id="Node000001" title="ポイントライトのクラス" alt="" coords="5,416,215,456"/>
+<area shape="rect" id="Node000002" href="$classREngine_1_1Light_1_1PointLightActor.html" title="ポイントライトのクラス" alt="" coords="16,328,204,368"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,382,113,416,107,416,107,382"/>
+<area shape="rect" id="Node000003" href="$classREngine_1_1Light_1_1LightBaseActor.html" title="ライトにまつわる仮想クラス" alt="" coords="17,240,203,280"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="113,294,113,328,107,328,107,294"/>
+<area shape="rect" id="Node000004" href="$classREngine_1_1Actor.html" title="シーン上に配置されるオブジェクト" alt="" coords="51,167,169,192"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="113,206,113,240,107,240,107,206"/>
+<area shape="rect" id="Node000005" href="$classREngine_1_1GameObject.html" title="エンジン上で管理されるオブジェクト" alt="" coords="28,93,192,119"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="113,132,113,167,107,167,107,132"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="28,5,192,45"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="113,59,113,93,107,93,107,59"/>
+</map>

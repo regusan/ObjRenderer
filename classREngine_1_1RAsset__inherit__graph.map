@@ -1,0 +1,7 @@
+<map id="REngine::RAsset" name="REngine::RAsset">
+<area shape="rect" id="Node000001" title="アセット管理のためのインターフェース" alt="" coords="27,5,155,31"/>
+<area shape="rect" id="Node000002" href="$classModel.html" title=" " alt="" coords="5,79,68,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="76,43,48,80,43,77,72,40"/>
+<area shape="rect" id="Node000003" href="$classRenderTarget.html" title="書き込み先の画像" alt="" coords="92,79,200,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="111,40,139,77,135,80,107,43"/>
+</map>

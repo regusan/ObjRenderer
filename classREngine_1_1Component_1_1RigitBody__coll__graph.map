@@ -1,0 +1,19 @@
+<map id="REngine::Component::RigitBody" name="REngine::Component::RigitBody">
+<area shape="rect" id="Node000001" title="メッシュを持つアクター" alt="" coords="171,461,329,501"/>
+<area shape="rect" id="Node000002" href="$classREngine_1_1Component_1_1ActorComponent.html" title="コンポーネントの基底クラス" alt="" coords="29,271,188,311"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,320,238,459,233,462,129,323"/>
+<area shape="rect" id="Node000003" href="$classREngine_1_1GameObject.html" title="エンジン上で管理されるオブジェクト" alt="" coords="27,196,191,221"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="111,235,111,271,106,271,106,235"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,93,169,133"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="97,146,109,195,103,196,92,147"/>
+<area shape="rect" id="Node000005" href="$classREngine_1_1Scene.html" title="シーン管理クラス" alt="" coords="194,101,317,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="227,135,128,198,125,194,225,131"/>
+<area shape="rect" id="Node000006" href="$classFileWatcher.html" title="ファイルを監視し、リロードするクラス" alt="" coords="126,5,225,31"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="196,39,247,99,243,102,192,43"/>
+<area shape="rect" id="Node000007" href="$classREngine_1_1TimeManager.html" title="タイマーを管理するマネージャー" alt="" coords="249,5,422,31"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="323,44,303,71,271,102,267,98,299,68,319,41"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="212,278,288,303"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="253,318,253,461,247,461,247,318"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="459,278,534,303"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="502,317,502,345,499,378,489,411,469,439,446,453,412,463,330,476,329,471,411,458,444,448,466,435,484,408,493,377,497,345,497,317"/>
+</map>

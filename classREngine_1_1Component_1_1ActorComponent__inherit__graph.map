@@ -1,0 +1,15 @@
+<map id="REngine::Component::ActorComponent" name="REngine::Component::ActorComponent">
+<area shape="rect" id="Node000001" title="コンポーネントの基底クラス" alt="" coords="187,167,345,207"/>
+<area shape="rect" id="Node000004" href="$classREngine_1_1Component_1_1Collider.html" title="メッシュを持つアクター" alt="" coords="96,255,255,295"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="238,218,197,256,194,253,234,214"/>
+<area shape="rect" id="Node000007" href="$classREngine_1_1Component_1_1RigitBody.html" title="メッシュを持つアクター" alt="" coords="279,255,437,295"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="298,214,339,252,336,256,294,218"/>
+<area shape="rect" id="Node000002" href="$classREngine_1_1GameObject.html" title="エンジン上で管理されるオブジェクト" alt="" coords="184,93,348,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="269,132,269,167,263,167,263,132"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="184,5,348,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="269,59,269,93,263,93,263,59"/>
+<area shape="rect" id="Node000005" href="$classREngine_1_1Component_1_1BoxCollider.html" title="メッシュを持つアクター" alt="" coords="5,343,164,383"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="147,306,107,344,103,341,144,302"/>
+<area shape="rect" id="Node000006" href="$classREngine_1_1Component_1_1SphereCollider.html" title="メッシュを持つアクター" alt="" coords="188,343,347,383"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="207,302,249,340,245,344,204,306"/>
+</map>

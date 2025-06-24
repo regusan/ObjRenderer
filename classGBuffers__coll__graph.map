@@ -1,0 +1,11 @@
+<map id="GBuffers" name="GBuffers">
+<area shape="rect" id="Node000001" title="DefferedRenderingのためのRenderTargetを格納したGBuffer." alt="" coords="55,328,134,353"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,80,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="40,133,35,168,32,212,37,259,52,303,61,316,74,326,71,330,58,319,47,305,32,260,27,212,29,167,34,132"/>
+<area shape="rect" id="Node000003" href="$classRenderTarget.html" title="書き込み先の画像" alt="" coords="105,93,213,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,133,153,212,143,259,126,305,109,330,105,326,122,303,138,258,148,211,156,133"/>
+<area shape="rect" id="Node000004" href="$classREngine_1_1RAsset.html" title="アセット管理のためのインターフェース" alt="" coords="32,5,160,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="115,40,152,91,148,94,110,43"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="185,5,261,31"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="208,43,170,94,165,91,204,40"/>
+</map>
