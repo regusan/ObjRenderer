@@ -1,5 +1,7 @@
 # ObjRenderer + ReguEngine
 
+
+
 # DEMOs
 https://github.com/user-attachments/assets/d3723aea-6997-4102-ab67-70e1ea449652
 
@@ -116,17 +118,15 @@ cd ObjRenderer
 
 # Usage
 ```bash
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j
-cd ../
+cmake -S . -DCMAKE_BUILD_TYPE=Release -B build
+cmake --build build -j
 ./build/Regu3D scene/RoomScene.json
+./build/Regu3D scene/SphereGame.json
 
 #ログ表示
 xterm -e watch -n 0.1 cat resource.log &
 
-xterm -e watch -n -fs 3 0.1 cat hierarchy.log &
+xterm -e watch -n 0.1 cat hierarchy.log &
 ```
 
 # Customize

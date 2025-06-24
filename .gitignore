@@ -8,6 +8,8 @@ src/Experimental/*
 Experimental/*
 !build/config.ini
 outputs/*
+docs/*
+_scene/*
 
 # Prerequisites
 *.d

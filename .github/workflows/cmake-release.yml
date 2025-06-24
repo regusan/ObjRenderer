@@ -1,0 +1,80 @@
+name: Ubuntu Build and Release
+
+# ワークフローが実行されるトリガーを指定
+on:
+  # mainブランチへのプッシュ時
+  push:
+    branches: [ "main" ]
+    tags: [ 'v*.*.*' ] # タグのプッシュ時にも実行
+  # mainブランチへのプルリクエスト時
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    # 実行環境をUbuntuに限定
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. リポジトリのソースコードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. 依存関係のインストール (README.mdの指示に基づく)
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            make \
+            g++ \
+            cmake \
+            libeigen3-dev \
+            x11-apps \
+            libx11-dev \
+            nlohmann-json3-dev
+
+      # 3. CMakeのConfigureステップ
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      # 4. ビルドステップ
+      - name: Build with CMake
+        run: cmake --build build --config Release -- -j
+
+      # === 以下のステップは、タグがプッシュされた時のみ実行される ===
+
+      # 5. リリース用の成果物をパッケージング
+      - name: Package Artifacts
+        # github.refが 'refs/tags/v' で始まる場合のみ、このステップを実行
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          # 成果物用のディレクトリを作成
+          ARTIFACT_DIR="ReguEngine-ObjRenderer-linux-x64"
+          mkdir -p ${ARTIFACT_DIR}
+          
+          # ビルドされた実行ファイルと必要なアセットをコピー
+          cp build/Regu3D ${ARTIFACT_DIR}/
+          cp -r scene ${ARTIFACT_DIR}/
+          cp -r imgs ${ARTIFACT_DIR}/
+          cp -r models ${ARTIFACT_DIR}/
+          cp -r GameAsset ${ARTIFACT_DIR}/
+          
+          # ドキュメント類もコピー
+          cp README.md ${ARTIFACT_DIR}/
+          cp LICENSE ${ARTIFACT_DIR}/
+          
+          # tar.gz形式で圧縮
+          tar -czvf "${ARTIFACT_DIR}.tar.gz" "${ARTIFACT_DIR}"
+
+      # 6. GitHubリリースを作成して成果物をアップロード
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          # 作成した圧縮ファイルを指定
+          files: "*.tar.gz"
+          # リリース名にタグ名を使用
+          name: Release ${{ github.ref_name }}
+          # リリースの説明文（必要に応じて変更）
+          body: "Automated release based on tag."

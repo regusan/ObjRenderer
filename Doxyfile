@@ -1,0 +1,23 @@
+# Doxyfile
+
+# プロジェクト名を設定
+PROJECT_NAME           = "GLVolumeRenderer"
+
+# ドキュメントの出力先となる親フォルダを指定
+OUTPUT_DIRECTORY       = ./docs
+
+#画像アセットパス
+IMAGE_PATH = ./Document
+
+# 解析したいソースコードが格納されているフォルダを指定
+INPUT                  = ./src ./include
+EXCLUDE = ./src/imgui
+
+#  README.mdをDoxygenの入力ファイルとして追加
+INPUT += README.md
+
+# 3. メインページとして使用するMarkdownファイルを指定
+USE_MDFILE_AS_MAINPAGE = README.md
+
+# サブディレクトリも再帰的に解析
+RECURSIVE              = YES
