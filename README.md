@@ -1,6 +1,7 @@
 # ObjRenderer + ReguEngine
 
-
+# Wiki
+[Wiki Page](https://regusan.github.io/ObjRenderer/)
 
 # DEMOs
 https://github.com/user-attachments/assets/d3723aea-6997-4102-ab67-70e1ea449652

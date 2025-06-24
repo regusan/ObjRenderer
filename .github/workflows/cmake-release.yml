@@ -4,11 +4,9 @@ name: Ubuntu Build and Release
 on:
   # mainブランチへのプッシュ時
   push:
-    branches: [ "main" ]
+#    branches: [ "main" ] # デバッグ用
     tags: [ 'v*.*.*' ] # タグのプッシュ時にも実行
   # mainブランチへのプルリクエスト時
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
